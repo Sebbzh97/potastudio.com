@@ -29,6 +29,12 @@ export default async function CookiePageIT() {
       lastUpdated={data?.legalLastUpdated ? `Ultimo aggiornamento: ${data.legalLastUpdated}` : undefined}
       appliesToLabel="Si applica a: potastudio.com"
       body={data?.legalBody ?? null}
+      iubenda={{
+        url: 'https://www.iubenda.com/privacy-policy/31096609/cookie-policy',
+        label: 'Apri la Cookie Policy completa',
+        caption: 'Cookie Policy gestita tramite Iubenda',
+        subCaption: 'Clicca il pulsante per aprire la nostra Cookie Policy completa e sempre aggiornata.',
+      }}
       seeAlsoLabel="Vedi anche:"
       seeAlsoHref="/it/privacy"
       seeAlsoLinkLabel="Privacy Policy"

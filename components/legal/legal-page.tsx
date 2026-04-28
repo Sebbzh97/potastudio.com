@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { PortableText, type PortableTextBlock } from '@portabletext/react'
+import IubendaEmbed from '@/components/legal/iubenda-embed'
 
 interface LegalPageProps {
   eyebrow: string
@@ -10,6 +11,16 @@ interface LegalPageProps {
   seeAlsoLabel: string
   seeAlsoHref: string
   seeAlsoLinkLabel: string
+  /**
+   * If provided, renders the Iubenda embed (button that opens the full policy in a modal)
+   * either alongside the Sanity body (if present) or as the sole content.
+   */
+  iubenda?: {
+    url: string
+    label: string
+    caption?: string
+    subCaption?: string
+  }
 }
 
 export default function LegalPage({
@@ -21,7 +32,9 @@ export default function LegalPage({
   seeAlsoLabel,
   seeAlsoHref,
   seeAlsoLinkLabel,
+  iubenda,
 }: LegalPageProps) {
+  const hasBody = body && body.length > 0
   return (
     <main>
       {/* Hero */}
@@ -48,7 +61,7 @@ export default function LegalPage({
       <section className="py-20 bg-[#0D0D0D]">
         <div className="container-site" style={{ maxWidth: '56rem' }}>
           <div className="legal-body text-[#B0B0B0] text-sm leading-[1.85]">
-            {body && body.length > 0 ? (
+            {hasBody ? (
               <PortableText
                 value={body}
                 components={{
@@ -90,10 +103,21 @@ export default function LegalPage({
                   },
                 }}
               />
-            ) : (
+            ) : iubenda ? null : (
               <p>—</p>
             )}
           </div>
+
+          {iubenda && (
+            <div className={hasBody ? 'mt-12' : 'mt-2'}>
+              <IubendaEmbed
+                url={iubenda.url}
+                label={iubenda.label}
+                caption={iubenda.caption}
+                subCaption={iubenda.subCaption}
+              />
+            </div>
+          )}
 
           {/* See also link */}
           <div className="mt-16 pt-10 border-t border-white/10">
