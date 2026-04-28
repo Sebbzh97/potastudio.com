@@ -5,6 +5,8 @@ import type { GalleryItem } from '@/components/media/lightbox'
 import Link from 'next/link'
 import { ArrowLeft, ArrowUpRight, BarChart2, TrendingUp, Users } from 'lucide-react'
 import { JsonLd } from '@/components/json-ld'
+import Breadcrumbs from '@/components/breadcrumbs'
+import { caseStudySchema } from '@/lib/jsonld/schemas'
 import {
   getCaseStudyBySlug,
   getCaseStudies,
@@ -75,26 +77,6 @@ function toStaticShape(cs: SanityCaseStudy): StaticCS {
     results: cs.results ?? '',
     metrics: cs.metrics ?? [],
     relatedSlugs: cs.relatedSlugs ?? [],
-  }
-}
-
-function generateCaseStudySchema(slug: string, cs: StaticCS) {
-  return {
-    '@context': 'https://schema.org',
-    '@type': 'Article',
-    articleType: 'CaseStudy',
-    headline: `${cs.client}: ${cs.type} Case Study`,
-    description: cs.results,
-    datePublished: `${cs.year}-01-01`,
-    author: { '@type': 'Organization', name: 'Pota Studio', url: 'https://potastudio.com' },
-    publisher: {
-      '@type': 'Organization', name: 'Pota Studio', url: 'https://potastudio.com',
-      logo: { '@type': 'ImageObject', url: 'https://potastudio.com/logo.png' },
-    },
-    about: { '@type': 'Organization', name: cs.client },
-    mainEntityOfPage: { '@type': 'WebPage', '@id': `https://potastudio.com/work/${slug}` },
-    keywords: cs.tags.join(', '),
-    inLanguage: 'en',
   }
 }
 
@@ -172,30 +154,53 @@ export default async function CaseStudyPage({ params }: Props) {
 
   return (
     <main>
-      <JsonLd data={generateCaseStudySchema(slug, cs)} />
+      <JsonLd
+        data={caseStudySchema({
+          slug,
+          client: cs.client,
+          type: cs.type,
+          challenge: cs.challenge,
+          approach: cs.approach,
+          results: cs.results,
+          year: cs.year,
+          tags: cs.tags,
+          metrics: cs.metrics,
+          locale: 'en',
+        })}
+      />
 
-      {/* Hero */}
-      <section className="pt-40 pb-24 relative overflow-hidden" style={{ background: cs.bg }}>
-        <div className="absolute top-0 left-0 right-0 h-1" style={{ background: cs.accent }} />
-        <div className="container-site relative">
-          <Link href="/work" className="inline-flex items-center gap-2 text-sm text-[#B0B0B0] hover:text-white transition-colors mb-10">
-            <ArrowLeft size={14} />
-            All Work
-          </Link>
-          <div className="flex flex-wrap items-center gap-3 mb-6">
-            {cs.tags.map((t) => (
-              <span key={t} className="text-xs font-medium px-3 py-1 bg-white/10 rounded-full text-[#B0B0B0]">{t}</span>
-            ))}
-            {cs.year && <span className="text-xs text-[#B0B0B0]">{cs.year}</span>}
+      <article aria-labelledby="case-study-title">
+        {/* Hero */}
+        <header className="pt-40 pb-24 relative overflow-hidden" style={{ background: cs.bg }}>
+          <div className="absolute top-0 left-0 right-0 h-1" style={{ background: cs.accent }} />
+          <div className="container-site relative">
+            <Link href="/work" className="inline-flex items-center gap-2 text-sm text-[#B0B0B0] hover:text-white transition-colors mb-6">
+              <ArrowLeft size={14} />
+              All Work
+            </Link>
+            <Breadcrumbs
+              className="mb-10"
+              items={[
+                { name: 'Home', url: '/' },
+                { name: 'Work', url: '/work' },
+                { name: cs.client, url: `/work/${slug}` },
+              ]}
+            />
+            <div className="flex flex-wrap items-center gap-3 mb-6">
+              {cs.tags.map((t) => (
+                <span key={t} className="text-xs font-medium px-3 py-1 bg-white/10 rounded-full text-[#B0B0B0]">{t}</span>
+              ))}
+              {cs.year && <span className="text-xs text-[#B0B0B0]">{cs.year}</span>}
+            </div>
+            <h1
+              id="case-study-title"
+              className="font-bold text-white leading-none mb-6 text-balance"
+              style={{ fontFamily: 'var(--font-space-grotesk)', fontSize: 'clamp(3rem, 8vw, 8rem)' }}
+            >
+              {cs.client}
+            </h1>
           </div>
-          <h1
-            className="font-bold text-white leading-none mb-6 text-balance"
-            style={{ fontFamily: 'var(--font-space-grotesk)', fontSize: 'clamp(3rem, 8vw, 8rem)' }}
-          >
-            {cs.client}
-          </h1>
-        </div>
-      </section>
+        </header>
 
       {/* Metrics bar */}
       {cs.metrics.length > 0 && (
@@ -255,16 +260,17 @@ export default async function CaseStudyPage({ params }: Props) {
         </section>
       )}
 
-      {/* Media Gallery */}
-      <CaseStudyGallery items={gallery} />
+        {/* Media Gallery */}
+        <CaseStudyGallery items={gallery} />
+      </article>
 
-      {/* Related work */}
+      {/* Related work — semantic aside (tangential to the article) */}
       {relatedItems.length > 0 && (
-        <section className="py-16 bg-[#141414] border-t border-white/10">
+        <aside aria-label="Related case studies" className="py-16 bg-[#141414] border-t border-white/10">
           <div className="container-site">
-            <h3 className="text-2xl font-bold text-white mb-8" style={{ fontFamily: 'var(--font-space-grotesk)' }}>
+            <h2 className="text-2xl font-bold text-white mb-8" style={{ fontFamily: 'var(--font-space-grotesk)' }}>
               More Work
-            </h3>
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {relatedItems.map((r) => (
                 <Link
@@ -283,7 +289,7 @@ export default async function CaseStudyPage({ params }: Props) {
               ))}
             </div>
           </div>
-        </section>
+        </aside>
       )}
     </main>
   )
