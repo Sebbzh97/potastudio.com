@@ -9,6 +9,11 @@ import CookieBanner from '@/components/cookie-banner'
 import { headers } from 'next/headers'
 import { getNavigation } from '@/sanity/lib/navigation'
 import { getSiteSettings } from '@/sanity/lib/page-queries'
+import {
+  organizationSchema,
+  localBusinessSchema,
+  websiteSchema,
+} from '@/lib/jsonld/schemas'
 import './globals.css'
 
 const inter = Inter({
@@ -93,79 +98,6 @@ export const metadata: Metadata = {
   },
 }
 
-const organizationSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'Organization',
-  name: 'Pota Studio',
-  legalName: 'Anyped S.R.L.',
-  url: 'https://potastudio.com',
-  logo: 'https://potastudio.com/images/pota-logo.png',
-  foundingDate: '2015',
-  slogan: 'We make content impossible to ignore.',
-  description:
-    'Italian full service marketing agency. Social media, paid ADS, content production, influencer marketing.',
-  address: {
-    '@type': 'PostalAddress',
-    streetAddress: 'Ponte San Pietro',
-    addressLocality: 'Bergamo',
-    addressRegion: 'Lombardy',
-    addressCountry: 'IT',
-  },
-  sameAs: [
-    'https://www.instagram.com/potastudio',
-    'https://www.tiktok.com/@potastudio',
-    'https://www.linkedin.com/company/potastudio',
-  ],
-  knowsAbout: [
-    'TikTok Advertising',
-    'Full Service Marketing',
-    'Influencer Marketing',
-    'Social Media Management',
-    'Content Production',
-  ],
-  hasCredential: [
-    { '@type': 'EducationalOccupationalCredential', credentialCategory: 'Shopify Plus Certified Partner' },
-  ],
-}
-
-const localBusinessBergamo = {
-  '@context': 'https://schema.org',
-  '@type': 'LocalBusiness',
-  name: 'Pota Studio Bergamo HQ',
-  url: 'https://potastudio.com',
-  address: {
-    '@type': 'PostalAddress',
-    addressLocality: 'Ponte San Pietro',
-    addressRegion: 'Bergamo',
-    addressCountry: 'IT',
-  },
-  geo: {
-    '@type': 'GeoCoordinates',
-    latitude: 45.7117,
-    longitude: 9.5985,
-  },
-  openingHoursSpecification: {
-    '@type': 'OpeningHoursSpecification',
-    dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
-    opens: '09:00',
-    closes: '18:00',
-  },
-}
-
-
-
-const websiteSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'WebSite',
-  name: 'Pota Studio',
-  url: 'https://potastudio.com',
-  potentialAction: {
-    '@type': 'SearchAction',
-    target: 'https://potastudio.com/blog?q={search_term_string}',
-    'query-input': 'required name=search_term_string',
-  },
-}
-
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -207,9 +139,9 @@ export default async function RootLayout({
       <body className="font-sans antialiased bg-[#0D0D0D] text-white overflow-x-hidden">
         {!isStudio && (
           <>
-            <JsonLd data={organizationSchema} />
-            <JsonLd data={localBusinessBergamo} />
-            <JsonLd data={websiteSchema} />
+            <JsonLd data={organizationSchema(locale)} />
+            <JsonLd data={localBusinessSchema()} />
+            <JsonLd data={websiteSchema()} />
             <Navigation data={navData} />
           </>
         )}
