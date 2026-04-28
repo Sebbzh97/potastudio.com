@@ -28,12 +28,12 @@ export default async function PrivacyPageIT() {
       title={data?.heroHeadline ?? 'Privacy Policy'}
       lastUpdated={data?.legalLastUpdated ? `Ultimo aggiornamento: ${data.legalLastUpdated}` : undefined}
       appliesToLabel="Si applica a: potastudio.com"
-      body={data?.legalBody ?? null}
+      body={null}
       iubenda={{
         url: 'https://www.iubenda.com/privacy-policy/31096609',
         label: 'Apri la Privacy Policy completa',
-        caption: 'Privacy Policy gestita tramite Iubenda',
-        subCaption: 'Clicca il pulsante per aprire la nostra Privacy Policy completa e sempre aggiornata.',
+        caption: 'Privacy Policy',
+        subCaption: 'La nostra Privacy Policy completa è ospitata su Iubenda ed è sempre aggiornata. Clicca il pulsante qui sotto per consultarla.',
       }}
       seeAlsoLabel="Vedi anche:"
       seeAlsoHref="/it/cookie"
