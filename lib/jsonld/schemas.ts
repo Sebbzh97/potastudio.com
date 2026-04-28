@@ -394,3 +394,32 @@ export function articleSchema(input: ArticleSchemaInput): Record<string, unknown
     keywords: keywords.filter(Boolean).join(", "),
   }
 }
+
+// ───────────────────────────────────────────────────────────────────────────────
+// FAQPage
+// ───────────────────────────────────────────────────────────────────────────────
+
+export interface FaqItem {
+  question: string
+  answer: string
+}
+
+export function faqPageSchema(items: FaqItem[]): Record<string, unknown> | null {
+  const cleaned = (items ?? []).filter(
+    (i): i is FaqItem => Boolean(i?.question?.trim() && i?.answer?.trim()),
+  )
+  if (cleaned.length === 0) return null
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: cleaned.map((faq) => ({
+      "@type": "Question",
+      name: faq.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: faq.answer,
+      },
+    })),
+  }
+}
