@@ -15,6 +15,9 @@ const TYPE_TO_TAGS: Record<string, string[]> = {
     'pageContent-workPage-en',     'pageContent-workPage-it',
     'pageContent-careersPage-en',  'pageContent-careersPage-it',
     'pageContent-clientsPage-en',  'pageContent-clientsPage-it',
+    'pageContent-blogPage-en',     'pageContent-blogPage-it',
+    'pageContent-privacyPage-en',  'pageContent-privacyPage-it',
+    'pageContent-cookiePage-en',   'pageContent-cookiePage-it',
   ],
   // Content types
   blogPost:      ['blogPost', 'blogPost-en', 'blogPost-it'],
@@ -35,6 +38,8 @@ const ALL_PATHS = [
   '/work', '/it/work',
   '/blog', '/it/blog',
   '/clients', '/it/clients',
+  '/privacy', '/it/privacy',
+  '/cookie', '/it/cookie',
 ]
 
 // POST /api/revalidate — called by Sanity webhook on publish/unpublish
@@ -68,6 +73,16 @@ export async function POST(request: NextRequest) {
   // 2) Revalidate all paths so page HTML is regenerated immediately
   for (const path of ALL_PATHS) revalidatePath(path)
 
+  // 3) Revalidate dynamic slug routes for content types that have them
+  if (_type === 'caseStudy') {
+    revalidatePath('/work/[slug]', 'page')
+    revalidatePath('/it/work/[slug]', 'page')
+  }
+  if (_type === 'blogPost') {
+    revalidatePath('/blog/[slug]', 'page')
+    revalidatePath('/it/blog/[slug]', 'page')
+  }
+
   console.log(`[revalidate] type="${_type}" → tags: [${tags.join(', ')}] + ${ALL_PATHS.length} paths`)
 
   return NextResponse.json({
@@ -91,6 +106,11 @@ export async function GET(request: NextRequest) {
   const allTags = [...new Set(Object.values(TYPE_TO_TAGS).flat())]
   for (const tag of allTags) revalidateTag(tag, 'max')
   for (const path of ALL_PATHS) revalidatePath(path)
+  // Dynamic slug routes
+  revalidatePath('/work/[slug]', 'page')
+  revalidatePath('/it/work/[slug]', 'page')
+  revalidatePath('/blog/[slug]', 'page')
+  revalidatePath('/it/blog/[slug]', 'page')
 
   return NextResponse.json({
     revalidated: true,

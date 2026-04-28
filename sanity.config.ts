@@ -46,80 +46,90 @@ export default defineConfig({
             S.listItem().title('Services').id('page-services')
               .child(
                 S.list().title('Services').items([
-                  S.listItem().title('Services — EN').id('pageContent-services-en')
-                    .child(S.document().schemaType('pageContent').documentId('pageContent-services-en')),
-                  S.listItem().title('Services — IT').id('pageContent-services-it')
-                    .child(S.document().schemaType('pageContent').documentId('pageContent-services-it')),
+                  S.listItem().title('Services — EN').id('pageContent-servicesPage-en')
+                    .child(S.document().schemaType('pageContent').documentId('pageContent-servicesPage-en')),
+                  S.listItem().title('Services — IT').id('pageContent-servicesPage-it')
+                    .child(S.document().schemaType('pageContent').documentId('pageContent-servicesPage-it')),
                 ])
               ),
 
             S.listItem().title('Work').id('page-work')
               .child(
                 S.list().title('Work').items([
-                  S.listItem().title('Work — EN').id('pageContent-work-en')
-                    .child(S.document().schemaType('pageContent').documentId('pageContent-work-en')),
-                  S.listItem().title('Work — IT').id('pageContent-work-it')
-                    .child(S.document().schemaType('pageContent').documentId('pageContent-work-it')),
+                  S.listItem().title('Work — EN').id('pageContent-workPage-en')
+                    .child(S.document().schemaType('pageContent').documentId('pageContent-workPage-en')),
+                  S.listItem().title('Work — IT').id('pageContent-workPage-it')
+                    .child(S.document().schemaType('pageContent').documentId('pageContent-workPage-it')),
                 ])
               ),
 
             S.listItem().title('About').id('page-about')
               .child(
                 S.list().title('About').items([
-                  S.listItem().title('About — EN').id('pageContent-about-en')
-                    .child(S.document().schemaType('pageContent').documentId('pageContent-about-en')),
-                  S.listItem().title('About — IT').id('pageContent-about-it')
-                    .child(S.document().schemaType('pageContent').documentId('pageContent-about-it')),
+                  S.listItem().title('About — EN').id('pageContent-aboutPage-en')
+                    .child(S.document().schemaType('pageContent').documentId('pageContent-aboutPage-en')),
+                  S.listItem().title('About — IT').id('pageContent-aboutPage-it')
+                    .child(S.document().schemaType('pageContent').documentId('pageContent-aboutPage-it')),
                 ])
               ),
 
             S.listItem().title('Contact').id('page-contact')
               .child(
                 S.list().title('Contact').items([
-                  S.listItem().title('Contact — EN').id('pageContent-contact-en')
-                    .child(S.document().schemaType('pageContent').documentId('pageContent-contact-en')),
-                  S.listItem().title('Contact — IT').id('pageContent-contact-it')
-                    .child(S.document().schemaType('pageContent').documentId('pageContent-contact-it')),
-                ])
-              ),
-
-            S.listItem().title('Live Agency').id('page-live')
-              .child(
-                S.list().title('Live Agency').items([
-                  S.listItem().title('Live — EN').id('pageContent-live-en')
-                    .child(S.document().schemaType('pageContent').documentId('pageContent-live-en')),
-                  S.listItem().title('Live — IT').id('pageContent-live-it')
-                    .child(S.document().schemaType('pageContent').documentId('pageContent-live-it')),
-                ])
-              ),
-
-            S.listItem().title('Media').id('page-media')
-              .child(
-                S.list().title('Media').items([
-                  S.listItem().title('Media — EN').id('pageContent-media-en')
-                    .child(S.document().schemaType('pageContent').documentId('pageContent-media-en')),
-                  S.listItem().title('Media — IT').id('pageContent-media-it')
-                    .child(S.document().schemaType('pageContent').documentId('pageContent-media-it')),
+                  S.listItem().title('Contact — EN').id('pageContent-contactPage-en')
+                    .child(S.document().schemaType('pageContent').documentId('pageContent-contactPage-en')),
+                  S.listItem().title('Contact — IT').id('pageContent-contactPage-it')
+                    .child(S.document().schemaType('pageContent').documentId('pageContent-contactPage-it')),
                 ])
               ),
 
             S.listItem().title('Careers').id('page-careers')
               .child(
                 S.list().title('Careers').items([
-                  S.listItem().title('Careers — EN').id('pageContent-careers-en')
-                    .child(S.document().schemaType('pageContent').documentId('pageContent-careers-en')),
-                  S.listItem().title('Careers — IT').id('pageContent-careers-it')
-                    .child(S.document().schemaType('pageContent').documentId('pageContent-careers-it')),
+                  S.listItem().title('Careers — EN').id('pageContent-careersPage-en')
+                    .child(S.document().schemaType('pageContent').documentId('pageContent-careersPage-en')),
+                  S.listItem().title('Careers — IT').id('pageContent-careersPage-it')
+                    .child(S.document().schemaType('pageContent').documentId('pageContent-careersPage-it')),
                 ])
               ),
 
             S.listItem().title('Clients').id('page-clients')
               .child(
                 S.list().title('Clients').items([
-                  S.listItem().title('Clients — EN').id('pageContent-clients-en')
-                    .child(S.document().schemaType('pageContent').documentId('pageContent-clients-en')),
-                  S.listItem().title('Clients — IT').id('pageContent-clients-it')
-                    .child(S.document().schemaType('pageContent').documentId('pageContent-clients-it')),
+                  S.listItem().title('Clients — EN').id('pageContent-clientsPage-en')
+                    .child(S.document().schemaType('pageContent').documentId('pageContent-clientsPage-en')),
+                  S.listItem().title('Clients — IT').id('pageContent-clientsPage-it')
+                    .child(S.document().schemaType('pageContent').documentId('pageContent-clientsPage-it')),
+                ])
+              ),
+
+            S.listItem().title('Blog').id('page-blog')
+              .child(
+                S.list().title('Blog Index Page').items([
+                  S.listItem().title('Blog Index — EN').id('pageContent-blogPage-en')
+                    .child(S.document().schemaType('pageContent').documentId('pageContent-blogPage-en')),
+                  S.listItem().title('Blog Index — IT').id('pageContent-blogPage-it')
+                    .child(S.document().schemaType('pageContent').documentId('pageContent-blogPage-it')),
+                ])
+              ),
+
+            S.listItem().title('Privacy Policy').id('page-privacy')
+              .child(
+                S.list().title('Privacy Policy').items([
+                  S.listItem().title('Privacy — EN').id('pageContent-privacyPage-en')
+                    .child(S.document().schemaType('pageContent').documentId('pageContent-privacyPage-en')),
+                  S.listItem().title('Privacy — IT').id('pageContent-privacyPage-it')
+                    .child(S.document().schemaType('pageContent').documentId('pageContent-privacyPage-it')),
+                ])
+              ),
+
+            S.listItem().title('Cookie Policy').id('page-cookie')
+              .child(
+                S.list().title('Cookie Policy').items([
+                  S.listItem().title('Cookie — EN').id('pageContent-cookiePage-en')
+                    .child(S.document().schemaType('pageContent').documentId('pageContent-cookiePage-en')),
+                  S.listItem().title('Cookie — IT').id('pageContent-cookiePage-it')
+                    .child(S.document().schemaType('pageContent').documentId('pageContent-cookiePage-it')),
                 ])
               ),
 
