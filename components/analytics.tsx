@@ -3,69 +3,48 @@
 import Script from 'next/script'
 import { useEffect, useState } from 'react'
 
-const GA_ID      = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID   // e.g. G-XXXXXXXXXX
+// Note: Google Analytics 4 (gtag.js) is loaded server-side directly in
+// app/layout.tsx <head> so Google's tag-detection crawler can find it in the
+// initial HTML response. The marketing/social pixels below remain consent-gated.
 const GADS_ID    = process.env.NEXT_PUBLIC_GOOGLE_ADS_ID       // e.g. AW-XXXXXXXXXX
 const META_ID    = process.env.NEXT_PUBLIC_META_PIXEL_ID        // e.g. 123456789
 const TIKTOK_ID  = process.env.NEXT_PUBLIC_TIKTOK_PIXEL_ID     // e.g. CXXXXXXXXXX
 
 export default function Analytics() {
+  // Marketing/social pixels still wait for explicit consent.
   const [consented, setConsented] = useState(false)
 
   useEffect(() => {
-    // Check initial consent
     const check = () => {
       const val = localStorage.getItem('pota_cookie_consent')
       setConsented(val === 'accepted')
     }
     check()
-
-    // Listen for consent changes dispatched by CookieBanner
     window.addEventListener('pota_consent_change', check)
     return () => window.removeEventListener('pota_consent_change', check)
   }, [])
 
-  if (!consented) return null
-
   return (
     <>
-      {/* ── Google Analytics 4 ── */}
-      {GA_ID && (
+      {/* Google Ads — consent-gated */}
+      {GADS_ID && consented && (
         <>
           <Script
-            src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
+            src={`https://www.googletagmanager.com/gtag/js?id=${GADS_ID}`}
             strategy="afterInteractive"
           />
-          <Script id="ga4-init" strategy="afterInteractive">
+          <Script id="gads-init" strategy="afterInteractive">
             {`
               window.dataLayer = window.dataLayer || [];
               function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', '${GA_ID}', { anonymize_ip: true });
+              gtag('config', '${GADS_ID}');
             `}
           </Script>
         </>
       )}
 
-      {/* ── Google Ads ── */}
-      {GADS_ID && !GA_ID && (
-        // If GA4 is loaded it already includes the gtag lib; skip duplicate script
-        <Script
-          src={`https://www.googletagmanager.com/gtag/js?id=${GADS_ID}`}
-          strategy="afterInteractive"
-        />
-      )}
-      {GADS_ID && (
-        <Script id="gads-init" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('config', '${GADS_ID}');
-          `}
-        </Script>
-      )}
-
-      {/* ── Meta (Facebook) Pixel ── */}
-      {META_ID && (
+      {/* Meta (Facebook) Pixel — consent-gated */}
+      {META_ID && consented && (
         <Script id="meta-pixel" strategy="afterInteractive">
           {`
             !function(f,b,e,v,n,t,s){
@@ -82,8 +61,8 @@ export default function Analytics() {
         </Script>
       )}
 
-      {/* ── TikTok Pixel ── */}
-      {TIKTOK_ID && (
+      {/* TikTok Pixel — consent-gated */}
+      {TIKTOK_ID && consented && (
         <Script id="tiktok-pixel" strategy="afterInteractive">
           {`
             !function(w,d,t){
