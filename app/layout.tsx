@@ -5,7 +5,6 @@ import AnalyticsPixels from '@/components/analytics'
 import { JsonLd } from '@/components/json-ld'
 import Navigation from '@/components/navigation'
 import Footer from '@/components/footer'
-import CookieBanner from '@/components/cookie-banner'
 import { headers } from 'next/headers'
 import { getNavigation } from '@/sanity/lib/navigation'
 import { getSiteSettings } from '@/sanity/lib/page-queries'
@@ -189,6 +188,11 @@ export default async function RootLayout({
       className={`${inter.variable} ${spaceGrotesk.variable} ${barlowCondensed.variable}`}
     >
       <head>
+        {/* Iubenda Privacy Controls and Cookie Solution — must be first in <head> */}
+        <script
+          type="text/javascript"
+          src="https://embeds.iubenda.com/widgets/a3a1c6d7-1ab2-4129-8b36-508ee8e9972d.js"
+        />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         {/* Google tag (gtag.js) — server-rendered so Google's tag detector can find it */}
@@ -215,7 +219,6 @@ export default async function RootLayout({
         )}
         {children}
         {!isStudio && <Footer locale={locale} settings={siteSettings} />}
-        {!isStudio && <CookieBanner settings={siteSettings} locale={locale} />}
         <VercelAnalytics />
         <AnalyticsPixels />
       </body>
