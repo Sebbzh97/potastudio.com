@@ -80,13 +80,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const itBlogSlugs = (itBlog ?? []).map((r: { slug: string }) => r.slug).filter(Boolean)
 
   const blogEntries: MetadataRoute.Sitemap = [
-    ...enBlogSlugs.map((slug) => ({
+    ...enBlogSlugs.map((slug: string) => ({
       url: `${BASE_URL}/blog/${slug}`,
       lastModified: now,
       changeFrequency: 'weekly' as const,
       priority: 0.7,
     })),
-    ...itBlogSlugs.map((slug) => ({
+    ...itBlogSlugs.map((slug: string) => ({
       url: `${BASE_URL}/it/blog/${slug}`,
       lastModified: now,
       changeFrequency: 'weekly' as const,
@@ -96,7 +96,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Case studies (Sanity-driven, EN + IT mirror)
   const caseStudySlugs = await getCaseStudySlugs()
-  const caseStudyEntries: MetadataRoute.Sitemap = caseStudySlugs.flatMap((slug) => [
+  const caseStudyEntries: MetadataRoute.Sitemap = caseStudySlugs.flatMap((slug: string) => [
     {
       url: `${BASE_URL}/work/${slug}`,
       lastModified: now,
