@@ -191,6 +191,18 @@ export default async function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
+        {/* Google tag (gtag.js) — server-rendered so Google's tag detector can find it */}
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-CMP5TYMZP3" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-CMP5TYMZP3', { anonymize_ip: true });
+            `,
+          }}
+        />
       </head>
       <body className="font-sans antialiased bg-[#0D0D0D] text-white overflow-x-hidden">
         {!isStudio && (

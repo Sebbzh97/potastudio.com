@@ -3,10 +3,9 @@
 import Script from 'next/script'
 import { useEffect, useState } from 'react'
 
-// Hard-coded fallback so GA4 keeps working even if the env var is missing or
-// not yet propagated to a fresh production build. The env var still wins when
-// present so we can swap properties without a code change.
-const GA_ID      = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || 'G-CMP5TYMZP3'
+// Note: Google Analytics 4 (gtag.js) is loaded server-side directly in
+// app/layout.tsx <head> so Google's tag-detection crawler can find it in the
+// initial HTML response. The marketing/social pixels below remain consent-gated.
 const GADS_ID    = process.env.NEXT_PUBLIC_GOOGLE_ADS_ID       // e.g. AW-XXXXXXXXXX
 const META_ID    = process.env.NEXT_PUBLIC_META_PIXEL_ID        // e.g. 123456789
 const TIKTOK_ID  = process.env.NEXT_PUBLIC_TIKTOK_PIXEL_ID     // e.g. CXXXXXXXXXX
@@ -27,24 +26,6 @@ export default function Analytics() {
 
   return (
     <>
-      {/* Google Analytics 4 — always on, IP anonymized for GDPR compliance */}
-      {GA_ID && (
-        <>
-          <Script
-            src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
-            strategy="afterInteractive"
-          />
-          <Script id="ga4-init" strategy="afterInteractive">
-            {`
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', '${GA_ID}', { anonymize_ip: true });
-            `}
-          </Script>
-        </>
-      )}
-
       {/* Google Ads — consent-gated */}
       {GADS_ID && consented && (
         <>
