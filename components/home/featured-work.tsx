@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowUpRight } from 'lucide-react'
-import { getCaseStudies } from '@/sanity/lib/page-queries'
+import { getCaseStudies, pickLocalizedCaseStudy } from '@/sanity/lib/page-queries'
 
 type FeaturedWorkData = {
   featuredWorkLabel?: string
@@ -20,7 +20,9 @@ export default async function FeaturedWork({
 }) {
   const isIt = locale === 'it'
   const sanity = await getCaseStudies()
-  const caseStudies = sanity.slice(0, 3)
+  const caseStudies = sanity
+    .map((cs) => pickLocalizedCaseStudy(cs, isIt ? 'it' : 'en'))
+    .slice(0, 3)
 
   // Section copy (Sanity-driven with minimal fallbacks)
   const eyebrow  = data?.featuredWorkLabel        ?? (isIt ? 'Lavori Selezionati' : 'Selected Work')
