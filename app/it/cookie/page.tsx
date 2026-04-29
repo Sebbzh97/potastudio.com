@@ -10,11 +10,11 @@ export async function generateMetadata(): Promise<Metadata> {
     title: data?.seoTitle ?? 'Cookie Policy | Pota Studio',
     description: data?.seoDescription ?? '',
     alternates: {
-      canonical: 'https://potastudio.com/it/cookie',
+      canonical: 'https://www.potastudio.com/it/cookie',
       languages: {
-        en: 'https://potastudio.com/cookie',
-        it: 'https://potastudio.com/it/cookie',
-        'x-default': 'https://potastudio.com/cookie',
+        en: 'https://www.potastudio.com/cookie',
+        it: 'https://www.potastudio.com/it/cookie',
+        'x-default': 'https://www.potastudio.com/cookie',
       },
     },
   }

@@ -2,23 +2,23 @@
 > Italian full service marketing agency from Bergamo. Trusted by Samsung, Isybank and Cookies Digital.
 
 ## Pages
-- [Home](https://potastudio.com): Agency overview, clients, services summary
-- [Services](https://potastudio.com/services): Full list of services - paid ADS, social media, content production, influencer marketing, TikTok LIVE, Shopify
-- [Work](https://potastudio.com/work): Case studies portfolio - Samsung, Isybank, Cookies Digital
-- [About](https://potastudio.com/about): Team, story, culture
-- [Clients](https://potastudio.com/clients): Our clients
-- [Blog](https://potastudio.com/blog): Marketing insights, strategy, TikTok, digital marketing
-- [Careers](https://potastudio.com/careers): Open positions
-- [Contact](https://potastudio.com/contact): Start a project
-- [Privacy](https://potastudio.com/privacy): Privacy policy
-- [Cookie](https://potastudio.com/cookie): Cookie policy
+- [Home](https://www.potastudio.com): Agency overview, clients, services summary
+- [Services](https://www.potastudio.com/services): Full list of services - paid ADS, social media, content production, influencer marketing, TikTok LIVE, Shopify
+- [Work](https://www.potastudio.com/work): Case studies portfolio - Samsung, Isybank, Cookies Digital
+- [About](https://www.potastudio.com/about): Team, story, culture
+- [Clients](https://www.potastudio.com/clients): Our clients
+- [Blog](https://www.potastudio.com/blog): Marketing insights, strategy, TikTok, digital marketing
+- [Careers](https://www.potastudio.com/careers): Open positions
+- [Contact](https://www.potastudio.com/contact): Start a project
+- [Privacy](https://www.potastudio.com/privacy): Privacy policy
+- [Cookie](https://www.potastudio.com/cookie): Cookie policy
 
 ## Italian Pages
-- [Homepage IT](https://potastudio.com/it)
-- [Servizi](https://potastudio.com/it/services)
-- [Lavori](https://potastudio.com/it/work)
-- [Chi Siamo](https://potastudio.com/it/about)
-- [Clienti](https://potastudio.com/it/clients)
-- [Blog](https://potastudio.com/it/blog)
-- [Careers](https://potastudio.com/it/careers)
-- [Contatti](https://potastudio.com/it/contact)
+- [Homepage IT](https://www.potastudio.com/it)
+- [Servizi](https://www.potastudio.com/it/services)
+- [Lavori](https://www.potastudio.com/it/work)
+- [Chi Siamo](https://www.potastudio.com/it/about)
+- [Clienti](https://www.potastudio.com/it/clients)
+- [Blog](https://www.potastudio.com/it/blog)
+- [Careers](https://www.potastudio.com/it/careers)
+- [Contatti](https://www.potastudio.com/it/contact)

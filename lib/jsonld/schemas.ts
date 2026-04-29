@@ -8,10 +8,10 @@
  * -----------
  * - All builders return plain JSON-serializable objects (Record<string, unknown>).
  * - The caller is responsible for injecting the result via the <JsonLd /> component.
- * - URLs are absolute (https://potastudio.com/...) so crawlers can disambiguate them.
+ * - URLs are absolute (https://www.potastudio.com/...) so crawlers can disambiguate them.
  */
 
-const SITE = "https://potastudio.com"
+const SITE = "https://www.potastudio.com"
 
 const POTA_LEGAL_NAME = "Anyped S.R.L."
 const POTA_BRAND_NAME = "Pota Studio"

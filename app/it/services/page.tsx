@@ -21,11 +21,11 @@ export async function generateMetadata(): Promise<Metadata> {
     title: data?.seoTitle ?? 'Servizi | Pota Studio',
     description: data?.seoDescription ?? '',
     alternates: {
-      canonical: 'https://potastudio.com/it/services',
+      canonical: 'https://www.potastudio.com/it/services',
       languages: {
-        en: 'https://potastudio.com/services',
-        it: 'https://potastudio.com/it/services',
-        'x-default': 'https://potastudio.com/services',
+        en: 'https://www.potastudio.com/services',
+        it: 'https://www.potastudio.com/it/services',
+        'x-default': 'https://www.potastudio.com/services',
       },
     },
   }

@@ -9,11 +9,11 @@ export async function generateMetadata(): Promise<Metadata> {
     title: data?.seoTitle ?? 'Clients | Pota Studio',
     description: data?.seoDescription ?? '',
     alternates: {
-      canonical: 'https://potastudio.com/clients',
+      canonical: 'https://www.potastudio.com/clients',
       languages: {
-        en: 'https://potastudio.com/clients',
-        it: 'https://potastudio.com/it/clients',
-        'x-default': 'https://potastudio.com/clients',
+        en: 'https://www.potastudio.com/clients',
+        it: 'https://www.potastudio.com/it/clients',
+        'x-default': 'https://www.potastudio.com/clients',
       },
     },
   }

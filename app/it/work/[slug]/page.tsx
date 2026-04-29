@@ -78,7 +78,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `${cs.client} Case Study | Pota Studio`,
     description: (cs.challenge || cs.results).slice(0, 160),
-    alternates: { canonical: `https://potastudio.com/it/work/${slug}`, languages: { en: `https://potastudio.com/work/${slug}`, it: `https://potastudio.com/it/work/${slug}`, 'x-default': `https://potastudio.com/work/${slug}` } },
+    alternates: { canonical: `https://www.potastudio.com/it/work/${slug}`, languages: { en: `https://www.potastudio.com/work/${slug}`, it: `https://www.potastudio.com/it/work/${slug}`, 'x-default': `https://www.potastudio.com/work/${slug}` } },
   }
 }
 

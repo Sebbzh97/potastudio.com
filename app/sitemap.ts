@@ -2,7 +2,7 @@ import type { MetadataRoute } from 'next'
 import { getBlogPostSlugs } from '@/sanity/lib/blog'
 import { client } from '@/sanity/lib/client'
 
-const BASE_URL = 'https://potastudio.com'
+const BASE_URL = 'https://www.potastudio.com'
 
 // Refresh every hour so newly-published Sanity content appears quickly.
 export const revalidate = 3600

@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next'
 
-const BASE_URL = 'https://potastudio.com'
+const BASE_URL = 'https://www.potastudio.com'
 
 /**
  * Robots.txt — explicitly opt-in for AI/LLM crawlers (GEO strategy).

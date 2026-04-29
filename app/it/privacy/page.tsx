@@ -10,11 +10,11 @@ export async function generateMetadata(): Promise<Metadata> {
     title: data?.seoTitle ?? 'Privacy Policy | Pota Studio',
     description: data?.seoDescription ?? '',
     alternates: {
-      canonical: 'https://potastudio.com/it/privacy',
+      canonical: 'https://www.potastudio.com/it/privacy',
       languages: {
-        en: 'https://potastudio.com/privacy',
-        it: 'https://potastudio.com/it/privacy',
-        'x-default': 'https://potastudio.com/privacy',
+        en: 'https://www.potastudio.com/privacy',
+        it: 'https://www.potastudio.com/it/privacy',
+        'x-default': 'https://www.potastudio.com/privacy',
       },
     },
   }

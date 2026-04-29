@@ -10,11 +10,11 @@ export async function generateMetadata(): Promise<Metadata> {
     title: data?.seoTitle ?? 'Lavora con noi | Pota Studio',
     description: data?.seoDescription ?? '',
     alternates: {
-      canonical: 'https://potastudio.com/it/careers',
+      canonical: 'https://www.potastudio.com/it/careers',
       languages: {
-        en: 'https://potastudio.com/careers',
-        it: 'https://potastudio.com/it/careers',
-        'x-default': 'https://potastudio.com/careers',
+        en: 'https://www.potastudio.com/careers',
+        it: 'https://www.potastudio.com/it/careers',
+        'x-default': 'https://www.potastudio.com/careers',
       },
     },
   }
