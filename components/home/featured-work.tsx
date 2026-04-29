@@ -78,22 +78,22 @@ export default async function FeaturedWork({
               className="group relative overflow-hidden rounded-lg aspect-[4/5] max-h-[560px] flex flex-col justify-end p-5 sm:p-6 active:scale-[0.98] transition-transform"
               style={{ background: cs.bg ?? '#111' }}
             >
-              {/* Cover image — fully visible, only zoom on hover */}
+              {/* Cover image — partially dimmed for legibility */}
               {coverSrc && (
                 <Image
                   src={coverSrc}
                   alt={cs.client}
                   fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-500"
+                  className="object-cover opacity-65 group-hover:opacity-75 group-hover:scale-105 transition-all duration-500"
                   sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
                 />
               )}
 
-              {/* Bottom gradient — keeps text legible without dimming the image */}
-              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-3/5 bg-gradient-to-t from-black via-black/85 via-30% to-transparent" />
-              {/* Subtle top gradient — for type chip + year */}
+              {/* Bottom gradient — reinforces contrast around metric/title/description */}
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-3/5 bg-gradient-to-t from-black via-black/80 via-40% to-transparent" />
+              {/* Top gradient — protects type chip + year */}
               {coverSrc && (
-                <div className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-black/60 to-transparent" />
+                <div className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-black/70 to-transparent" />
               )}
 
               {/* Colored top accent */}
