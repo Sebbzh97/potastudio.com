@@ -42,11 +42,19 @@ export default function ClientsDisplay({
 }) {
   const [active, setActive] = useState('All')
 
+  // Always render brands alphabetically, case-insensitive, regardless of
+  // upstream order. This is a safety net on top of the GROQ `order(lower(name))`
+  // so the page never shows a mis-ordered brand even after future query edits.
+  const sortedClients = [...clients].sort((a, b) =>
+    a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }),
+  )
+
   // Only show filter tabs for industries present in the current client list
-  const presentIndustries = ['All', ...Array.from(new Set(clients.map((c) => c.industry)))]
+  const presentIndustries = ['All', ...Array.from(new Set(sortedClients.map((c) => c.industry)))]
   const tabs = industries.filter((i) => presentIndustries.includes(i))
 
-  const filtered = active === 'All' ? clients : clients.filter((c) => c.industry === active)
+  const filtered =
+    active === 'All' ? sortedClients : sortedClients.filter((c) => c.industry === active)
 
   return (
     <main>
