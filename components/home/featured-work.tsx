@@ -78,19 +78,23 @@ export default async function FeaturedWork({
               className="group relative overflow-hidden rounded-lg aspect-[4/5] max-h-[560px] flex flex-col justify-end p-5 sm:p-6 active:scale-[0.98] transition-transform"
               style={{ background: cs.bg ?? '#111' }}
             >
-              {/* Cover image */}
+              {/* Cover image — image dominates, light dim for readability */}
               {coverSrc && (
                 <Image
                   src={coverSrc}
                   alt={cs.client}
                   fill
-                  className="object-cover opacity-40 group-hover:opacity-50 group-hover:scale-105 transition-all duration-500"
+                  className="object-cover opacity-50 group-hover:opacity-65 group-hover:scale-105 transition-all duration-500"
                   sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
                 />
               )}
-              
-              {/* Gradient overlay for text readability */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-black/30" />
+
+              {/* Bottom gradient — deep solid coverage under title/description */}
+              <div className="pointer-events-none absolute inset-x-0 bottom-0 h-4/5 bg-gradient-to-t from-black via-black/90 via-50% to-transparent" />
+              {/* Top gradient — softly protects type chip + year */}
+              {coverSrc && (
+                <div className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-black/60 to-transparent" />
+              )}
 
               {/* Colored top accent */}
               <div
