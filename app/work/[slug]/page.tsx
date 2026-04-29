@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { ArrowLeft, ArrowUpRight, BarChart2, TrendingUp, Users } from 'lucide-react'
 import { JsonLd } from '@/components/json-ld'
 import Breadcrumbs from '@/components/breadcrumbs'
+import CaseStudyTracker from '@/components/analytics/case-study-tracker'
 import { caseStudySchema } from '@/lib/jsonld/schemas'
 import {
   getCaseStudyBySlug,
@@ -154,6 +155,12 @@ export default async function CaseStudyPage({ params }: Props) {
 
   return (
     <main>
+      <CaseStudyTracker
+        slug={slug}
+        client={cs.client}
+        category={cs.type}
+        year={cs.year}
+      />
       <JsonLd
         data={caseStudySchema({
           slug,

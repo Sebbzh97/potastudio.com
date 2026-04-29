@@ -2,6 +2,11 @@
 
 import { useState } from 'react'
 import { ArrowUpRight, Instagram, Linkedin } from 'lucide-react'
+import {
+  trackContactClick,
+  trackContactForm,
+  trackSocialClick,
+} from '@/lib/gtm-events'
 
 const TikTokIcon = () => (
   <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5" aria-hidden="true">
@@ -89,6 +94,11 @@ export default function ContactPageClient({ data }: { data?: ContactData | null 
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    trackContactForm({
+      formName: 'main_contact',
+      service: form.service || undefined,
+      budget: form.budget || undefined,
+    })
     setSubmitted(true)
   }
 
@@ -142,7 +152,13 @@ export default function ContactPageClient({ data }: { data?: ContactData | null 
                       {founderName}
                     </p>
                     <p className="text-[#B0B0B0] text-sm mb-2">{founderRole}</p>
-                    <a href={`mailto:${emailAddress}`} className="text-[#FF5C00] text-sm hover:underline">
+                    <a
+                      href={`mailto:${emailAddress}`}
+                      className="text-[#FF5C00] text-sm hover:underline"
+                      onClick={() =>
+                        trackContactClick({ type: 'email', location: 'contact_page' })
+                      }
+                    >
                       {maskedEmail}
                     </a>
                   </div>
@@ -169,14 +185,17 @@ export default function ContactPageClient({ data }: { data?: ContactData | null 
                 </span>
                 <div className="flex items-center gap-3 sm:gap-4">
                   <a href="https://instagram.com/potastudio" target="_blank" rel="noopener noreferrer" aria-label="Follow Pota Studio on Instagram"
+                    onClick={() => trackSocialClick({ platform: 'instagram', location: 'contact_page' })}
                     className="w-11 h-11 border border-white/20 rounded-full flex items-center justify-center text-[#B0B0B0] hover:text-[#FF5C00] hover:border-[#FF5C00] transition-colors">
                     <Instagram size={18} aria-hidden="true" />
                   </a>
                   <a href="https://tiktok.com/@potastudio" target="_blank" rel="noopener noreferrer" aria-label="Follow Pota Studio on TikTok"
+                    onClick={() => trackSocialClick({ platform: 'tiktok', location: 'contact_page' })}
                     className="w-11 h-11 border border-white/20 rounded-full flex items-center justify-center text-[#B0B0B0] hover:text-[#FF5C00] hover:border-[#FF5C00] transition-colors">
                     <TikTokIcon />
                   </a>
                   <a href="https://linkedin.com/company/potastudio" target="_blank" rel="noopener noreferrer" aria-label="Follow Pota Studio on LinkedIn"
+                    onClick={() => trackSocialClick({ platform: 'linkedin', location: 'contact_page' })}
                     className="w-11 h-11 border border-white/20 rounded-full flex items-center justify-center text-[#B0B0B0] hover:text-[#FF5C00] hover:border-[#FF5C00] transition-colors">
                     <Linkedin size={18} aria-hidden="true" />
                   </a>

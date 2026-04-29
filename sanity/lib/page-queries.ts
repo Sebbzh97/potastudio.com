@@ -219,11 +219,15 @@ export const getTeamMembers = (): Promise<SanityTeamMember[]> =>
     .then((r: SanityTeamMember[]) => r ?? [])
     .catch(() => [])
 
-/** Returns all clients ordered by display order, then name */
+/**
+ * Returns all clients sorted ALPHABETICALLY by name (case-insensitive).
+ * Always alphabetical — every new client added in Sanity is automatically
+ * inserted in the correct position with no manual ordering required.
+ */
 export const getClients = (): Promise<SanityClient[]> =>
   client
     .fetch(
-      `*[_type == "client"] | order(order asc, name asc) {
+      `*[_type == "client"] | order(lower(name) asc) {
         _id, name, industry, country, featured, order,
         "logoUrl": logo.asset->url
       }`,
