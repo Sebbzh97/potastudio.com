@@ -1,4 +1,4 @@
-import { defineField, defineType } from 'sanity'
+import { defineArrayMember, defineField, defineType } from 'sanity'
 
 export default defineType({
   name: 'caseStudy',
@@ -220,7 +220,35 @@ export default defineType({
       title: 'Gallery',
       type: 'array',
       group: 'media',
-      of: [{ type: 'image', options: { hotspot: true } }],
+      description:
+        'Drag & drop multiple images at once. Each image supports hotspot for smart cropping plus optional alt text and caption.',
+      options: { layout: 'grid' },
+      of: [
+        defineArrayMember({
+          name: 'galleryImage',
+          title: 'Gallery Image',
+          type: 'image',
+          options: {
+            hotspot: true,
+            accept: 'image/*',
+          },
+          fields: [
+            defineField({
+              name: 'alt',
+              type: 'string',
+              title: 'Alt text',
+              description:
+                'Short description used for accessibility and SEO. Describe what is shown in the image.',
+            }),
+            defineField({
+              name: 'caption',
+              type: 'string',
+              title: 'Caption (optional)',
+              description: 'Short caption shown below the image on the case study page.',
+            }),
+          ],
+        }),
+      ],
     }),
     defineField({
       name: 'galleryUrls',
