@@ -31,6 +31,7 @@ export interface SanityCaseStudy {
   year?: string
   bg?: string
   accent?: string
+  // English (canonical) content
   description?: string
   challenge?: string
   approach?: string
@@ -39,12 +40,50 @@ export interface SanityCaseStudy {
   services?: string[]
   metrics?: { label: string; value: string }[]
   metric?: string
+  // Italian translations (fall back to EN when empty)
+  descriptionIt?: string
+  challengeIt?: string
+  approachIt?: string
+  resultsIt?: string
+  tagsIt?: string[]
+  servicesIt?: string[]
+  metricsIt?: { label: string; value: string }[]
+  metricIt?: string
+  // Common
   relatedSlugs?: string[]
   featured?: boolean
   coverImageUrl?: string
   gallery?: { id: string; src: string }[]
   galleryUrls?: string[]
   youtubeVideoId?: string
+}
+
+/**
+ * Picks the localized case-study content for a given locale.
+ * IT fields fall back to their EN counterpart when empty so editors can
+ * roll out translations gradually without breaking the live site.
+ */
+export type Locale = 'en' | 'it'
+export function pickLocalizedCaseStudy(
+  cs: SanityCaseStudy,
+  locale: Locale,
+): SanityCaseStudy {
+  if (locale !== 'it') return cs
+  const pickStr = (it?: string, en?: string) =>
+    it && it.trim().length > 0 ? it : en
+  const pickArr = <T,>(it?: T[], en?: T[]) =>
+    it && it.length > 0 ? it : en
+  return {
+    ...cs,
+    description: pickStr(cs.descriptionIt, cs.description),
+    challenge: pickStr(cs.challengeIt, cs.challenge),
+    approach: pickStr(cs.approachIt, cs.approach),
+    results: pickStr(cs.resultsIt, cs.results),
+    metric: pickStr(cs.metricIt, cs.metric),
+    tags: pickArr(cs.tagsIt, cs.tags),
+    services: pickArr(cs.servicesIt, cs.services),
+    metrics: pickArr(cs.metricsIt, cs.metrics),
+  }
 }
 
 export interface SanityClient {
@@ -126,7 +165,10 @@ export const getCaseStudies = (): Promise<SanityCaseStudy[]> =>
   "slug": slug.current,
   client, type, category, year, bg, accent,
   description, challenge, approach, results,
-  tags, services, metrics, metric, relatedSlugs, featured,
+  tags, services, metrics, metric,
+  descriptionIt, challengeIt, approachIt, resultsIt,
+  tagsIt, servicesIt, metricsIt, metricIt,
+  relatedSlugs, featured,
   "coverImageUrl": coverImage.asset->url,
   galleryUrls
   }`,
@@ -145,7 +187,10 @@ export const getCaseStudyBySlug = (slug: string): Promise<SanityCaseStudy | null
         "slug": slug.current,
         client, type, category, year, bg, accent,
         description, challenge, approach, results,
-        tags, services, metrics, metric, relatedSlugs, featured,
+        tags, services, metrics, metric,
+        descriptionIt, challengeIt, approachIt, resultsIt,
+        tagsIt, servicesIt, metricsIt, metricIt,
+        relatedSlugs, featured,
         "coverImageUrl": coverImage.asset->url,
   "gallery": gallery[]{
   "id": _key,

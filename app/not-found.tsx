@@ -1,3 +1,14 @@
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Page not found | Pota Studio',
+  robots: {
+    index: false,
+    follow: false,
+    googleBot: { index: false, follow: false },
+  },
+}
+
 export default function NotFound() {
   return (
     <main className="flex flex-col items-center justify-center min-h-[60vh] px-6 text-center">

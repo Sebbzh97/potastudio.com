@@ -7,7 +7,12 @@ import { ArrowLeft, ArrowUpRight, BarChart2, TrendingUp, Users } from 'lucide-re
 import { JsonLd } from '@/components/json-ld'
 import Breadcrumbs from '@/components/breadcrumbs'
 import { caseStudySchema } from '@/lib/jsonld/schemas'
-import { getCaseStudyBySlug, getCaseStudies, type SanityCaseStudy } from '@/sanity/lib/page-queries'
+import {
+  getCaseStudyBySlug,
+  getCaseStudies,
+  pickLocalizedCaseStudy,
+  type SanityCaseStudy,
+} from '@/sanity/lib/page-queries'
 
 // ── Static fallback data (IT) ──────────────────────────────────────────────────
 
@@ -72,7 +77,8 @@ type Props = { params: Promise<{ slug: string }> }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
-  const sanity = await getCaseStudyBySlug(slug)
+  const raw = await getCaseStudyBySlug(slug)
+  const sanity = raw ? pickLocalizedCaseStudy(raw, 'it') : null
   const cs = sanity ? toStaticShape(sanity) : STATIC_CASE_STUDIES[slug]
   if (!cs) return { title: 'Case study non trovato' }
   return {
@@ -84,7 +90,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function CaseStudyPageIT({ params }: Props) {
   const { slug } = await params
-  const sanity = await getCaseStudyBySlug(slug)
+  const raw = await getCaseStudyBySlug(slug)
+  const sanity = raw ? pickLocalizedCaseStudy(raw, 'it') : null
   const cs = sanity ? toStaticShape(sanity) : STATIC_CASE_STUDIES[slug]
 
 // Build gallery - use Sanity gallery if available, then galleryUrls, then static fallback
@@ -97,7 +104,8 @@ if (sanity?.gallery?.length) {
   gallery = STATIC_GALLERY[slug] ?? []
 }
 
-  const allSanity = sanity ? await getCaseStudies() : []
+  const allSanityRaw = sanity ? await getCaseStudies() : []
+  const allSanity = allSanityRaw.map((c) => pickLocalizedCaseStudy(c, 'it'))
   const relatedItems = (cs?.relatedSlugs ?? []).map((rslug) => {
     const fromSanity = allSanity.find((s) => s.slug === rslug)
     if (fromSanity) return { slug: rslug, client: fromSanity.client, type: fromSanity.type ?? '', year: fromSanity.year ?? '' }

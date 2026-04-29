@@ -1,6 +1,10 @@
 import WorkList from '@/components/work-list'
 import type { Metadata } from 'next'
-import { getWorkPage, getCaseStudies } from '@/sanity/lib/page-queries'
+import {
+  getWorkPage,
+  getCaseStudies,
+  pickLocalizedCaseStudy,
+} from '@/sanity/lib/page-queries'
 
 export const revalidate = 60
 
@@ -34,10 +38,12 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function WorkPageIT() {
-  const [data, sanityCases] = await Promise.all([
+  const [data, sanityCasesRaw] = await Promise.all([
     getWorkPage('it'),
     getCaseStudies(),
   ])
+
+  const sanityCases = sanityCasesRaw.map((cs) => pickLocalizedCaseStudy(cs, 'it'))
 
   const caseStudies: CaseStudyCard[] = sanityCases.map((cs) => ({
     slug: cs.slug,
