@@ -67,24 +67,24 @@ export default function WorkList({
                 className="group relative overflow-hidden rounded-xl flex flex-col p-6 sm:p-8 min-h-64 sm:min-h-72 transition-all duration-300 active:scale-[0.98]"
                 style={{ background: cs.bg }}
               >
-                {/* Cover image — partially dimmed for legibility */}
+                {/* Cover image — image dominates, light dim for readability */}
                 {cs.coverImage && (
                   <Image
                     src={cs.coverImage}
                     alt={cs.client}
                     fill
-                    className="object-cover opacity-65 group-hover:opacity-75 group-hover:scale-105 transition-all duration-500"
+                    className="object-cover opacity-50 group-hover:opacity-65 group-hover:scale-105 transition-all duration-500"
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                   />
                 )}
 
-                {/* Localized gradients reinforce contrast around text */}
+                {/* Localized gradients lock contrast specifically under text */}
                 {cs.coverImage && (
                   <>
                     {/* Top: protects tag chips + year */}
-                    <div className="pointer-events-none absolute inset-x-0 top-0 h-24 sm:h-28 bg-gradient-to-b from-black/80 via-black/30 to-transparent" />
-                    {/* Bottom: protects metric, title, description */}
-                    <div className="pointer-events-none absolute inset-x-0 bottom-0 h-3/5 bg-gradient-to-t from-black via-black/80 via-40% to-transparent" />
+                    <div className="pointer-events-none absolute inset-x-0 top-0 h-24 sm:h-28 bg-gradient-to-b from-black/70 via-black/20 to-transparent" />
+                    {/* Bottom: deep solid coverage under metric/title/description */}
+                    <div className="pointer-events-none absolute inset-x-0 bottom-0 h-4/5 bg-gradient-to-t from-black via-black/90 via-50% to-transparent" />
                   </>
                 )}
                 
