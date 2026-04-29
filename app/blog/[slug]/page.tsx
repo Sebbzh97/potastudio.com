@@ -3,6 +3,9 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { ArrowLeft, Clock, Calendar } from 'lucide-react'
 import { getBlogPostBySlug, getBlogPostSlugs, getTranslationSlug } from '@/sanity/lib/blog'
+import Breadcrumbs from '@/components/breadcrumbs'
+import { JsonLd } from '@/components/json-ld'
+import { articleSchema, faqPageSchema } from '@/lib/jsonld/schemas'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -120,69 +123,45 @@ export default async function BlogPostPage({ params }: Props) {
   const authorName = post.author?.name ?? 'Pota Studio'
   const authorRole = post.author?.role ?? 'Founder & CEO'
 
-  // ── Structured data ───────────────────────────────────────────────────────
-  const articleSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'Article',
-    headline: post.title,
+  // ── Structured data (centralized library) ────────────────────────────────
+  const article = articleSchema({
+    slug,
+    title: post.title,
     description: post.metaDescription ?? post.excerpt ?? '',
-    datePublished: post.publishedAt,
-    dateModified: post.updatedAt ?? post.publishedAt,
-    author: {
-      '@type': 'Person',
-      name: authorName,
-      jobTitle: authorRole,
-      url: 'https://potastudio.com/about',
-    },
-    publisher: {
-      '@type': 'Organization',
-      name: 'Pota Studio',
-      url: 'https://potastudio.com',
-      logo: { '@type': 'ImageObject', url: 'https://potastudio.com/logo.png' },
-    },
-    mainEntityOfPage: { '@type': 'WebPage', '@id': `https://potastudio.com/blog/${slug}` },
-    inLanguage: 'en',
-    keywords: [post.primaryKeyword, ...(post.secondaryKeywords ?? [])].filter(Boolean).join(', '),
-  }
-
-  const faqSchema =
-    post.faqItems?.length
-      ? {
-          '@context': 'https://schema.org',
-          '@type': 'FAQPage',
-          mainEntity: post.faqItems.map((faq: { question: string; answer: string }) => ({
-            '@type': 'Question',
-            name: faq.question,
-            acceptedAnswer: { '@type': 'Answer', text: faq.answer },
-          })),
-        }
-      : null
+    publishedAt: post.publishedAt,
+    updatedAt: post.updatedAt,
+    authorName,
+    authorRole,
+    keywords: [post.primaryKeyword, ...(post.secondaryKeywords ?? [])].filter(Boolean) as string[],
+    locale: 'en',
+    section: 'blog',
+  })
+  const faq = faqPageSchema(post.faqItems ?? [])
 
   return (
     <>
-      {/* Structured data */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
-      />
-      {faqSchema && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-        />
-      )}
+      <JsonLd data={article} />
+      {faq && <JsonLd data={faq} />}
 
       <main>
         {/* Hero */}
-        <section className="pt-40 pb-16 bg-[#0D0D0D]">
+        <header className="pt-40 pb-16 bg-[#0D0D0D]">
           <div className="container-site" style={{ maxWidth: '56rem' }}>
             <Link
               href="/blog"
-              className="inline-flex items-center gap-2 text-sm text-[#B0B0B0] hover:text-white mb-10 transition-colors"
+              className="inline-flex items-center gap-2 text-sm text-[#B0B0B0] hover:text-white mb-6 transition-colors"
             >
               <ArrowLeft size={14} />
               All Posts
             </Link>
+            <Breadcrumbs
+              className="mb-10"
+              items={[
+                { name: 'Home', url: '/' },
+                { name: 'Blog', url: '/blog' },
+                { name: post.title, url: `/blog/${slug}` },
+              ]}
+            />
             <span
               className="text-xs font-semibold uppercase tracking-widest mb-6 block"
               style={{ color: accent }}
@@ -219,7 +198,7 @@ export default async function BlogPostPage({ params }: Props) {
               )}
             </div>
           </div>
-        </section>
+        </header>
 
         {/* Cover banner */}
         <div className="container-site mb-16" style={{ maxWidth: '56rem' }}>
