@@ -23,11 +23,11 @@ export default function StatsBar({ data, locale }: { data?: StatsData | null; lo
   return (
     <section className="bg-[#141414] border-t border-b border-white/10 py-10 sm:py-12">
       <div className="container-site">
-        <div className="grid grid-cols-2 sm:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-white/10">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-white/10 sm:bg-transparent sm:gap-0 sm:divide-x sm:divide-white/10">
           {stats.map((stat, i) => (
             <div
               key={i}
-              className="flex flex-col items-center px-6 sm:px-8 py-6 sm:py-0 gap-2 text-center"
+              className="flex flex-col items-center justify-center bg-[#141414] px-4 sm:px-8 py-8 sm:py-0 gap-2 text-center min-h-[140px]"
             >
               <span
                 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-[#FFC629] leading-none"
@@ -35,7 +35,7 @@ export default function StatsBar({ data, locale }: { data?: StatsData | null; lo
               >
                 {String(stat.value)}
               </span>
-              <span className="text-[#B0B0B0] text-xs sm:text-sm text-center leading-snug font-medium">
+              <span className="text-[#B0B0B0] text-xs sm:text-sm text-center leading-snug font-medium px-1">
                 {stat.label}
               </span>
             </div>

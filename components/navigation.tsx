@@ -436,7 +436,7 @@ function NavigationInner({ data }: NavigationProps) {
       {/* ── Mobile full-screen menu ────────────────────────────── */}
       <div
         id="mobile-nav-panel"
-        className={`fixed inset-0 z-40 bg-[#0D0D0D] flex flex-col lg:hidden transition-all duration-300 ${
+        className={`fixed inset-0 z-[60] bg-[#0D0D0D] flex flex-col lg:hidden transition-all duration-300 ${
           mobileOpen ? 'opacity-100 pointer-events-auto visible' : 'opacity-0 pointer-events-none invisible'
         }`}
         aria-hidden={!mobileOpen}
