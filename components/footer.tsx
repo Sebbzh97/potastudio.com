@@ -156,16 +156,24 @@ export default function Footer({ locale = 'en', settings }: FooterProps = {}) {
         </div>
 
         {/* Bottom bar */}
-        <div className="pt-6 border-t border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          {/* Legal details — hidden on mobile for a cleaner look */}
-          <p className="hidden sm:block text-[#555] text-xs leading-relaxed">
-            {legalName} &nbsp;·&nbsp; {vatNumber} &nbsp;·&nbsp; {rea} &nbsp;·&nbsp; {capital} &nbsp;·&nbsp; {address}
+        <div className="pt-6 border-t border-white/10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          {/* Legal details — visible on all viewports */}
+          <p className="text-[#666] text-xs leading-relaxed">
+            <span className="block sm:inline">{legalName}</span>
+            <span className="hidden sm:inline">&nbsp;·&nbsp;</span>
+            <span className="block sm:inline">{vatNumber}</span>
+            <span className="hidden sm:inline">&nbsp;·&nbsp;</span>
+            <span className="block sm:inline">{rea}</span>
+            <span className="hidden sm:inline">&nbsp;·&nbsp;</span>
+            <span className="block sm:inline">{capital}</span>
+            <span className="hidden sm:inline">&nbsp;·&nbsp;</span>
+            <span className="block sm:inline">{address}</span>
           </p>
           <div className="flex items-center gap-4 flex-shrink-0">
-            <Link href={privacyHref} className="text-[#555] text-xs hover:text-white transition-colors whitespace-nowrap">
+            <Link href={privacyHref} className="text-[#666] text-xs hover:text-white transition-colors whitespace-nowrap">
               {privacyLabel}
             </Link>
-            <Link href={cookieHref} className="text-[#555] text-xs hover:text-white transition-colors whitespace-nowrap">
+            <Link href={cookieHref} className="text-[#666] text-xs hover:text-white transition-colors whitespace-nowrap">
               {cookieLabel}
             </Link>
           </div>

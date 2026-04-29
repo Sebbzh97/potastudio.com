@@ -13,11 +13,11 @@ export async function generateMetadata(): Promise<Metadata> {
     title: data?.seoTitle ?? 'Chi siamo | Pota Studio',
     description: data?.seoDescription ?? '',
     alternates: {
-      canonical: 'https://potastudio.com/it/about',
+      canonical: 'https://www.potastudio.com/it/about',
       languages: {
-        en: 'https://potastudio.com/about',
-        it: 'https://potastudio.com/it/about',
-        'x-default': 'https://potastudio.com/about',
+        en: 'https://www.potastudio.com/about',
+        it: 'https://www.potastudio.com/it/about',
+        'x-default': 'https://www.potastudio.com/about',
       },
     },
   }

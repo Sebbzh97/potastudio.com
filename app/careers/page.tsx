@@ -7,7 +7,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: data?.seoTitle ?? 'Careers | Pota Studio',
     description: data?.seoDescription ?? '',
-    alternates: { canonical: 'https://potastudio.com/careers' },
+    alternates: { canonical: 'https://www.potastudio.com/careers' },
   }
 }
 

@@ -18,11 +18,11 @@ export async function generateMetadata(): Promise<Metadata> {
     title: data?.seoTitle ?? 'Pota Studio | Marketing Agency',
     description: data?.seoDescription ?? '',
     alternates: {
-      canonical: 'https://potastudio.com/it',
+      canonical: 'https://www.potastudio.com/it',
       languages: {
-        en: 'https://potastudio.com',
-        it: 'https://potastudio.com/it',
-        'x-default': 'https://potastudio.com',
+        en: 'https://www.potastudio.com',
+        it: 'https://www.potastudio.com/it',
+        'x-default': 'https://www.potastudio.com',
       },
     },
   }

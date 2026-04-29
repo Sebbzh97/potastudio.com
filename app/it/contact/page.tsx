@@ -10,11 +10,11 @@ export async function generateMetadata(): Promise<Metadata> {
     title: data?.seoTitle ?? 'Contatti | Pota Studio',
     description: data?.seoDescription ?? '',
     alternates: {
-      canonical: 'https://potastudio.com/it/contact',
+      canonical: 'https://www.potastudio.com/it/contact',
       languages: {
-        en: 'https://potastudio.com/contact',
-        it: 'https://potastudio.com/it/contact',
-        'x-default': 'https://potastudio.com/contact',
+        en: 'https://www.potastudio.com/contact',
+        it: 'https://www.potastudio.com/it/contact',
+        'x-default': 'https://www.potastudio.com/contact',
       },
     },
   }

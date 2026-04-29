@@ -78,18 +78,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description,
     keywords: [post.primaryKeyword, ...(post.secondaryKeywords ?? [])].filter(Boolean).join(', '),
     alternates: {
-      canonical: `https://potastudio.com/blog/${slug}`,
+      canonical: `https://www.potastudio.com/blog/${slug}`,
       languages: {
-        en: `https://potastudio.com/blog/${slug}`,
-        it: `https://potastudio.com/it/blog/${slug}`,
-        'x-default': `https://potastudio.com/blog/${slug}`,
+        en: `https://www.potastudio.com/blog/${slug}`,
+        it: `https://www.potastudio.com/it/blog/${slug}`,
+        'x-default': `https://www.potastudio.com/blog/${slug}`,
       },
     },
     openGraph: {
       type: 'article',
       title: post.title,
       description,
-      url: `https://potastudio.com/blog/${slug}`,
+      url: `https://www.potastudio.com/blog/${slug}`,
       siteName: 'Pota Studio',
       publishedTime: post.publishedAt,
       authors: post.author?.name ? [post.author.name] : ['Pota Studio'],

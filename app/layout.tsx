@@ -44,13 +44,14 @@ export const viewport: Viewport = {
 }
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://potastudio.com'),
+  metadataBase: new URL('https://www.potastudio.com'),
   title: {
-    default: 'Pota Studio | Marketing Agency',
+    default: 'Pota Studio | Full Service Marketing Agency',
     template: '%s | Pota Studio',
   },
-  description: 'Pota Studio. Marketing agency.',
-  authors: [{ name: 'Pota Studio', url: 'https://potastudio.com' }],
+  description:
+    'Pota Studio is a full service marketing agency based in Bergamo, Italy. We craft social-first content, paid advertising, influencer campaigns and creator-led production for brands across Europe and the US.',
+  authors: [{ name: 'Pota Studio', url: 'https://www.potastudio.com' }],
   creator: 'Pota Studio',
   publisher: 'Pota Studio',
   robots: process.env.VERCEL_ENV === 'preview'
@@ -69,10 +70,11 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://potastudio.com',
+    url: 'https://www.potastudio.com',
     siteName: 'Pota Studio',
-    title: 'Pota Studio',
-    description: 'Pota Studio. Marketing agency.',
+    title: 'Pota Studio | Full Service Marketing Agency',
+    description:
+      'Full service marketing agency based in Bergamo. Social, paid ADS, content production, influencer marketing.',
     images: [
       {
         url: '/og-image.jpg',
@@ -84,8 +86,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Pota Studio',
-    description: 'Pota Studio. Marketing agency.',
+    title: 'Pota Studio | Full Service Marketing Agency',
+    description:
+      'Full service marketing agency based in Bergamo. Social, paid ADS, content production, influencer marketing.',
     images: ['/og-image.jpg'],
   },
   alternates: {

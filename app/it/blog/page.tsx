@@ -12,11 +12,11 @@ export async function generateMetadata(): Promise<Metadata> {
     title: data?.seoTitle ?? 'Blog | Pota Studio',
     description: data?.seoDescription ?? '',
     alternates: {
-      canonical: 'https://potastudio.com/it/blog',
+      canonical: 'https://www.potastudio.com/it/blog',
       languages: {
-        en: 'https://potastudio.com/blog',
-        it: 'https://potastudio.com/it/blog',
-        'x-default': 'https://potastudio.com/blog',
+        en: 'https://www.potastudio.com/blog',
+        it: 'https://www.potastudio.com/it/blog',
+        'x-default': 'https://www.potastudio.com/blog',
       },
     },
   }

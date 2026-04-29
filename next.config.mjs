@@ -51,6 +51,15 @@ const nextConfig = {
 
   async redirects() {
     return [
+      // Canonical host: force apex (potastudio.com) to www.potastudio.com
+      // permanent: true emits a 308 (SEO-equivalent of 301), so canonical
+      // chains stay clean and Ahrefs/GSC stop flagging redirect issues.
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'potastudio.com' }],
+        destination: 'https://www.potastudio.com/:path*',
+        permanent: true,
+      },
       { source: '/media', destination: '/', permanent: true },
       { source: '/it/media', destination: '/it', permanent: true },
     ]
