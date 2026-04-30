@@ -2,22 +2,46 @@ import type React from 'react'
 import { defineField, defineType } from 'sanity'
 
 // v2 — isUnique removed, slug validated via custom Rule only
-// JSON-LD Article schema mapping:
-// title           → headline
-// metaDescription → description
-// publishedAt     → datePublished
-// updatedAt       → dateModified
-// author.name     → author.name
-// author.credentials → author.knowsAbout  (E-E-A-T signal)
-// coverImage      → image
-// primaryKeyword + tags → keywords
 //
-// JSON-LD FAQPage schema mapping:
-// faqItems[].question → mainEntity[].name
-// faqItems[].answer   → mainEntity[].acceptedAnswer.text
+// JSON-LD Article schema mapping:
+//   title              → headline
+//   metaDescription    → description
+//   publishedAt        → datePublished
+//   updatedAt          → dateModified
+//   author.name        → author.name
+//   author.credentials → author.knowsAbout       (E-E-A-T signal)
+//   coverImage         → image
+//   primaryKeyword + tags → keywords
+//
+// GEO field mapping (most cited by AI engines first):
+//   quickAnswer        → injected as the LEAD entry of FAQPage JSON-LD
+//                        (paired with the post title) AND visibly rendered
+//                        as the <QuickAnswer> block under the H1.
+//   tldr               → text paragraph rendered above the body as a
+//                        "TL;DR" callout.
+//   keyTakeaways       → ARRAY of bullet points rendered as <KeyTakeaways>;
+//                        AI engines lift these almost verbatim, so each
+//                        item must be a complete, self-contained sentence.
+//   faqItems           → mainEntity[] of FAQPage JSON-LD, also rendered as
+//                        a visible <FaqSection> with <details>/<summary>
+//                        and microdata.
+//   keyStatistics      → rendered as <KeyStatistics> grid, each stat
+//                        attributed to a verifiable source (E-E-A-T).
+//
+// Tables: authored INSIDE the body field as `tableBlock` items
+// (registered in `blockContent.ts`). Each table is rendered as a semantic
+// <table> with <thead>/<tbody>, which Google's structured-data parser and
+// AI engines can lift directly into Featured Snippets.
+//
+// Internationalisation:
+//   language     → 'en' | 'it'  (drives /blog/* vs /it/blog/*)
+//   translationOf → reference to the EN counterpart on IT posts. The
+//                   Next.js metadata layer (`buildBlogAlternates`) reads
+//                   this to emit hreflang links pointing at the *actual*
+//                   per-locale slug (not the same slug as the current page).
 //
 // JSON-LD BreadcrumbList:
-// Generated automatically from category slug + post slug
+//   Generated automatically from category slug + post slug.
 
 export default defineType({
   name: 'blogPost',
