@@ -1,114 +1,61 @@
-import Image from 'next/image'
-
 /**
- * Displays official partner/certification badges to reinforce E-E-A-T
- * signals for Google & GEO crawlers. Each badge is schema.org-tagged with
- * `itemProp="award"` or `hasCredential` microdata so structured-data parsers
- * can recognise the certifications.
+ * Footer "Partners & Certifications" heading + Iubenda Bronze Partner badge.
  *
- * Renders in the footer (global), visible above the legal columns on
- * all public pages (excluded from /studio).
+ * The visual TikTok / Google partner badges have been removed for now —
+ * the heading is kept so the section structure stays in place and badges
+ * can be re-introduced later without re-adding the wrapper.
+ *
+ * NOTE on structured data: the schema.org `hasCredential` + `award`
+ * entries declared in `lib/jsonld/schemas.ts` (organizationSchema) are
+ * unaffected by this change. They live in JSON-LD and continue to give
+ * search/AI engines the authoritative E-E-A-T signal independently of
+ * what is rendered visually here.
  */
 export default function PartnerBadges({ locale = 'en' }: { locale?: 'en' | 'it' }) {
   const isIt = locale === 'it'
   const title = isIt ? 'Partner & Certificazioni' : 'Partners & Certifications'
+  const iubendaAlt = isIt
+    ? 'iubenda Bronze Partner certificato'
+    : 'iubenda Bronze Certified Partner'
   return (
     <section
       aria-labelledby="partner-badges-heading"
       className="border-t border-white/10 pt-10 pb-6"
-      itemProp="hasCredential"
-      itemScope
-      itemType="https://schema.org/EducationalOccupationalCredential"
     >
       <h4
         id="partner-badges-heading"
-        className="text-white text-xs sm:text-sm font-semibold uppercase tracking-widest mb-6"
+        className="text-white text-xs sm:text-sm font-semibold uppercase tracking-widest"
       >
         {title}
       </h4>
-      <div className="flex flex-wrap items-center gap-6 sm:gap-8">
-        {/* TikTok Official Marketing Partner */}
-        <div
-          itemProp="award"
-          itemScope
-          itemType="https://schema.org/Grant"
-          className="flex items-center"
-        >
-          <meta itemProp="name" content="TikTok Official Marketing Partner" />
-          <meta itemProp="description" content="Certified TikTok Official Marketing Partner since 2023" />
-          <meta itemProp="funder" content="TikTok" />
-          <a
-            href="https://www.tiktok.com/business/en/partners"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="opacity-60 hover:opacity-100 transition-opacity"
-            aria-label="TikTok Official Marketing Partner"
-          >
-            <Image
-              src="/badges/tiktok-partner.svg"
-              alt="TikTok Official Marketing Partner badge"
-              width={140}
-              height={48}
-              className="h-10 sm:h-12 w-auto"
-            />
-          </a>
-        </div>
 
-        {/* Google Partner */}
-        <div
-          itemProp="award"
-          itemScope
-          itemType="https://schema.org/Grant"
-          className="flex items-center"
+      <div className="mt-6 flex flex-wrap items-center gap-6">
+        {/*
+         * iubenda Certified Partner Badge — Small (Bronze).
+         * Using a plain <img> because:
+         *   1. The asset is hosted on iubenda's CDN and the file name is
+         *      versioned by them; we don't want to pipe it through
+         *      next/image (would require adding a remotePattern just for
+         *      one small badge).
+         *   2. Width/height are fixed by iubenda's brand guidelines, so
+         *      there's nothing to optimise responsively.
+         * `loading="lazy"` keeps it off the LCP critical path.
+         */}
+        <a
+          href="/iubenda-partner"
+          title={iubendaAlt}
+          aria-label={iubendaAlt}
+          className="inline-block transition-opacity hover:opacity-80"
         >
-          <meta itemProp="name" content="Google Partner" />
-          <meta itemProp="description" content="Google Ads certified partner" />
-          <meta itemProp="funder" content="Google" />
-          <a
-            href="https://partnersdirectory.withgoogle.com/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="opacity-60 hover:opacity-100 transition-opacity"
-            aria-label="Google Partner"
-          >
-            <Image
-              src="/badges/google-partner.svg"
-              alt="Google Partner badge"
-              width={140}
-              height={48}
-              className="h-10 sm:h-12 w-auto"
-            />
-          </a>
-        </div>
-
-        {/* Meta Business Partner (optional, uncomment when approved) */}
-        {/* 
-        <div
-          itemProp="award"
-          itemScope
-          itemType="https://schema.org/Grant"
-          className="flex items-center"
-        >
-          <meta itemProp="name" content="Meta Business Partner" />
-          <meta itemProp="description" content="Meta certified business partner" />
-          <meta itemProp="funder" content="Meta" />
-          <a
-            href="https://www.facebook.com/business/partner-directory"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="opacity-60 hover:opacity-100 transition-opacity"
-            aria-label="Meta Business Partner"
-          >
-            <Image
-              src="/badges/meta-partner.svg"
-              alt="Meta Business Partner badge"
-              width={140}
-              height={48}
-              className="h-10 sm:h-12 w-auto"
-            />
-          </a>
-        </div>
-        */}
+          <img
+            src="https://www.iubenda.com/wp-content/uploads/2026/04/Bronze.png"
+            alt={iubendaAlt}
+            width={153}
+            height={54}
+            loading="lazy"
+            decoding="async"
+          />
+        </a>
       </div>
     </section>
   )
