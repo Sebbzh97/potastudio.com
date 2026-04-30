@@ -148,13 +148,18 @@ export default async function BlogPostPageIT({ params }: Props) {
     locale: 'it',
     section: 'blog',
   })
-  // FAQ resolution: prefer curated `faqItems` from Sanity; fall back to H2-based
-  // extraction from the body so editors get free FAQPage markup on Q-style
-  // articles without manual data entry.
+  // FAQ resolution order:
+  //   1) curated faqItems from Sanity (editor-validated)
+  //   2) H2-extracted FAQs from the body (auto-mined from Q-style articles)
+  // PLUS: when the post has a `quickAnswer`, the (post.title, quickAnswer)
+  // pair is prepended as the lead FAQ so the visible TL;DR block doubles
+  // as the article's primary FAQPage entry.
   const pageUrl = `https://www.potastudio.com/it/blog/${slug}`
   const faqItems = resolveFaqItems({
     curated: post.faqItems,
     body: post.body,
+    postTitle: post.title,
+    quickAnswer: post.quickAnswer,
   })
   const faq = faqPageSchema(faqItems, { pageUrl, locale: 'it' })
 

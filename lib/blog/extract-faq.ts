@@ -150,13 +150,29 @@ export function extractFaqFromBody(
 }
 
 /**
- * Combined helper: returns curated `faqItems` if present, otherwise falls back
- * to body-extracted FAQs. Designed for direct use in page components.
+ * Combined helper: returns the post's FAQ entries from the most trustworthy
+ * source available. Resolution order:
+ *
+ *   1. Curated `faqItems[]` from Sanity — editor-validated, always wins.
+ *   2. Body H2-extracted FAQs — auto-mined when no curated list exists.
+ *
+ * On top of that, when a `quickAnswer` is present AND a `postTitle` is
+ * passed in, the (title, quickAnswer) pair is *prepended* as the lead FAQ
+ * entry. This wires the visible "Quick Answer" block straight into the
+ * FAQPage JSON-LD without forcing editors to duplicate the content.
+ *
+ * Duplicate questions are deduped (case-insensitive) so the pre-pended
+ * Quick Answer never collides with a curated entry that asks the same
+ * thing.
  */
 export function resolveFaqItems(args: {
   curated?: { question?: string; answer?: string }[] | null
   body?: PtBlock[] | null
   maxExtracted?: number
+  /** Title of the article — used as the question text for `quickAnswer`. */
+  postTitle?: string
+  /** The post's TL;DR/Quick Answer copy. Becomes the lead FAQ answer. */
+  quickAnswer?: string
 }): ExtractedFaq[] {
   const curated = (args.curated ?? [])
     .map((f) => ({
@@ -165,7 +181,25 @@ export function resolveFaqItems(args: {
     }))
     .filter((f) => f.question && f.answer)
 
-  if (curated.length > 0) return curated
+  const base = curated.length > 0
+    ? curated
+    : extractFaqFromBody(args.body, args.maxExtracted ?? 8)
 
-  return extractFaqFromBody(args.body, args.maxExtracted ?? 8)
+  // Prepend Quick Answer as the lead FAQ entry when both pieces exist.
+  if (args.quickAnswer?.trim() && args.postTitle?.trim()) {
+    const lead: ExtractedFaq = {
+      question: args.postTitle.trim(),
+      answer: args.quickAnswer.trim(),
+    }
+    const seen = new Set([lead.question.toLowerCase()])
+    const deduped = base.filter((f) => {
+      const k = f.question.toLowerCase()
+      if (seen.has(k)) return false
+      seen.add(k)
+      return true
+    })
+    return [lead, ...deduped]
+  }
+
+  return base
 }

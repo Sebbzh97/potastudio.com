@@ -124,6 +124,29 @@ export function organizationSchema(locale: "en" | "it" = "en"): Record<string, u
       email: "ciao@potastudio.com",
       availableLanguage: ["en", "it"],
     },
+    // Partner certifications strengthen E-E-A-T signals (Authoritativeness +
+    // Trustworthiness). Mirrored visually in the footer's PartnerBadges
+    // component so HTML and structured data stay in sync.
+    award: [
+      "TikTok Official Marketing Partner",
+      "Google Partner",
+    ],
+    hasCredential: [
+      {
+        "@type": "EducationalOccupationalCredential",
+        name: "TikTok Official Marketing Partner",
+        credentialCategory: "Certification",
+        recognizedBy: { "@type": "Organization", name: "TikTok" },
+        url: "https://www.tiktok.com/business/en/partners",
+      },
+      {
+        "@type": "EducationalOccupationalCredential",
+        name: "Google Partner",
+        credentialCategory: "Certification",
+        recognizedBy: { "@type": "Organization", name: "Google" },
+        url: "https://partnersdirectory.withgoogle.com/",
+      },
+    ],
   }
 }
 
