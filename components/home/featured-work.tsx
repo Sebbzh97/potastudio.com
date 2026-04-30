@@ -12,15 +12,17 @@ type FeaturedWorkData = {
 }
 
 /**
- * Slugs of the 3 case studies to feature on the homepage, in display order.
- * If any slug is missing in Sanity, it is skipped and the slot is filled
- * with the next available case study so the section always renders 3 cards.
+ * Curated case studies for the homepage hero, by CLIENT NAME (case-insensitive,
+ * partial match) — names are more stable than slugs across editorial renames.
+ * Order in this array = display order on the page.
+ *
+ * Clients to never feature on the homepage (e.g. older work).
  */
-const HOME_FEATURED_SLUGS = [
-  'levitology-social',
-  'samsung-tiktok',
-  'lucca-comics',
-] as const
+const HOME_FEATURED_CLIENTS = ['Levitology', 'Samsung', 'Lucca Comics'] as const
+const HOME_EXCLUDED_CLIENTS = ['Havit'] as const
+
+const matches = (client: string, needle: string) =>
+  client.toLowerCase().includes(needle.toLowerCase())
 
 export default async function FeaturedWork({
   data,
@@ -33,14 +35,20 @@ export default async function FeaturedWork({
   const sanity = await getCaseStudies()
   const localized = sanity.map((cs) => pickLocalizedCaseStudy(cs, isIt ? 'it' : 'en'))
 
-  // Pick the curated slugs in their declared order, then fill any empty slot
-  // with the first case studies that aren't already featured.
-  const picked = HOME_FEATURED_SLUGS
-    .map((slug) => localized.find((cs) => cs.slug === slug))
-    .filter((cs): cs is NonNullable<typeof cs> => Boolean(cs))
+  // 1) Pick curated clients in declared order, deduping by _id.
+  const picked: typeof localized = []
+  for (const needle of HOME_FEATURED_CLIENTS) {
+    const found = localized.find(
+      (cs) => matches(cs.client, needle) && !picked.some((p) => p._id === cs._id),
+    )
+    if (found) picked.push(found)
+  }
 
+  // 2) Fill any empty slots with non-curated, non-excluded case studies.
   const fillers = localized.filter(
-    (cs) => !HOME_FEATURED_SLUGS.includes(cs.slug as typeof HOME_FEATURED_SLUGS[number]),
+    (cs) =>
+      !picked.some((p) => p._id === cs._id) &&
+      !HOME_EXCLUDED_CLIENTS.some((needle) => matches(cs.client, needle)),
   )
 
   const caseStudies = [...picked, ...fillers].slice(0, 3)
