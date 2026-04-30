@@ -46,11 +46,11 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.potastudio.com'),
   title: {
-    default: 'Pota Studio | Full Service Marketing Agency',
+    default: 'Pota Studio - Social Media, Influencer Marketing & Ads',
     template: '%s | Pota Studio',
   },
   description:
-    'Pota Studio is a full service marketing agency based in Bergamo, Italy. We craft social-first content, paid advertising, influencer campaigns and creator-led production for brands across Europe and the US.',
+    'Full-service agency for social media, influencer marketing, paid advertising and TikTok. No handoffs, all in-house. Europe & US clients. See our work.',
   authors: [{ name: 'Pota Studio', url: 'https://www.potastudio.com' }],
   creator: 'Pota Studio',
   publisher: 'Pota Studio',
@@ -72,9 +72,9 @@ export const metadata: Metadata = {
     locale: 'en_US',
     url: 'https://www.potastudio.com',
     siteName: 'Pota Studio',
-    title: 'Pota Studio | Full Service Marketing Agency',
+    title: 'Pota Studio - Social Media, Influencer Marketing & Ads',
     description:
-      'Full service marketing agency based in Bergamo. Social, paid ADS, content production, influencer marketing.',
+      'Full-service agency for social media, influencer marketing, paid advertising and TikTok. No handoffs, all in-house.',
     images: [
       {
         url: '/og-image.jpg',
@@ -86,9 +86,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Pota Studio | Full Service Marketing Agency',
+    title: 'Pota Studio - Social Media, Influencer Marketing & Ads',
     description:
-      'Full service marketing agency based in Bergamo. Social, paid ADS, content production, influencer marketing.',
+      'Full-service agency for social media, influencer marketing, paid advertising and TikTok. No handoffs, all in-house.',
     images: ['/og-image.jpg'],
   },
   alternates: {
