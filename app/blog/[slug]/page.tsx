@@ -74,9 +74,12 @@ type Props = { params: Promise<{ slug: string }> }
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const post = await getBlogPostBySlug(slug, 'en')
-  if (!post) return { title: 'Post not found | Pota Studio' }
+  if (!post) return { title: 'Post not found' }
 
-  const title = post.metaTitle ?? `${post.title} | Pota Studio`
+  // Root layout's title template (`%s | Pota Studio`) appends the brand
+  // automatically — neither the metaTitle (from Sanity) nor the post.title
+  // fallback should pre-include "| Pota Studio".
+  const title = post.metaTitle ?? post.title
   const description =
     post.metaDescription ?? post.excerpt ?? ptToText(post.body ?? [])
 

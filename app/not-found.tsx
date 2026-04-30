@@ -1,7 +1,8 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Page not found | Pota Studio',
+  // Brand suffix appended automatically by the root layout template.
+  title: 'Page not found',
   robots: {
     index: false,
     follow: false,

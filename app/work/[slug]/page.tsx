@@ -11,6 +11,7 @@ import ImpactCard from '@/components/work/impact-card'
 import TrustVerifiedBadge from '@/components/work/trust-verified-badge'
 import StrategySection from '@/components/work/strategy-section'
 import { caseStudySchema } from '@/lib/jsonld/schemas'
+import { getHreflang } from '@/lib/hreflang'
 import {
   getCaseStudyBySlug,
   getCaseStudies,
@@ -99,21 +100,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const sanity = await getCaseStudyBySlug(slug)
   const cs = sanity ? toStaticShape(sanity) : STATIC_CASE_STUDIES[slug]
   if (!cs) return { title: 'Case study not found' }
+  // Brand suffix in <title> is appended by the root layout's template
+  // (`%s | Pota Studio`); openGraph titles use the same string for visual
+  // parity with the SERP / link previews — they are NOT auto-suffixed.
+  const baseTitle = `${cs.client} Case Study`
+  const description = (cs.challenge || cs.results).slice(0, 160)
   return {
-    title: `${cs.client} Case Study | Pota Studio`,
-    description: (cs.challenge || cs.results).slice(0, 160),
-    alternates: {
-      canonical: `https://www.potastudio.com/work/${slug}`,
-      languages: {
-        en: `https://www.potastudio.com/work/${slug}`,
-        it: `https://www.potastudio.com/it/work/${slug}`,
-        'x-default': `https://www.potastudio.com/work/${slug}`,
-      },
-    },
+    title: baseTitle,
+    description,
+    ...getHreflang(`/work/${slug}`),
     openGraph: {
       type: 'website',
-      title: `${cs.client} Case Study | Pota Studio`,
-      description: (cs.challenge || cs.results).slice(0, 160),
+      title: `${baseTitle} | Pota Studio`,
+      description,
       url: `https://www.potastudio.com/work/${slug}`,
       siteName: 'Pota Studio',
     },

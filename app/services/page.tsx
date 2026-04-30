@@ -24,7 +24,8 @@ function getDeliverables(data: Record<string, unknown> | null, n: number): strin
 export async function generateMetadata(): Promise<Metadata> {
   const data = await getServicesPage('en')
   return {
-    title: data?.seoTitle ?? 'Services | Pota Studio',
+    // Brand suffix appended automatically by the root layout template.
+    title: data?.seoTitle ?? 'Services',
     description: data?.seoDescription ?? '',
     ...getHreflang('/services'),
   }

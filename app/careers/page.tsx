@@ -1,13 +1,17 @@
 import type { Metadata } from 'next'
 import { ArrowUpRight } from 'lucide-react'
+import { getHreflang } from '@/lib/hreflang'
 import { getCareersPage, getJobOpenings } from '@/sanity/lib/page-queries'
 
 export async function generateMetadata(): Promise<Metadata> {
   const data = await getCareersPage('en')
   return {
-    title: data?.seoTitle ?? 'Careers | Pota Studio',
+    // Title template (`%s | Pota Studio`) is applied automatically by the
+    // root layout — leave the brand suffix off here to avoid "Careers |
+    // Pota Studio | Pota Studio".
+    title: data?.seoTitle ?? 'Careers',
     description: data?.seoDescription ?? '',
-    alternates: { canonical: 'https://www.potastudio.com/careers' },
+    ...getHreflang('/careers'),
   }
 }
 

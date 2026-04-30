@@ -8,7 +8,8 @@ export const revalidate = 60
 export async function generateMetadata(): Promise<Metadata> {
   const data = await getCookiePage('en')
   return {
-    title: data?.seoTitle ?? 'Cookie Policy | Pota Studio',
+    // Brand suffix appended automatically by the root layout template.
+    title: data?.seoTitle ?? 'Cookie Policy',
     description: data?.seoDescription ?? '',
     ...getHreflang('/cookie'),
   }

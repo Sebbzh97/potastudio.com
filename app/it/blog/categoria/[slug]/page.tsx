@@ -80,7 +80,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const canonicalName = findCategoryName(posts, slug)
 
   if (!canonicalName) {
-    return { title: 'Categoria non trovata | Pota Studio' }
+    return { title: 'Categoria non trovata' }
   }
 
   const { title, description } = categoryMetaCopy(canonicalName, 'it')

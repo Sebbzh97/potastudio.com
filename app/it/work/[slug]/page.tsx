@@ -11,6 +11,7 @@ import ImpactCard from '@/components/work/impact-card'
 import TrustVerifiedBadge from '@/components/work/trust-verified-badge'
 import StrategySection from '@/components/work/strategy-section'
 import { caseStudySchema } from '@/lib/jsonld/schemas'
+import { getHreflang } from '@/lib/hreflang'
 import {
   getCaseStudyBySlug,
   getCaseStudies,
@@ -89,10 +90,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const sanity = raw ? pickLocalizedCaseStudy(raw, 'it') : null
   const cs = sanity ? toStaticShape(sanity) : STATIC_CASE_STUDIES[slug]
   if (!cs) return { title: 'Case study non trovato' }
+  // Brand suffix is appended automatically by the root layout's title
+  // template — leave it off here to avoid double-suffixing.
   return {
-    title: `${cs.client} Case Study | Pota Studio`,
+    title: `${cs.client} Case Study`,
     description: (cs.challenge || cs.results).slice(0, 160),
-    alternates: { canonical: `https://www.potastudio.com/it/work/${slug}`, languages: { en: `https://www.potastudio.com/work/${slug}`, it: `https://www.potastudio.com/it/work/${slug}`, 'x-default': `https://www.potastudio.com/work/${slug}` } },
+    ...getHreflang(`/work/${slug}`, 'it'),
   }
 }
 

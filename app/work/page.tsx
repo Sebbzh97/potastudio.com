@@ -21,7 +21,8 @@ interface CaseStudyCard {
 export async function generateMetadata(): Promise<Metadata> {
   const data = await getWorkPage('en')
   return {
-    title: data?.seoTitle ?? 'Work | Pota Studio',
+    // Brand suffix appended automatically by the root layout template.
+    title: data?.seoTitle ?? 'Work',
     description: data?.seoDescription ?? '',
     ...getHreflang('/work'),
   }
