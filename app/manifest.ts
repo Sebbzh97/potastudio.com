@@ -18,12 +18,12 @@ export default function manifest(): MetadataRoute.Manifest {
     orientation: 'portrait-primary',
     lang: 'en',
     categories: ['business', 'marketing', 'productivity'],
+    // These paths match the Next.js App Router file conventions:
+    //   app/icon.png        → /icon.png        (raster, fallback)
+    //   app/icon.svg        → /icon.svg        (vector, scales perfectly)
+    //   app/apple-icon.tsx  → /apple-icon      (180x180 generated PNG)
+    // Order matters — browsers/crawlers pick the first usable format.
     icons: [
-      {
-        src: '/favicon.ico',
-        sizes: '48x48',
-        type: 'image/x-icon',
-      },
       {
         src: '/icon.svg',
         sizes: 'any',
@@ -31,7 +31,13 @@ export default function manifest(): MetadataRoute.Manifest {
         purpose: 'any',
       },
       {
-        src: '/apple-icon.png',
+        src: '/icon.png',
+        sizes: '32x32',
+        type: 'image/png',
+        purpose: 'any',
+      },
+      {
+        src: '/apple-icon',
         sizes: '180x180',
         type: 'image/png',
         purpose: 'any',
