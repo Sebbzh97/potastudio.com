@@ -14,9 +14,17 @@ export const revalidate = 60
 
 export async function generateMetadata(): Promise<Metadata> {
   const data = await getHomepage('it')
+  // Use Sanity values when set; fall back to the canonical positioning copy.
+  // `||` (not `??`) so empty strings from Studio also fall back.
+  const title =
+    data?.seoTitle?.trim() ||
+    'Pota Studio - Social Media, Influencer Marketing e Ads'
+  const description =
+    data?.seoDescription?.trim() ||
+    'Agenzia marketing completa: social media, influencer, advertising, TikTok. Nessun subappalto, tutto in-house. Clienti in Europa e USA. Scopri i progetti.'
   return {
-    title: data?.seoTitle ?? 'Pota Studio | Marketing Agency',
-    description: data?.seoDescription ?? '',
+    title,
+    description,
     alternates: {
       canonical: 'https://www.potastudio.com/it',
       languages: {
