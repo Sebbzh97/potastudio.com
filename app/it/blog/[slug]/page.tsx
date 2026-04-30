@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { ArrowLeft, Clock, Calendar } from 'lucide-react'
 import { getBlogPostBySlug, getBlogPostSlugs, getTranslationSlug } from '@/sanity/lib/blog'
+import { buildBlogAlternates } from '@/lib/blog/hreflang'
 import { urlFor } from '@/sanity/lib/client'
 import Breadcrumbs from '@/components/breadcrumbs'
 import { JsonLd } from '@/components/json-ld'
@@ -83,18 +84,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const description =
     post.metaDescription ?? post.excerpt ?? ptToText(post.body ?? [])
 
+  // Hreflang: resolve the EN counterpart's *actual* slug via Sanity
+  // `translationOf`. If no counterpart exists, only the IT URL is emitted.
+  const alternates = await buildBlogAlternates(post._id, slug, 'it')
+
   return {
     title,
     description,
     keywords: [post.primaryKeyword, ...(post.secondaryKeywords ?? [])].filter(Boolean).join(', '),
-    alternates: {
-      canonical: `https://www.potastudio.com/it/blog/${slug}`,
-      languages: {
-        en: `https://www.potastudio.com/blog/${slug}`,
-        it: `https://www.potastudio.com/it/blog/${slug}`,
-        'x-default': `https://www.potastudio.com/blog/${slug}`,
-      },
-    },
+    alternates,
     openGraph: {
       type: 'article',
       title: post.title,
