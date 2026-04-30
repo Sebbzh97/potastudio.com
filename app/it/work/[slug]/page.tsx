@@ -7,7 +7,8 @@ import { ArrowLeft, ArrowUpRight, BarChart2, TrendingUp, Users } from 'lucide-re
 import { JsonLd } from '@/components/json-ld'
 import Breadcrumbs from '@/components/breadcrumbs'
 import CaseStudyTracker from '@/components/analytics/case-study-tracker'
-import AnimatedMetric from '@/components/work/animated-metric'
+import ImpactCard from '@/components/work/impact-card'
+import TrustVerifiedBadge from '@/components/work/trust-verified-badge'
 import StrategySection from '@/components/work/strategy-section'
 import { caseStudySchema } from '@/lib/jsonld/schemas'
 import {
@@ -150,8 +151,18 @@ if (sanity?.gallery?.length) {
           results: cs.results,
           year: cs.year,
           tags: cs.tags,
+          services: cs.services,
           metrics: cs.metrics,
           locale: 'it',
+          aggregateRating:
+            raw?.testimonial?.rating &&
+            Number.isFinite(raw.testimonial.rating)
+              ? {
+                  ratingValue: raw.testimonial.rating,
+                  reviewCount: 1,
+                  bestRating: 5,
+                }
+              : undefined,
         })}
       />
 
@@ -187,22 +198,26 @@ if (sanity?.gallery?.length) {
           </div>
         </header>
 
-      {/* Animated metric bar — counters trigger on scroll-in (CRO + GEO data signal) */}
+      {/* Impact Cards — griglia metriche AI-friendly (semantic <strong>
+          + microdata PropertyValue + accent rail per card). */}
       {cs.metrics.length > 0 && (
         <section
           aria-label="Risultati chiave"
-          className="bg-[#141414] border-b border-white/10"
+          className="bg-[#141414] border-y border-white/10"
         >
-          <div className="container-site py-8 sm:py-10">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:divide-x md:divide-white/10">
+          <div className="container-site py-12 sm:py-16">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
               {cs.metrics.map((m, i) => (
-                <AnimatedMetric
+                <ImpactCard
                   key={`${m.label}-${i}`}
                   value={m.value}
                   label={m.label}
                   accent={cs.accent}
                 />
               ))}
+            </div>
+            <div className="mt-8 flex">
+              <TrustVerifiedBadge locale="it" />
             </div>
           </div>
         </section>

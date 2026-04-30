@@ -222,6 +222,15 @@ export interface CaseStudyMetric {
   value: string
 }
 
+export interface CaseStudyAggregateRating {
+  /** 0–5 rating (typically derived from the linked testimonial). */
+  ratingValue: number
+  /** Number of reviews (defaults to 1 for a single-testimonial source). */
+  reviewCount?: number
+  /** Best possible rating on the scale (defaults to 5). */
+  bestRating?: number
+}
+
 export interface CaseStudySchemaInput {
   slug: string
   client: string
@@ -231,8 +240,21 @@ export interface CaseStudySchemaInput {
   results?: string
   year?: string
   tags?: string[]
+  /**
+   * Disciplines / channels deployed (e.g. "TikTok Ads", "Meta Ads").
+   * Mixed into the `keywords` array so AI engines surface the page on
+   * channel-specific queries.
+   */
+  services?: string[]
   metrics?: CaseStudyMetric[]
   locale?: "en" | "it"
+  /**
+   * Optional schema.org `AggregateRating`. Emit ONLY when there is a
+   * trustworthy data source (e.g. a linked Testimonial with a real rating).
+   * Self-generated ratings violate Google's structured data guidelines, so
+   * leave this undefined when no first-party rating exists.
+   */
+  aggregateRating?: CaseStudyAggregateRating
 }
 
 /**
@@ -267,14 +289,52 @@ function metricToQuantitativeValue(metric: CaseStudyMetric): Record<string, unkn
 }
 
 /**
- * CaseStudy is not a top-level schema.org type, so we model it as an
- * `Article` (sub-type "CaseStudy") plus rich properties:
- *   - `about`        → the client (Organization)
- *   - `result`       → the outcome paragraph
- *   - `additionalProperty` → array of PropertyValue (= statistical metrics)
+ * Builds an SEO/GEO keyword list from the human-curated tags + services +
+ * KPI-derived phrases. AI engines (Perplexity, Google AI Overviews) use this
+ * to match queries like "TikTok Ads case study with measurable ROAS" or
+ * "agencies with documented CPL reductions".
  *
- * AI crawlers (especially Perplexity & Gemini) actively use these fields when
- * answering "show me marketing case studies with measurable ROAS".
+ * Each metric becomes a phrase like "ROAS +340%" so the keyword text already
+ * contains the headline number — boosts surfacing on stat-style queries.
+ */
+function buildCaseStudyKeywords(
+  tags: string[],
+  services: string[],
+  metrics: CaseStudyMetric[],
+  client: string,
+  type?: string,
+): string[] {
+  const set = new Set<string>()
+  for (const t of tags) if (t?.trim()) set.add(t.trim())
+  for (const s of services) if (s?.trim()) set.add(s.trim())
+  for (const m of metrics) {
+    if (m?.label && m?.value) set.add(`${m.label} ${m.value}`.trim())
+  }
+  // Always include the client + a generic "[Type] case study" anchor
+  if (client) set.add(`${client} case study`)
+  if (type) set.add(`${type} case study`)
+  return Array.from(set)
+}
+
+/**
+ * CaseStudy is not a top-level schema.org type. We model it as a multi-type
+ * node `["Article", "CreativeWork"]` so:
+ *   - Google parses it as an Article (rich result eligibility).
+ *   - GEO crawlers (Perplexity, Gemini, Claude) read it as a CreativeWork —
+ *     the catch-all type they use for "agency project / marketing campaign"
+ *     entities.
+ *
+ * The single JSON-LD block declares both types under one `@id`, so it does
+ * NOT collide with the Article schema rendered for blog posts (they use a
+ * different `@id` and live on different routes). One block, dual semantics.
+ *
+ * Rich properties:
+ *   - `about`           → the client (Organization)
+ *   - `creator`         → Pota Studio org (the agency that built it)
+ *   - `keywords`        → array of channel + KPI phrases
+ *   - `result`          → the outcome paragraph
+ *   - `additionalProperty` → array of PropertyValue (= statistical metrics)
+ *   - `aggregateRating` → ONLY when explicitly provided (no auto-fake)
  */
 export function caseStudySchema(input: CaseStudySchemaInput): Record<string, unknown> {
   const {
@@ -286,17 +346,23 @@ export function caseStudySchema(input: CaseStudySchemaInput): Record<string, unk
     results,
     year,
     tags = [],
+    services = [],
     metrics = [],
     locale = "en",
+    aggregateRating,
   } = input
 
   const url = locale === "it" ? `${SITE}/it/work/${slug}` : `${SITE}/work/${slug}`
   const headline = type ? `${client}: ${type} Case Study` : `${client} Case Study`
   const description = results || challenge || ""
 
+  const keywords = buildCaseStudyKeywords(tags, services, metrics, client, type)
+
   const schema: Record<string, unknown> = {
     "@context": "https://schema.org",
-    "@type": "Article",
+    // Multi-type node — Article for Google rich results, CreativeWork for AI
+    // engine compatibility. Both share the same `@id`, so this is one entity.
+    "@type": ["Article", "CreativeWork"],
     "@id": `${url}#case-study`,
     articleSection: "Case Study",
     additionalType: "https://schema.org/CaseStudy",
@@ -305,15 +371,22 @@ export function caseStudySchema(input: CaseStudySchemaInput): Record<string, unk
     description,
     inLanguage: locale,
     datePublished: year ? `${year}-01-01` : undefined,
+    // The agency that produced the work — links to Organization graph node
+    // declared globally so AI crawlers can resolve "Pota Studio" → website,
+    // socials, address, services list, etc.
     author: { "@id": `${SITE}/#organization` },
+    creator: { "@id": `${SITE}/#organization` },
     publisher: { "@id": `${SITE}/#organization` },
+    sourceOrganization: { "@id": `${SITE}/#organization` },
     about: {
       "@type": "Organization",
       name: client,
     },
     mainEntityOfPage: { "@type": "WebPage", "@id": url },
     url,
-    keywords: tags.join(", "),
+    // Array form is preferred by Google + AI engines (string CSV is also OK
+    // but harder for AI parsers to tokenise on noisy queries).
+    keywords,
   }
 
   if (challenge || approach || results) {
@@ -330,6 +403,16 @@ export function caseStudySchema(input: CaseStudySchemaInput): Record<string, unk
 
   if (metrics.length > 0) {
     schema.additionalProperty = metrics.map(metricToQuantitativeValue)
+  }
+
+  if (aggregateRating && Number.isFinite(aggregateRating.ratingValue)) {
+    schema.aggregateRating = {
+      "@type": "AggregateRating",
+      ratingValue: aggregateRating.ratingValue,
+      reviewCount: aggregateRating.reviewCount ?? 1,
+      bestRating: aggregateRating.bestRating ?? 5,
+      worstRating: 1,
+    }
   }
 
   // Strip undefined for cleaner output
@@ -422,7 +505,7 @@ export function articleSchema(input: ArticleSchemaInput): Record<string, unknown
   }
 }
 
-// ───────────────────────────────────────────���───────────────────────────────────
+// ───────────────────────────────────────────�����───────────────────────────────────
 // Blog (index page) + CollectionPage (category index)
 // ───────────────────────────────────────────────────────────────────────────────
 

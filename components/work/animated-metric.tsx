@@ -44,6 +44,17 @@ function parseMetric(raw: string):
  *   - Respects `prefers-reduced-motion: reduce` (skips animation entirely).
  *   - Eases out cubically so the value lands on the target gracefully.
  *   - Falls back to plain text for non-numeric values like "Ongoing".
+ *
+ * Renders semantic, AI-friendly markup:
+ *   <strong class="metric-value">+340%</strong>
+ *   <span class="metric-label">ROAS</span>
+ *
+ * The `<strong>` + `metric-value` class are intentional GEO signals — AI
+ * crawlers like Perplexity and Google's AI Overviews lift the strongly
+ * emphasised number alongside the nearby label as a single fact.
+ *
+ * The component is layout-agnostic: chrome (cards, dividers, spacing) is
+ * provided by the parent (e.g. <ImpactCard>).
  */
 export default function AnimatedMetric({
   value,
@@ -52,7 +63,7 @@ export default function AnimatedMetric({
   durationMs = 1600,
 }: AnimatedMetricProps) {
   const parsed = parseMetric(value)
-  const ref = useRef<HTMLSpanElement | null>(null)
+  const ref = useRef<HTMLElement | null>(null)
   const [displayed, setDisplayed] = useState<number>(parsed?.target ?? 0)
   const [hasAnimated, setHasAnimated] = useState<boolean>(false)
 
@@ -101,12 +112,13 @@ export default function AnimatedMetric({
   }, [parsed, durationMs, hasAnimated])
 
   return (
-    <div className="flex flex-col gap-1 md:px-8 first:pl-0">
-      <span
+    <>
+      <strong
         ref={ref}
-        className="text-4xl font-bold tabular-nums"
+        className="metric-value text-4xl font-bold tabular-nums leading-none"
         style={{ fontFamily: 'var(--font-space-grotesk)', color: accent }}
         aria-label={`${value} ${label}`}
+        itemProp="value"
       >
         {parsed ? (
           <>
@@ -117,10 +129,13 @@ export default function AnimatedMetric({
         ) : (
           value
         )}
-      </span>
-      <span className="text-xs text-[#B0B0B0] uppercase tracking-widest">
+      </strong>
+      <span
+        className="metric-label text-xs text-[#B0B0B0] uppercase tracking-widest mt-2"
+        itemProp="name"
+      >
         {label}
       </span>
-    </div>
+    </>
   )
 }
