@@ -1,13 +1,15 @@
+import Image from 'next/image'
+
 /**
- * Footer "Partners & Certifications" heading + Iubenda Bronze Partner badge.
+ * Footer "Partners & Certifications" heading + visible certification badges.
  *
- * The visual TikTok / Google partner badges have been removed for now —
- * the heading is kept so the section structure stays in place and badges
- * can be re-introduced later without re-adding the wrapper.
+ * Currently shows:
+ *   - Shopify Partners (local asset, primary inverted lockup for dark UI)
+ *   - iubenda Bronze Certified Partner (remote asset from iubenda's CDN)
  *
  * NOTE on structured data: the schema.org `hasCredential` + `award`
  * entries declared in `lib/jsonld/schemas.ts` (organizationSchema) are
- * unaffected by this change. They live in JSON-LD and continue to give
+ * unaffected by this file. They live in JSON-LD and continue to give
  * search/AI engines the authoritative E-E-A-T signal independently of
  * what is rendered visually here.
  */
@@ -17,6 +19,9 @@ export default function PartnerBadges({ locale = 'en' }: { locale?: 'en' | 'it' 
   const iubendaAlt = isIt
     ? 'iubenda Bronze Partner certificato'
     : 'iubenda Bronze Certified Partner'
+  const shopifyAlt = isIt
+    ? 'Shopify Partner ufficiale'
+    : 'Official Shopify Partner'
   return (
     <section
       aria-labelledby="partner-badges-heading"
@@ -29,17 +34,13 @@ export default function PartnerBadges({ locale = 'en' }: { locale?: 'en' | 'it' 
         {title}
       </h4>
 
-      <div className="mt-6 flex flex-wrap items-center gap-6">
+      <div className="mt-6 flex flex-wrap items-center gap-x-8 gap-y-6">
         {/*
          * iubenda Certified Partner Badge — Small (Bronze).
-         * Using a plain <img> because:
-         *   1. The asset is hosted on iubenda's CDN and the file name is
-         *      versioned by them; we don't want to pipe it through
-         *      next/image (would require adding a remotePattern just for
-         *      one small badge).
-         *   2. Width/height are fixed by iubenda's brand guidelines, so
-         *      there's nothing to optimise responsively.
-         * `loading="lazy"` keeps it off the LCP critical path.
+         * Using a plain <img> because the asset is hosted on iubenda's CDN
+         * and we don't want to add a `remotePatterns` entry just for one
+         * small badge. Width/height are fixed per iubenda's brand
+         * guidelines. `loading="lazy"` keeps it off the LCP critical path.
          */}
         <a
           href="/iubenda-partner"
@@ -54,6 +55,36 @@ export default function PartnerBadges({ locale = 'en' }: { locale?: 'en' | 'it' 
             height={54}
             loading="lazy"
             decoding="async"
+          />
+        </a>
+
+        {/*
+         * Shopify Partners — local asset. The source PNG is a wide
+         * horizontal lockup; we cap its rendered height at 32px so it sits
+         * at roughly the same optical weight as the Iubenda badge, then
+         * let the width scale proportionally via `h-8 w-auto`.
+         *
+         * `unoptimized` because the file is already a small inverted PNG
+         * and Shopify's brand guidelines require pixel-exact reproduction
+         * of the lockup — running it through next/image's resizer can
+         * introduce subtle compression artifacts on the green icon.
+         */}
+        <a
+          href="https://www.shopify.com/partners"
+          target="_blank"
+          rel="noopener noreferrer"
+          title={shopifyAlt}
+          aria-label={shopifyAlt}
+          className="inline-block transition-opacity hover:opacity-80"
+        >
+          <Image
+            src="/badges/shopify-partners.png"
+            alt={shopifyAlt}
+            width={180}
+            height={47}
+            sizes="180px"
+            className="h-8 w-auto"
+            unoptimized
           />
         </a>
       </div>
