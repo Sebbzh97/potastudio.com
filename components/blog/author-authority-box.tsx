@@ -13,6 +13,20 @@ type Author = {
   credentials?: string[]
 }
 
+/**
+ * Hardcoded fallback for known team members. Used ONLY when the Sanity
+ * author document is missing `photo` / `linkedin` — once the CMS field
+ * is populated it transparently takes precedence (no code change needed).
+ *
+ * Keys are matched case-insensitively against the author's `name`.
+ */
+const TEAM_FALLBACKS: Record<string, { photoSrc?: string; linkedin?: string }> = {
+  'sebastian bonfanti': {
+    photoSrc: '/team/sebastian-bonfanti.jpg',
+    linkedin: 'https://www.linkedin.com/in/sebastian-bonfanti/',
+  },
+}
+
 const COPY = {
   en: {
     label: 'Written by',
@@ -62,10 +76,15 @@ export default function AuthorAuthorityBox({
 }) {
   if (!author?.name) return null
   const copy = COPY[locale]
-  const photoSrc = author.photo?.asset
+  // 1) Sanity photo (CMS source of truth) → 2) hardcoded team fallback → 3) initial.
+  const fallback = TEAM_FALLBACKS[author.name.toLowerCase()] ?? {}
+  const sanityPhotoSrc = author.photo?.asset
     ? urlFor(author.photo).width(160).height(160).fit('crop').auto('format').url()
     : null
+  const photoSrc = sanityPhotoSrc ?? fallback.photoSrc ?? null
   const photoAlt = author.photo?.alt ?? author.name
+  // Same precedence for LinkedIn — CMS wins if set, else fallback if known.
+  const linkedinHref = author.linkedin ?? fallback.linkedin ?? null
 
   return (
     <aside
@@ -151,11 +170,11 @@ export default function AuthorAuthorityBox({
             </div>
           )}
 
-          {(author.linkedin || author.twitterX) && (
+          {(linkedinHref || author.twitterX) && (
             <div className="flex flex-wrap gap-2 mt-4">
-              {author.linkedin && (
+              {linkedinHref && (
                 <a
-                  href={author.linkedin}
+                  href={linkedinHref}
                   target="_blank"
                   rel="noopener noreferrer me"
                   className="inline-flex items-center gap-2 text-sm font-medium border border-white/20 rounded-lg px-4 py-2 text-[#B0B0B0] hover:text-white hover:border-white/40 transition-colors"
