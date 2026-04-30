@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build --webpack",
     "start": "next start",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "seed:articles": "node --env-file-if-exists=/vercel/share/.env.project --env-file-if-exists=.env.local scripts/seed-2026-articles.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
