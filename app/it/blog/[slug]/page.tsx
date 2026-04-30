@@ -8,12 +8,14 @@ import { urlFor } from '@/sanity/lib/client'
 import Breadcrumbs from '@/components/breadcrumbs'
 import { JsonLd } from '@/components/json-ld'
 import { articleSchema, faqPageSchema } from '@/lib/jsonld/schemas'
+import { resolveFaqItems } from '@/lib/blog/extract-faq'
 import PortableTextRenderer from '@/components/blog/portable-text-renderer'
 import QuickAnswer from '@/components/blog/quick-answer'
 import KeyTakeaways from '@/components/blog/key-takeaways'
 import LeadMagnetBox from '@/components/blog/lead-magnet-box'
 import StickyMobileCta from '@/components/blog/sticky-mobile-cta'
 import AuthorAuthorityBox from '@/components/blog/author-authority-box'
+import FaqSection from '@/components/blog/faq-section'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -72,9 +74,12 @@ type Props = { params: Promise<{ slug: string }> }
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const post = await getBlogPostBySlug(slug, 'it')
-  if (!post) return { title: 'Articolo non trovato | Pota Studio' }
+  if (!post) return { title: 'Articolo non trovato' }
 
-  const title = post.metaTitle ?? `${post.title} | Pota Studio`
+  // Brand suffix is appended automatically by the root layout's title
+  // template — neither the metaTitle (from Sanity) nor post.title should
+  // pre-include "| Pota Studio".
+  const title = post.metaTitle ?? post.title
   const description =
     post.metaDescription ?? post.excerpt ?? ptToText(post.body ?? [])
 
@@ -143,7 +148,20 @@ export default async function BlogPostPageIT({ params }: Props) {
     locale: 'it',
     section: 'blog',
   })
-  const faq = faqPageSchema(post.faqItems ?? [])
+  // FAQ resolution order:
+  //   1) curated faqItems from Sanity (editor-validated)
+  //   2) H2-extracted FAQs from the body (auto-mined from Q-style articles)
+  // PLUS: when the post has a `quickAnswer`, the (post.title, quickAnswer)
+  // pair is prepended as the lead FAQ so the visible TL;DR block doubles
+  // as the article's primary FAQPage entry.
+  const pageUrl = `https://www.potastudio.com/it/blog/${slug}`
+  const faqItems = resolveFaqItems({
+    curated: post.faqItems,
+    body: post.body,
+    postTitle: post.title,
+    quickAnswer: post.quickAnswer,
+  })
+  const faq = faqPageSchema(faqItems, { pageUrl, locale: 'it' })
 
   return (
     <>
@@ -323,48 +341,14 @@ export default async function BlogPostPageIT({ params }: Props) {
             {/* Lead Magnet — cattura email tra body e FAQ */}
             <LeadMagnetBox location={`blog_${post.slug?.current ?? 'post'}`} locale="it" />
 
-            {/* FAQ */}
-            {post.faqItems?.length > 0 && (
-              <section className="mt-16" aria-labelledby="faq-heading">
-                <h2
-                  id="faq-heading"
-                  className="text-2xl font-bold text-white mb-8"
-                  style={{ fontFamily: 'var(--font-space-grotesk)' }}
-                >
-                  Domande Frequenti
-                </h2>
-                <div className="flex flex-col gap-6">
-                  {post.faqItems.map(
-                    (faq: { question: string; answer: string }, i: number) => (
-                      <div
-                        key={i}
-                        className="rounded-xl bg-white/[0.03] border border-white/10 p-6"
-                        itemScope
-                        itemProp="mainEntity"
-                        itemType="https://schema.org/Question"
-                      >
-                        <h3
-                          className="text-white font-semibold mb-3"
-                          style={{ fontFamily: 'var(--font-space-grotesk)' }}
-                          itemProp="name"
-                        >
-                          {faq.question}
-                        </h3>
-                        <div
-                          itemScope
-                          itemProp="acceptedAnswer"
-                          itemType="https://schema.org/Answer"
-                        >
-                          <p className="text-[#B0B0B0] leading-relaxed" itemProp="text">
-                            {faq.answer}
-                          </p>
-                        </div>
-                      </div>
-                    ),
-                  )}
-                </div>
-              </section>
-            )}
+            {/* FAQ — abbinato a FAQPage JSON-LD nel <head>. Markup visibile con
+                <details>/<summary> + microdata schema.org per accessibilità e
+                crawler-readability. */}
+            <FaqSection
+              items={faqItems}
+              accent={accent}
+              title="Domande Frequenti"
+            />
 
             {/* Tags */}
             {post.tags?.length > 0 && (

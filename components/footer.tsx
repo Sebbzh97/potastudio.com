@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import PartnerBadges from '@/components/partner-badges'
 
 interface FooterLink {
   _key?: string
@@ -154,6 +155,9 @@ export default function Footer({ locale = 'en', settings }: FooterProps = {}) {
             ))}
           </div>
         </div>
+
+        {/* Partner & certification badges for E-E-A-T */}
+        <PartnerBadges locale={locale} />
 
         {/* Bottom bar */}
         <div className="pt-6 border-t border-white/10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

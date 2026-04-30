@@ -26,14 +26,20 @@ export default function Analytics() {
 
   return (
     <>
-      {/* Google Ads — consent-gated */}
+      {/* All marketing/conversion pixels use `lazyOnload` (loaded after the
+          window `load` event) so they stay off the LCP critical path. The
+          primary GA4 tag remains in <head> for Google's tag-detection
+          crawler — these pixels here are secondary and ad-attribution only.
+      */}
+
+      {/* Google Ads — consent-gated, lazy */}
       {GADS_ID && consented && (
         <>
           <Script
             src={`https://www.googletagmanager.com/gtag/js?id=${GADS_ID}`}
-            strategy="afterInteractive"
+            strategy="lazyOnload"
           />
-          <Script id="gads-init" strategy="afterInteractive">
+          <Script id="gads-init" strategy="lazyOnload">
             {`
               window.dataLayer = window.dataLayer || [];
               function gtag(){dataLayer.push(arguments);}
@@ -43,9 +49,9 @@ export default function Analytics() {
         </>
       )}
 
-      {/* Meta (Facebook) Pixel — consent-gated */}
+      {/* Meta (Facebook) Pixel — consent-gated, lazy */}
       {META_ID && consented && (
-        <Script id="meta-pixel" strategy="afterInteractive">
+        <Script id="meta-pixel" strategy="lazyOnload">
           {`
             !function(f,b,e,v,n,t,s){
               if(f.fbq)return;n=f.fbq=function(){n.callMethod?
@@ -61,9 +67,9 @@ export default function Analytics() {
         </Script>
       )}
 
-      {/* TikTok Pixel — consent-gated */}
+      {/* TikTok Pixel — consent-gated, lazy */}
       {TIKTOK_ID && consented && (
-        <Script id="tiktok-pixel" strategy="afterInteractive">
+        <Script id="tiktok-pixel" strategy="lazyOnload">
           {`
             !function(w,d,t){
               w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];

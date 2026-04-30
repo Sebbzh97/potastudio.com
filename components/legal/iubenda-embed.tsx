@@ -46,7 +46,11 @@ export default function IubendaEmbed({ url, label, caption, subCaption }: Iubend
         <ArrowUpRight size={16} aria-hidden />
       </a>
 
-      <Script id="iubenda-loader" strategy="afterInteractive">
+      {/* lazyOnload ensures Iubenda's CDN loader runs only after the
+          window load event, keeping it off the LCP critical path. The
+          policy button still works without JS — the script merely
+          upgrades the link into a modal. */}
+      <Script id="iubenda-loader" strategy="lazyOnload">
         {`(function (w,d) {var loader = function () {var s = d.createElement("script"), tag = d.getElementsByTagName("script")[0]; s.src="https://cdn.iubenda.com/iubenda.js"; tag.parentNode.insertBefore(s,tag);}; if(w.addEventListener){w.addEventListener("load", loader, false);}else if(w.attachEvent){w.attachEvent("onload", loader);}else{w.onload = loader;}})(window, document);`}
       </Script>
     </div>

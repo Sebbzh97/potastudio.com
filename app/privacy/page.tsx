@@ -8,7 +8,8 @@ export const revalidate = 60
 export async function generateMetadata(): Promise<Metadata> {
   const data = await getPrivacyPage('en')
   return {
-    title: data?.seoTitle ?? 'Privacy Policy | Pota Studio',
+    // Brand suffix appended automatically by the root layout template.
+    title: data?.seoTitle ?? 'Privacy Policy',
     description: data?.seoDescription ?? '',
     ...getHreflang('/privacy'),
   }

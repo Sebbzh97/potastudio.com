@@ -24,6 +24,13 @@ export default function QuickAnswer({
   if (!text?.trim()) return null
   return (
     <aside
+      // Stable id (`tldr`) lets AI engines anchor-link directly to this
+      // block, and lets us pair it with `<a href="#tldr">` jump links from
+      // the article TOC. `data-block` is a non-standard hook some GEO
+      // crawlers (e.g. Perplexity's content extractor) use to identify
+      // canonical answer regions on a page.
+      id="tldr"
+      data-block="quick-answer"
       className="rounded-2xl p-6 md:p-7 border-l-4 relative overflow-hidden"
       style={{
         backgroundColor: `${accent}10`,
@@ -31,7 +38,8 @@ export default function QuickAnswer({
       }}
       role="note"
       aria-labelledby="quick-answer-label"
-      itemProp="abstract"
+      itemScope
+      itemType="https://schema.org/Question"
     >
       <div className="flex items-center gap-2 mb-3">
         <Sparkles size={14} style={{ color: accent }} aria-hidden="true" />
@@ -43,7 +51,12 @@ export default function QuickAnswer({
           {label}
         </p>
       </div>
-      <p className="text-white text-lg leading-relaxed text-pretty">{text}</p>
+      {/* The block is microdata-tagged as a single Question/Answer pair so
+          it doubles as the lead entry in the page's FAQPage JSON-LD graph
+          (also emitted server-side for parsers that ignore microdata). */}
+      <p className="text-white text-lg leading-relaxed text-pretty" itemProp="acceptedAnswer" itemScope itemType="https://schema.org/Answer">
+        <span itemProp="text">{text}</span>
+      </p>
     </aside>
   )
 }

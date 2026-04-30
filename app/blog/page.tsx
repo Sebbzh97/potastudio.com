@@ -12,8 +12,10 @@ import NewsletterCTA from '@/components/blog/newsletter-cta'
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
 
+// `| Pota Studio` is appended automatically by the root layout template,
+// so we omit the brand suffix here to avoid a double-suffixed title.
 const FALLBACK_TITLE =
-  'Marketing Blog — Social Media, TikTok & Paid Ads Playbooks | Pota Studio'
+  'Marketing Blog — Social Media, TikTok & Paid Ads Playbooks'
 const FALLBACK_DESCRIPTION =
   'Hands-on marketing playbooks on social media, TikTok, paid advertising and content. Strategy, real data, and best practices from the Pota Studio team. Read our editorial.'
 const FALLBACK_HEADLINE =

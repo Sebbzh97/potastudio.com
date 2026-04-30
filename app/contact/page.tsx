@@ -7,7 +7,8 @@ import ContactPageClient from './contact-client'
 export async function generateMetadata(): Promise<Metadata> {
   const data = await getContactPage('en')
   return {
-    title: data?.seoTitle ?? 'Contact | Pota Studio',
+    // Brand suffix appended automatically by the root layout template.
+    title: data?.seoTitle ?? 'Contact',
     description: data?.seoDescription ?? '',
     ...getHreflang('/contact'),
   }

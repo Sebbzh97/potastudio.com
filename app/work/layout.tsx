@@ -1,10 +1,12 @@
 import type { Metadata } from 'next'
+import { getHreflang } from '@/lib/hreflang'
 
 export const metadata: Metadata = {
-  title: 'Our Work | Case Studies | Pota Studio',
+  // Brand suffix appended automatically by the root layout template.
+  title: 'Our Work | Case Studies',
   description:
     "Explore Pota Studio's portfolio: Shopify Plus builds, TikTok campaigns, social media strategies and content production for global brands including Samsung and Isybank.",
-  alternates: { canonical: 'https://www.potastudio.com/work' },
+  ...getHreflang('/work'),
 }
 
 export default function WorkLayout({ children }: { children: React.ReactNode }) {

@@ -7,9 +7,11 @@ import { ArrowLeft, ArrowUpRight, BarChart2, TrendingUp, Users } from 'lucide-re
 import { JsonLd } from '@/components/json-ld'
 import Breadcrumbs from '@/components/breadcrumbs'
 import CaseStudyTracker from '@/components/analytics/case-study-tracker'
-import AnimatedMetric from '@/components/work/animated-metric'
+import ImpactCard from '@/components/work/impact-card'
+import TrustVerifiedBadge from '@/components/work/trust-verified-badge'
 import StrategySection from '@/components/work/strategy-section'
 import { caseStudySchema } from '@/lib/jsonld/schemas'
+import { getHreflang } from '@/lib/hreflang'
 import {
   getCaseStudyBySlug,
   getCaseStudies,
@@ -98,21 +100,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const sanity = await getCaseStudyBySlug(slug)
   const cs = sanity ? toStaticShape(sanity) : STATIC_CASE_STUDIES[slug]
   if (!cs) return { title: 'Case study not found' }
+  // Brand suffix in <title> is appended by the root layout's template
+  // (`%s | Pota Studio`); openGraph titles use the same string for visual
+  // parity with the SERP / link previews — they are NOT auto-suffixed.
+  const baseTitle = `${cs.client} Case Study`
+  const description = (cs.challenge || cs.results).slice(0, 160)
   return {
-    title: `${cs.client} Case Study | Pota Studio`,
-    description: (cs.challenge || cs.results).slice(0, 160),
-    alternates: {
-      canonical: `https://www.potastudio.com/work/${slug}`,
-      languages: {
-        en: `https://www.potastudio.com/work/${slug}`,
-        it: `https://www.potastudio.com/it/work/${slug}`,
-        'x-default': `https://www.potastudio.com/work/${slug}`,
-      },
-    },
+    title: baseTitle,
+    description,
+    ...getHreflang(`/work/${slug}`),
     openGraph: {
       type: 'website',
-      title: `${cs.client} Case Study | Pota Studio`,
-      description: (cs.challenge || cs.results).slice(0, 160),
+      title: `${baseTitle} | Pota Studio`,
+      description,
       url: `https://www.potastudio.com/work/${slug}`,
       siteName: 'Pota Studio',
     },
@@ -177,8 +177,20 @@ export default async function CaseStudyPage({ params }: Props) {
           results: cs.results,
           year: cs.year,
           tags: cs.tags,
+          services: cs.services,
           metrics: cs.metrics,
           locale: 'en',
+          // Only emit aggregateRating when a real client testimonial supplies
+          // a rating — never auto-generate a 5/5 (against Google guidelines).
+          aggregateRating:
+            sanity?.testimonial?.rating &&
+            Number.isFinite(sanity.testimonial.rating)
+              ? {
+                  ratingValue: sanity.testimonial.rating,
+                  reviewCount: 1,
+                  bestRating: 5,
+                }
+              : undefined,
         })}
       />
 
@@ -215,22 +227,28 @@ export default async function CaseStudyPage({ params }: Props) {
           </div>
         </header>
 
-      {/* Animated metric bar — counters trigger on scroll-in (CRO + GEO data signal) */}
+      {/* Impact Cards — semantic, AI-friendly metric grid.
+          Each <strong class="metric-value"> is microdata-tagged as a
+          PropertyValue and visually anchored in its own card so AI Overviews
+          and Perplexity can lift the number alongside its label. */}
       {cs.metrics.length > 0 && (
         <section
           aria-label="Key results"
-          className="bg-[#141414] border-b border-white/10"
+          className="bg-[#141414] border-y border-white/10"
         >
-          <div className="container-site py-8 sm:py-10">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:divide-x md:divide-white/10">
+          <div className="container-site py-12 sm:py-16">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
               {cs.metrics.map((m, i) => (
-                <AnimatedMetric
+                <ImpactCard
                   key={`${m.label}-${i}`}
                   value={m.value}
                   label={m.label}
                   accent={cs.accent}
                 />
               ))}
+            </div>
+            <div className="mt-8 flex">
+              <TrustVerifiedBadge locale="en" />
             </div>
           </div>
         </section>

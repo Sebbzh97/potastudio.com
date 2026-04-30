@@ -11,7 +11,9 @@ export const revalidate = 60
 export async function generateMetadata(): Promise<Metadata> {
   const data = await getAboutPage('en')
   return {
-    title: data?.seoTitle ?? 'About | Pota Studio',
+    // Brand suffix is appended automatically by the root layout's title
+    // template (`%s | Pota Studio`).
+    title: data?.seoTitle ?? 'About',
     description: data?.seoDescription ?? '',
     ...getHreflang('/about'),
   }
