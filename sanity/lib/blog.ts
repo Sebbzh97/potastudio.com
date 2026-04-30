@@ -42,6 +42,7 @@ const fullProjection = `
     _type == "image" => { asset, alt, caption, fullWidth },
   },
   faqItems[] { question, answer },
+  keyTakeaways,
   keyStatistics[] { stat, source, year },
   expertQuotes[] { quote, attribution, role },
   tldr,

@@ -241,6 +241,16 @@ export default defineType({
       validation: (Rule) => Rule.max(8),
     }),
     defineField({
+      name: 'keyTakeaways',
+      title: 'Key Takeaways',
+      type: 'array',
+      of: [{ type: 'string' }],
+      group: 'geo',
+      description:
+        'CRITICAL FOR GEO: 3–7 short, declarative bullet points summarising the post. Rendered as a "Key Takeaways" block before the FAQ section. AI engines lift these almost verbatim — write each one as a complete, self-contained sentence (e.g. "TikTok Shop is available in Italy from October 2024" rather than "October 2024").',
+      validation: (Rule) => Rule.max(7),
+    }),
+    defineField({
       name: 'keyStatistics',
       title: 'Key Statistics',
       type: 'array',

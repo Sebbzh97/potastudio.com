@@ -131,14 +131,27 @@ export function organizationSchema(locale: "en" | "it" = "en"): Record<string, u
 // LocalBusiness (Bergamo HQ)
 // ───────────────────────────────────────────────────────────────────────────────
 
+/**
+ * LocalBusiness schema — Bergamo HQ.
+ *
+ * Surfaces the physical office to Google's local pack & Knowledge Graph,
+ * crucial for "agenzia marketing Bergamo" / "marketing agency Italy near me"
+ * style queries. Linked to the Organization graph via `parentOrganization`
+ * so crawlers recognise it as a branch of Pota Studio (not a duplicate
+ * entity).
+ */
 export function localBusinessSchema(): Record<string, unknown> {
   return {
     "@context": "https://schema.org",
-    "@type": "LocalBusiness",
+    "@type": ["LocalBusiness", "ProfessionalService"],
     "@id": `${SITE}/#localbusiness`,
     name: `${POTA_BRAND_NAME} Bergamo HQ`,
+    legalName: POTA_LEGAL_NAME,
     parentOrganization: { "@id": `${SITE}/#organization` },
     url: SITE,
+    image: POTA_LOGO,
+    logo: POTA_LOGO,
+    email: "ciao@potastudio.com",
     address: {
       "@type": "PostalAddress",
       streetAddress: "Via Zanica 85",
@@ -152,13 +165,27 @@ export function localBusinessSchema(): Record<string, unknown> {
       latitude: 45.6983,
       longitude: 9.6773,
     },
+    hasMap: "https://www.google.com/maps/search/?api=1&query=Via+Zanica+85+Bergamo+24126",
     openingHoursSpecification: {
       "@type": "OpeningHoursSpecification",
       dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
       opens: "09:00",
       closes: "18:00",
     },
+    areaServed: [
+      { "@type": "Country", name: "Italy" },
+      { "@type": "Country", name: "United Kingdom" },
+      { "@type": "Country", name: "Germany" },
+      { "@type": "Country", name: "France" },
+      { "@type": "Country", name: "Spain" },
+    ],
+    sameAs: POTA_SAMEAS,
+    knowsAbout: POTA_KNOWS_ABOUT,
     priceRange: "€€€",
+    currenciesAccepted: "EUR, USD, GBP",
+    paymentAccepted: "Bank Transfer, Credit Card",
+    vatID: "IT04545460166",
+    taxID: "IT04545460166",
   }
 }
 
@@ -186,7 +213,7 @@ export function websiteSchema(): Record<string, unknown> {
   }
 }
 
-// ───────────────────────────────────────────────────────────────────────────────
+// ─────��─────────────────────────────────────────────────────────────────────────
 // CaseStudy
 // ───────────────────────────────────────────────────────────────────────────────
 
@@ -392,6 +419,107 @@ export function articleSchema(input: ArticleSchemaInput): Record<string, unknown
     publisher: { "@id": `${SITE}/#organization` },
     mainEntityOfPage: { "@type": "WebPage", "@id": url },
     keywords: keywords.filter(Boolean).join(", "),
+  }
+}
+
+// ───────────────────────────────────────────────────────────────────────────────
+// Blog (index page) + CollectionPage (category index)
+// ───────────────────────────────────────────────────────────────────────────────
+
+export interface BlogIndexPost {
+  slug: string
+  title: string
+  description?: string
+  publishedAt?: string
+  authorName?: string
+  category?: string
+}
+
+/**
+ * Blog index schema. AI crawlers (Perplexity, Gemini) use this to understand
+ * that a page lists multiple Articles, surfacing the most recent ones in
+ * "what has Pota Studio published lately?" style queries.
+ */
+export function blogSchema(input: {
+  posts: BlogIndexPost[]
+  locale?: "en" | "it"
+  category?: string
+}): Record<string, unknown> {
+  const { posts, locale = "en", category } = input
+  const path = locale === "it" ? "/it/blog" : "/blog"
+  const url = category ? `${SITE}${path}/${category}` : `${SITE}${path}`
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    "@id": `${url}#blog`,
+    name: category
+      ? `${POTA_BRAND_NAME} Blog — ${category}`
+      : `${POTA_BRAND_NAME} Blog`,
+    url,
+    inLanguage: locale,
+    publisher: { "@id": `${SITE}/#organization` },
+    blogPost: posts.slice(0, 20).map((post) => {
+      const postUrl =
+        locale === "it"
+          ? `${SITE}/it/blog/${post.slug}`
+          : `${SITE}/blog/${post.slug}`
+      const author: Record<string, unknown> =
+        !post.authorName || post.authorName === POTA_BRAND_NAME
+          ? { "@id": `${SITE}/#organization` }
+          : { "@type": "Person", name: post.authorName }
+      return {
+        "@type": "BlogPosting",
+        "@id": `${postUrl}#article`,
+        headline: post.title,
+        description: post.description,
+        url: postUrl,
+        datePublished: post.publishedAt,
+        author,
+        publisher: { "@id": `${SITE}/#organization` },
+        articleSection: post.category,
+      }
+    }),
+  }
+}
+
+/**
+ * CollectionPage schema for category landing pages — explicitly tells search
+ * engines that this URL is an index of multiple Articles filtered by topic.
+ */
+export function collectionPageSchema(input: {
+  url: string
+  name: string
+  description: string
+  locale?: "en" | "it"
+  posts: BlogIndexPost[]
+}): Record<string, unknown> {
+  const { url, name, description, locale = "en", posts } = input
+  return {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "@id": `${url}#collectionpage`,
+    name,
+    description,
+    url,
+    inLanguage: locale,
+    isPartOf: { "@id": `${SITE}/#website` },
+    mainEntity: {
+      "@type": "ItemList",
+      numberOfItems: posts.length,
+      itemListElement: posts.map((post, index) => {
+        const postUrl =
+          locale === "it"
+            ? `${SITE}/it/blog/${post.slug}`
+            : `${SITE}/blog/${post.slug}`
+        return {
+          "@type": "ListItem",
+          position: index + 1,
+          url: postUrl,
+          name: post.title,
+        }
+      }),
+    },
   }
 }
 

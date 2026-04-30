@@ -1,6 +1,8 @@
 import type { MetadataRoute } from 'next'
 import { getBlogPostSlugs } from '@/sanity/lib/blog'
+import { getBlogPosts } from '@/sanity/lib/page-queries'
 import { client } from '@/sanity/lib/client'
+import { slugifyCategory } from '@/lib/blog-categories'
 
 const BASE_URL = 'https://www.potastudio.com'
 
@@ -111,5 +113,58 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ])
 
-  return [...staticEntries, ...blogEntries, ...caseStudyEntries]
+  // Blog categories (Sanity-driven, EN + IT). One sitemap entry per category
+  // slug per locale, with hreflang alternates (slugs mirror across locales
+  // when category names match).
+  const [enBlogPosts, itBlogPosts] = await Promise.all([
+    getBlogPosts('en'),
+    getBlogPosts('it'),
+  ])
+  const enCategorySlugs = Array.from(
+    new Set(
+      (enBlogPosts ?? [])
+        .map((p) => p.categories?.[0])
+        .filter((c): c is string => Boolean(c))
+        .map((c) => slugifyCategory(c)),
+    ),
+  )
+  const itCategorySlugs = Array.from(
+    new Set(
+      (itBlogPosts ?? [])
+        .map((p) => p.categories?.[0])
+        .filter((c): c is string => Boolean(c))
+        .map((c) => slugifyCategory(c)),
+    ),
+  )
+  const allCategorySlugs = Array.from(new Set([...enCategorySlugs, ...itCategorySlugs]))
+
+  const categoryEntries: MetadataRoute.Sitemap = allCategorySlugs.flatMap((slug) => {
+    const enUrl = `${BASE_URL}/blog/category/${slug}`
+    const itUrl = `${BASE_URL}/it/blog/categoria/${slug}`
+    const alternates = {
+      languages: { en: enUrl, it: itUrl, 'x-default': enUrl },
+    } as const
+    const entries: MetadataRoute.Sitemap = []
+    if (enCategorySlugs.includes(slug)) {
+      entries.push({
+        url: enUrl,
+        lastModified: now,
+        changeFrequency: 'weekly' as const,
+        priority: 0.7,
+        alternates,
+      })
+    }
+    if (itCategorySlugs.includes(slug)) {
+      entries.push({
+        url: itUrl,
+        lastModified: now,
+        changeFrequency: 'weekly' as const,
+        priority: 0.65,
+        alternates,
+      })
+    }
+    return entries
+  })
+
+  return [...staticEntries, ...blogEntries, ...caseStudyEntries, ...categoryEntries]
 }
