@@ -11,6 +11,17 @@ type FeaturedWorkData = {
   featuredWorkViewCaseLabel?: string
 }
 
+/**
+ * Slugs of the 3 case studies to feature on the homepage, in display order.
+ * If any slug is missing in Sanity, it is skipped and the slot is filled
+ * with the next available case study so the section always renders 3 cards.
+ */
+const HOME_FEATURED_SLUGS = [
+  'levitology-social',
+  'samsung-tiktok',
+  'lucca-comics',
+] as const
+
 export default async function FeaturedWork({
   data,
   locale = 'en',
@@ -20,9 +31,19 @@ export default async function FeaturedWork({
 }) {
   const isIt = locale === 'it'
   const sanity = await getCaseStudies()
-  const caseStudies = sanity
-    .map((cs) => pickLocalizedCaseStudy(cs, isIt ? 'it' : 'en'))
-    .slice(0, 3)
+  const localized = sanity.map((cs) => pickLocalizedCaseStudy(cs, isIt ? 'it' : 'en'))
+
+  // Pick the curated slugs in their declared order, then fill any empty slot
+  // with the first case studies that aren't already featured.
+  const picked = HOME_FEATURED_SLUGS
+    .map((slug) => localized.find((cs) => cs.slug === slug))
+    .filter((cs): cs is NonNullable<typeof cs> => Boolean(cs))
+
+  const fillers = localized.filter(
+    (cs) => !HOME_FEATURED_SLUGS.includes(cs.slug as typeof HOME_FEATURED_SLUGS[number]),
+  )
+
+  const caseStudies = [...picked, ...fillers].slice(0, 3)
 
   // Section copy (Sanity-driven with minimal fallbacks)
   const eyebrow  = data?.featuredWorkLabel        ?? (isIt ? 'Lavori Selezionati' : 'Selected Work')
