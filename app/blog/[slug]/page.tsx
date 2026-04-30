@@ -11,6 +11,8 @@ import { articleSchema, faqPageSchema } from '@/lib/jsonld/schemas'
 import PortableTextRenderer from '@/components/blog/portable-text-renderer'
 import QuickAnswer from '@/components/blog/quick-answer'
 import KeyTakeaways from '@/components/blog/key-takeaways'
+import LeadMagnetBox from '@/components/blog/lead-magnet-box'
+import StickyMobileCta from '@/components/blog/sticky-mobile-cta'
 import AuthorAuthorityBox from '@/components/blog/author-authority-box'
 
 export const dynamic = 'force-dynamic'
@@ -320,6 +322,9 @@ export default async function BlogPostPage({ params }: Props) {
               <KeyTakeaways items={post.keyTakeaways} accent={accent} title="Key Takeaways" />
             )}
 
+            {/* Lead Magnet — primary email capture between body and FAQ */}
+            <LeadMagnetBox location={`blog_${post.slug?.current ?? 'post'}`} locale="en" />
+
             {/* FAQ — paired with FAQPage JSON-LD already emitted at the top */}
             {post.faqItems?.length > 0 && (
               <section className="mt-16" aria-labelledby="faq-heading">
@@ -396,6 +401,9 @@ export default async function BlogPostPage({ params }: Props) {
             )}
           </div>
         </article>
+
+        {/* Sticky mobile CTA — non-invasive contact prompt for blog readers */}
+        <StickyMobileCta locale="en" location={`blog_${post.slug?.current ?? 'post'}`} />
       </main>
     </>
   )

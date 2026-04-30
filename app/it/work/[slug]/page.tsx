@@ -7,6 +7,8 @@ import { ArrowLeft, ArrowUpRight, BarChart2, TrendingUp, Users } from 'lucide-re
 import { JsonLd } from '@/components/json-ld'
 import Breadcrumbs from '@/components/breadcrumbs'
 import CaseStudyTracker from '@/components/analytics/case-study-tracker'
+import AnimatedMetric from '@/components/work/animated-metric'
+import StrategySection from '@/components/work/strategy-section'
 import { caseStudySchema } from '@/lib/jsonld/schemas'
 import {
   getCaseStudyBySlug,
@@ -21,6 +23,7 @@ type StaticCS = {
   client: string; type: string; tags: string[]; year: string
   bg: string; accent: string; challenge: string; approach: string; results: string
   metrics: { label: string; value: string }[]; relatedSlugs: string[]
+  services: string[]
 }
 
 const STATIC_CASE_STUDIES: Record<string, StaticCS> = {
@@ -35,6 +38,7 @@ const STATIC_CASE_STUDIES: Record<string, StaticCS> = {
       { label: 'Varianti Creative', value: '24' }, { label: 'Riduzione CPM', value: '-38%' },
     ],
     relatedSlugs: ['isybank-ads'],
+    services: ['TikTok Ads', 'Meta Ads', 'Strategia Performance', 'Produzione Contenuti'],
   },
   'isybank-ads': {
     client: 'Isybank', type: 'ADS', tags: ['Meta ADS', 'Lead Gen', 'Fintech'],
@@ -47,6 +51,7 @@ const STATIC_CASE_STUDIES: Record<string, StaticCS> = {
       { label: 'Varianti Landing Page', value: '12' }, { label: 'Durata Campagna', value: '90 giorni' },
     ],
     relatedSlugs: ['samsung-tiktok'],
+    services: ['Meta Ads', 'Lead Generation', 'A/B Testing Landing Page', 'Strategia Audience'],
   },
 }
 
@@ -70,6 +75,7 @@ function toStaticShape(cs: SanityCaseStudy): StaticCS {
     bg: cs.bg ?? '#111111', accent: cs.accent ?? '#FF5C00',
     challenge: cs.challenge ?? '', approach: cs.approach ?? '', results: cs.results ?? '',
     metrics: cs.metrics ?? [], relatedSlugs: cs.relatedSlugs ?? [],
+    services: cs.services ?? [],
   }
 }
 
@@ -181,20 +187,25 @@ if (sanity?.gallery?.length) {
           </div>
         </header>
 
-      {/* Metrics bar */}
+      {/* Animated metric bar — counters trigger on scroll-in (CRO + GEO data signal) */}
       {cs.metrics.length > 0 && (
-        <div className="bg-[#141414] border-b border-white/10">
-          <div className="container-site py-8">
+        <section
+          aria-label="Risultati chiave"
+          className="bg-[#141414] border-b border-white/10"
+        >
+          <div className="container-site py-8 sm:py-10">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:divide-x md:divide-white/10">
-              {cs.metrics.map((m) => (
-                <div key={m.label} className="flex flex-col gap-1 md:px-8 first:pl-0">
-                  <span className="text-4xl font-bold" style={{ fontFamily: 'var(--font-space-grotesk)', color: cs.accent }}>{m.value}</span>
-                  <span className="text-xs text-[#B0B0B0] uppercase tracking-widest">{m.label}</span>
-                </div>
+              {cs.metrics.map((m, i) => (
+                <AnimatedMetric
+                  key={`${m.label}-${i}`}
+                  value={m.value}
+                  label={m.label}
+                  accent={cs.accent}
+                />
               ))}
             </div>
           </div>
-        </div>
+        </section>
       )}
 
       {/* Content */}
@@ -217,6 +228,14 @@ if (sanity?.gallery?.length) {
           </div>
         </div>
       </section>
+
+      {/* "La Strategia" — channel mix con icone brand */}
+      <StrategySection
+        services={cs.services}
+        headline="La Strategia"
+        subhead="Il channel mix e le competenze che abbiamo schierato per ottenere questi risultati."
+        accent={cs.accent}
+      />
 
       {/* YouTube Video Embed */}
       {sanity?.youtubeVideoId && (

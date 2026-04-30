@@ -7,6 +7,8 @@ import { ArrowLeft, ArrowUpRight, BarChart2, TrendingUp, Users } from 'lucide-re
 import { JsonLd } from '@/components/json-ld'
 import Breadcrumbs from '@/components/breadcrumbs'
 import CaseStudyTracker from '@/components/analytics/case-study-tracker'
+import AnimatedMetric from '@/components/work/animated-metric'
+import StrategySection from '@/components/work/strategy-section'
 import { caseStudySchema } from '@/lib/jsonld/schemas'
 import {
   getCaseStudyBySlug,
@@ -20,6 +22,7 @@ type StaticCS = {
   client: string; type: string; tags: string[]; year: string
   bg: string; accent: string; challenge: string; approach: string; results: string
   metrics: { label: string; value: string }[]; relatedSlugs: string[]
+  services: string[]
 }
 
 const STATIC_CASE_STUDIES: Record<string, StaticCS> = {
@@ -34,6 +37,7 @@ const STATIC_CASE_STUDIES: Record<string, StaticCS> = {
       { label: 'Creative Variants', value: '24' }, { label: 'CPM Reduction', value: '-38%' },
     ],
     relatedSlugs: ['isybank-ads'],
+    services: ['TikTok Ads', 'Meta Ads', 'Performance Strategy', 'Content Production'],
   },
   'isybank-ads': {
     client: 'Isybank', type: 'ADS', tags: ['Meta ADS', 'Lead Gen', 'Fintech'],
@@ -46,6 +50,7 @@ const STATIC_CASE_STUDIES: Record<string, StaticCS> = {
       { label: 'Landing Page Variants', value: '12' }, { label: 'Campaign Duration', value: '90 days' },
     ],
     relatedSlugs: ['samsung-tiktok'],
+    services: ['Meta Ads', 'Lead Generation', 'Landing Page A/B Testing', 'Audience Strategy'],
   },
 }
 
@@ -78,6 +83,7 @@ function toStaticShape(cs: SanityCaseStudy): StaticCS {
     results: cs.results ?? '',
     metrics: cs.metrics ?? [],
     relatedSlugs: cs.relatedSlugs ?? [],
+    services: cs.services ?? [],
   }
 }
 
@@ -209,22 +215,25 @@ export default async function CaseStudyPage({ params }: Props) {
           </div>
         </header>
 
-      {/* Metrics bar */}
+      {/* Animated metric bar — counters trigger on scroll-in (CRO + GEO data signal) */}
       {cs.metrics.length > 0 && (
-        <div className="bg-[#141414] border-b border-white/10">
-          <div className="container-site py-8">
+        <section
+          aria-label="Key results"
+          className="bg-[#141414] border-b border-white/10"
+        >
+          <div className="container-site py-8 sm:py-10">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:divide-x md:divide-white/10">
-              {cs.metrics.map((m) => (
-                <div key={m.label} className="flex flex-col gap-1 md:px-8 first:pl-0">
-                  <span className="text-4xl font-bold" style={{ fontFamily: 'var(--font-space-grotesk)', color: cs.accent }}>
-                    {m.value}
-                  </span>
-                  <span className="text-xs text-[#B0B0B0] uppercase tracking-widest">{m.label}</span>
-                </div>
+              {cs.metrics.map((m, i) => (
+                <AnimatedMetric
+                  key={`${m.label}-${i}`}
+                  value={m.value}
+                  label={m.label}
+                  accent={cs.accent}
+                />
               ))}
             </div>
           </div>
-        </div>
+        </section>
       )}
 
       {/* Content */}
@@ -249,6 +258,14 @@ export default async function CaseStudyPage({ params }: Props) {
           </div>
         </div>
       </section>
+
+      {/* "The Strategy" — channel mix breakdown with brand iconography */}
+      <StrategySection
+        services={cs.services}
+        headline="The Strategy"
+        subhead="The channel mix and disciplines we deployed to deliver these results."
+        accent={cs.accent}
+      />
 
       {/* YouTube Video Embed */}
       {sanity?.youtubeVideoId && (

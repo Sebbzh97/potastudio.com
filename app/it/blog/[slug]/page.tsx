@@ -11,6 +11,8 @@ import { articleSchema, faqPageSchema } from '@/lib/jsonld/schemas'
 import PortableTextRenderer from '@/components/blog/portable-text-renderer'
 import QuickAnswer from '@/components/blog/quick-answer'
 import KeyTakeaways from '@/components/blog/key-takeaways'
+import LeadMagnetBox from '@/components/blog/lead-magnet-box'
+import StickyMobileCta from '@/components/blog/sticky-mobile-cta'
 import AuthorAuthorityBox from '@/components/blog/author-authority-box'
 
 export const dynamic = 'force-dynamic'
@@ -318,6 +320,9 @@ export default async function BlogPostPageIT({ params }: Props) {
               <KeyTakeaways items={post.keyTakeaways} accent={accent} title="Punti Chiave" />
             )}
 
+            {/* Lead Magnet — cattura email tra body e FAQ */}
+            <LeadMagnetBox location={`blog_${post.slug?.current ?? 'post'}`} locale="it" />
+
             {/* FAQ */}
             {post.faqItems?.length > 0 && (
               <section className="mt-16" aria-labelledby="faq-heading">
@@ -393,6 +398,9 @@ export default async function BlogPostPageIT({ params }: Props) {
             )}
           </div>
         </article>
+
+        {/* Sticky mobile CTA — prompt contatto non invasivo per i lettori blog */}
+        <StickyMobileCta locale="it" location={`blog_${post.slug?.current ?? 'post'}`} />
       </main>
     </>
   )

@@ -131,14 +131,27 @@ export function organizationSchema(locale: "en" | "it" = "en"): Record<string, u
 // LocalBusiness (Bergamo HQ)
 // ───────────────────────────────────────────────────────────────────────────────
 
+/**
+ * LocalBusiness schema — Bergamo HQ.
+ *
+ * Surfaces the physical office to Google's local pack & Knowledge Graph,
+ * crucial for "agenzia marketing Bergamo" / "marketing agency Italy near me"
+ * style queries. Linked to the Organization graph via `parentOrganization`
+ * so crawlers recognise it as a branch of Pota Studio (not a duplicate
+ * entity).
+ */
 export function localBusinessSchema(): Record<string, unknown> {
   return {
     "@context": "https://schema.org",
-    "@type": "LocalBusiness",
+    "@type": ["LocalBusiness", "ProfessionalService"],
     "@id": `${SITE}/#localbusiness`,
     name: `${POTA_BRAND_NAME} Bergamo HQ`,
+    legalName: POTA_LEGAL_NAME,
     parentOrganization: { "@id": `${SITE}/#organization` },
     url: SITE,
+    image: POTA_LOGO,
+    logo: POTA_LOGO,
+    email: "ciao@potastudio.com",
     address: {
       "@type": "PostalAddress",
       streetAddress: "Via Zanica 85",
@@ -152,13 +165,27 @@ export function localBusinessSchema(): Record<string, unknown> {
       latitude: 45.6983,
       longitude: 9.6773,
     },
+    hasMap: "https://www.google.com/maps/search/?api=1&query=Via+Zanica+85+Bergamo+24126",
     openingHoursSpecification: {
       "@type": "OpeningHoursSpecification",
       dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
       opens: "09:00",
       closes: "18:00",
     },
+    areaServed: [
+      { "@type": "Country", name: "Italy" },
+      { "@type": "Country", name: "United Kingdom" },
+      { "@type": "Country", name: "Germany" },
+      { "@type": "Country", name: "France" },
+      { "@type": "Country", name: "Spain" },
+    ],
+    sameAs: POTA_SAMEAS,
+    knowsAbout: POTA_KNOWS_ABOUT,
     priceRange: "€€€",
+    currenciesAccepted: "EUR, USD, GBP",
+    paymentAccepted: "Bank Transfer, Credit Card",
+    vatID: "IT04545460166",
+    taxID: "IT04545460166",
   }
 }
 
