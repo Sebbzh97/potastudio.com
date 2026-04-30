@@ -186,7 +186,7 @@ export function websiteSchema(): Record<string, unknown> {
   }
 }
 
-// ───────────────────────────────────────────────────────────────────────────────
+// ─────��─────────────────────────────────────────────────────────────────────────
 // CaseStudy
 // ───────────────────────────────────────────────────────────────────────────────
 
@@ -392,6 +392,107 @@ export function articleSchema(input: ArticleSchemaInput): Record<string, unknown
     publisher: { "@id": `${SITE}/#organization` },
     mainEntityOfPage: { "@type": "WebPage", "@id": url },
     keywords: keywords.filter(Boolean).join(", "),
+  }
+}
+
+// ───────────────────────────────────────────────────────────────────────────────
+// Blog (index page) + CollectionPage (category index)
+// ───────────────────────────────────────────────────────────────────────────────
+
+export interface BlogIndexPost {
+  slug: string
+  title: string
+  description?: string
+  publishedAt?: string
+  authorName?: string
+  category?: string
+}
+
+/**
+ * Blog index schema. AI crawlers (Perplexity, Gemini) use this to understand
+ * that a page lists multiple Articles, surfacing the most recent ones in
+ * "what has Pota Studio published lately?" style queries.
+ */
+export function blogSchema(input: {
+  posts: BlogIndexPost[]
+  locale?: "en" | "it"
+  category?: string
+}): Record<string, unknown> {
+  const { posts, locale = "en", category } = input
+  const path = locale === "it" ? "/it/blog" : "/blog"
+  const url = category ? `${SITE}${path}/${category}` : `${SITE}${path}`
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "Blog",
+    "@id": `${url}#blog`,
+    name: category
+      ? `${POTA_BRAND_NAME} Blog — ${category}`
+      : `${POTA_BRAND_NAME} Blog`,
+    url,
+    inLanguage: locale,
+    publisher: { "@id": `${SITE}/#organization` },
+    blogPost: posts.slice(0, 20).map((post) => {
+      const postUrl =
+        locale === "it"
+          ? `${SITE}/it/blog/${post.slug}`
+          : `${SITE}/blog/${post.slug}`
+      const author: Record<string, unknown> =
+        !post.authorName || post.authorName === POTA_BRAND_NAME
+          ? { "@id": `${SITE}/#organization` }
+          : { "@type": "Person", name: post.authorName }
+      return {
+        "@type": "BlogPosting",
+        "@id": `${postUrl}#article`,
+        headline: post.title,
+        description: post.description,
+        url: postUrl,
+        datePublished: post.publishedAt,
+        author,
+        publisher: { "@id": `${SITE}/#organization` },
+        articleSection: post.category,
+      }
+    }),
+  }
+}
+
+/**
+ * CollectionPage schema for category landing pages — explicitly tells search
+ * engines that this URL is an index of multiple Articles filtered by topic.
+ */
+export function collectionPageSchema(input: {
+  url: string
+  name: string
+  description: string
+  locale?: "en" | "it"
+  posts: BlogIndexPost[]
+}): Record<string, unknown> {
+  const { url, name, description, locale = "en", posts } = input
+  return {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "@id": `${url}#collectionpage`,
+    name,
+    description,
+    url,
+    inLanguage: locale,
+    isPartOf: { "@id": `${SITE}/#website` },
+    mainEntity: {
+      "@type": "ItemList",
+      numberOfItems: posts.length,
+      itemListElement: posts.map((post, index) => {
+        const postUrl =
+          locale === "it"
+            ? `${SITE}/it/blog/${post.slug}`
+            : `${SITE}/blog/${post.slug}`
+        return {
+          "@type": "ListItem",
+          position: index + 1,
+          url: postUrl,
+          name: post.title,
+        }
+      }),
+    },
   }
 }
 
