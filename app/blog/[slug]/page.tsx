@@ -8,12 +8,14 @@ import { urlFor } from '@/sanity/lib/client'
 import Breadcrumbs from '@/components/breadcrumbs'
 import { JsonLd } from '@/components/json-ld'
 import { articleSchema, faqPageSchema } from '@/lib/jsonld/schemas'
+import { resolveFaqItems } from '@/lib/blog/extract-faq'
 import PortableTextRenderer from '@/components/blog/portable-text-renderer'
 import QuickAnswer from '@/components/blog/quick-answer'
 import KeyTakeaways from '@/components/blog/key-takeaways'
 import LeadMagnetBox from '@/components/blog/lead-magnet-box'
 import StickyMobileCta from '@/components/blog/sticky-mobile-cta'
 import AuthorAuthorityBox from '@/components/blog/author-authority-box'
+import FaqSection from '@/components/blog/faq-section'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -143,7 +145,15 @@ export default async function BlogPostPage({ params }: Props) {
     locale: 'en',
     section: 'blog',
   })
-  const faq = faqPageSchema(post.faqItems ?? [])
+  // FAQ resolution: prefer curated `faqItems` from Sanity; fall back to H2-based
+  // extraction from the body so editors get free FAQPage markup on Q-style
+  // articles without manual data entry.
+  const pageUrl = `https://www.potastudio.com/blog/${slug}`
+  const faqItems = resolveFaqItems({
+    curated: post.faqItems,
+    body: post.body,
+  })
+  const faq = faqPageSchema(faqItems, { pageUrl, locale: 'en' })
 
   return (
     <>
@@ -325,48 +335,15 @@ export default async function BlogPostPage({ params }: Props) {
             {/* Lead Magnet — primary email capture between body and FAQ */}
             <LeadMagnetBox location={`blog_${post.slug?.current ?? 'post'}`} locale="en" />
 
-            {/* FAQ — paired with FAQPage JSON-LD already emitted at the top */}
-            {post.faqItems?.length > 0 && (
-              <section className="mt-16" aria-labelledby="faq-heading">
-                <h2
-                  id="faq-heading"
-                  className="text-2xl font-bold text-white mb-8"
-                  style={{ fontFamily: 'var(--font-space-grotesk)' }}
-                >
-                  Frequently Asked Questions
-                </h2>
-                <div className="flex flex-col gap-6">
-                  {post.faqItems.map(
-                    (faq: { question: string; answer: string }, i: number) => (
-                      <div
-                        key={i}
-                        className="rounded-xl bg-white/[0.03] border border-white/10 p-6"
-                        itemScope
-                        itemProp="mainEntity"
-                        itemType="https://schema.org/Question"
-                      >
-                        <h3
-                          className="text-white font-semibold mb-3"
-                          style={{ fontFamily: 'var(--font-space-grotesk)' }}
-                          itemProp="name"
-                        >
-                          {faq.question}
-                        </h3>
-                        <div
-                          itemScope
-                          itemProp="acceptedAnswer"
-                          itemType="https://schema.org/Answer"
-                        >
-                          <p className="text-[#B0B0B0] leading-relaxed" itemProp="text">
-                            {faq.answer}
-                          </p>
-                        </div>
-                      </div>
-                    ),
-                  )}
-                </div>
-              </section>
-            )}
+            {/* FAQ — paired with FAQPage JSON-LD emitted in <head>.
+                Visible <details>/<summary> with schema.org microdata so the
+                content is in the source HTML for crawlers and screen readers
+                alike, while staying expandable without JavaScript. */}
+            <FaqSection
+              items={faqItems}
+              accent={accent}
+              title="Frequently Asked Questions"
+            />
 
             {/* Tags */}
             {post.tags?.length > 0 && (

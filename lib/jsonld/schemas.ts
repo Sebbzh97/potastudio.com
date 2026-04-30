@@ -422,7 +422,7 @@ export function articleSchema(input: ArticleSchemaInput): Record<string, unknown
   }
 }
 
-// ───────────────────────────────────────────────────────────────────────────────
+// ───────────────────────────────────────────���───────────────────────────────────
 // Blog (index page) + CollectionPage (category index)
 // ───────────────────────────────────────────────────────────────────────────────
 
@@ -532,17 +532,38 @@ export interface FaqItem {
   answer: string
 }
 
-export function faqPageSchema(items: FaqItem[]): Record<string, unknown> | null {
+/**
+ * FAQPage JSON-LD.
+ *
+ * Emitted as a SEPARATE `<script type="application/ld+json">` from the
+ * Article schema, which is Google's officially supported pattern (see
+ * https://developers.google.com/search/docs/appearance/structured-data/faqpage):
+ * Article and FAQPage do not collide because each block self-identifies via
+ * `@type` and a unique `@id`. We attach `@id` + `isPartOf` so AI crawlers can
+ * still resolve the relationship between the article and its FAQ block.
+ *
+ * @param items     Question/answer pairs (curated or auto-extracted from H2s).
+ * @param pageUrl   Canonical URL of the article. When provided, the schema is
+ *                  scoped with `@id={pageUrl}#faq` and `isPartOf` referencing
+ *                  the article — the cleanest possible disambiguation.
+ * @param locale    ISO language tag, used for `inLanguage`.
+ */
+export function faqPageSchema(
+  items: FaqItem[],
+  options: { pageUrl?: string; locale?: "en" | "it" } = {},
+): Record<string, unknown> | null {
   const cleaned = (items ?? []).filter(
     (i): i is FaqItem => Boolean(i?.question?.trim() && i?.answer?.trim()),
   )
   if (cleaned.length === 0) return null
 
-  return {
+  const { pageUrl, locale } = options
+  const schema: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    mainEntity: cleaned.map((faq) => ({
+    mainEntity: cleaned.map((faq, idx) => ({
       "@type": "Question",
+      "@id": pageUrl ? `${pageUrl}#faq-${idx + 1}` : undefined,
       name: faq.question,
       acceptedAnswer: {
         "@type": "Answer",
@@ -550,4 +571,12 @@ export function faqPageSchema(items: FaqItem[]): Record<string, unknown> | null 
       },
     })),
   }
+  if (pageUrl) {
+    schema["@id"] = `${pageUrl}#faq`
+    schema.isPartOf = { "@id": `${pageUrl}#article` }
+    schema.url = pageUrl
+  }
+  if (locale) schema.inLanguage = locale
+
+  return schema
 }
