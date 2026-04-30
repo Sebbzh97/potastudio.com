@@ -18,12 +18,14 @@ export default function manifest(): MetadataRoute.Manifest {
     orientation: 'portrait-primary',
     lang: 'en',
     categories: ['business', 'marketing', 'productivity'],
+    // These paths match the Next.js App Router file conventions:
+    //   app/icon.svg        → /icon.svg        (vector, scales perfectly)
+    //   app/apple-icon.tsx  → /apple-icon      (180x180 generated PNG)
+    // NOTE: keep only ONE file with base name "icon" in app/ at any time
+    // (e.g. icon.svg OR icon.png — never both). Having icon.svg + icon.png
+    // together triggers a Turbopack production-build panic in Next 16.1.x
+    // ("Dependency tracking is disabled" — vercel/next.js#89358).
     icons: [
-      {
-        src: '/favicon.ico',
-        sizes: '48x48',
-        type: 'image/x-icon',
-      },
       {
         src: '/icon.svg',
         sizes: 'any',
@@ -31,7 +33,7 @@ export default function manifest(): MetadataRoute.Manifest {
         purpose: 'any',
       },
       {
-        src: '/apple-icon.png',
+        src: '/apple-icon',
         sizes: '180x180',
         type: 'image/png',
         purpose: 'any',

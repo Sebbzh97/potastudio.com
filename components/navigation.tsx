@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, Suspense } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { usePathname, useRouter } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import { Menu, X, ChevronDown } from 'lucide-react'
 
 // ── Static nav data ────────────────────────────────────────────────
@@ -277,8 +277,14 @@ function NavigationInner({ data }: NavigationProps) {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [mobileOpenSections, setMobileOpenSections] = useState<Record<string, boolean>>({})
   const pathname = usePathname()
-  const router = useRouter()
   const isIt = pathname.startsWith('/it')
+
+  // Pre-compute locale switch targets so they ship as real <Link href> in the
+  // SSR HTML — this lets Googlebot discover and crawl the IT pages, fixing the
+  // "URL is unknown to Google" indexing issue for /it routes.
+  const enHref = pathname.replace(/^\/it(\/|$)/, '/') || '/'
+  const itHref =
+    pathname === '/' || enHref === '/' ? '/it' : `/it${enHref}`
 
   const ctaLabel = data?.ctaLabel ?? (isIt ? 'Contattaci' : "Let's Talk")
   const ctaHref = data?.ctaHref ?? '/contact'
@@ -296,12 +302,6 @@ function NavigationInner({ data }: NavigationProps) {
     footer: data?.comingSoonFooter,
     badge: data?.comingSoonBadge,
     items: data?.comingSoonItems,
-  }
-
-  function switchLocale(locale: 'en' | 'it') {
-    const stripped = pathname.replace(/^\/it(\/|$)/, '/') || '/'
-    const target = locale === 'it' ? (stripped === '/' ? '/it' : `/it${stripped}`) : stripped
-    router.push(target)
   }
 
   useEffect(() => {
@@ -399,7 +399,7 @@ function NavigationInner({ data }: NavigationProps) {
               <div className="flex items-center gap-1 text-xs font-medium">
                 {isIt ? (
                   <>
-                    <button onClick={() => switchLocale('en')} aria-label="Switch to English" className="text-[#B0B0B0] px-2 py-1 hover:text-white transition-colors">EN</button>
+                    <Link href={enHref} hrefLang="en" aria-label="Switch to English" className="text-[#B0B0B0] px-2 py-1 hover:text-white transition-colors">EN</Link>
                     <span className="text-white/20" aria-hidden="true">|</span>
                     <span className="text-white px-2 py-1 border border-white/20 rounded" aria-current="true">IT</span>
                   </>
@@ -407,7 +407,7 @@ function NavigationInner({ data }: NavigationProps) {
                   <>
                     <span className="text-white px-2 py-1 border border-white/20 rounded" aria-current="true">EN</span>
                     <span className="text-white/20" aria-hidden="true">|</span>
-                    <button onClick={() => switchLocale('it')} aria-label="Switch to Italian" className="text-[#B0B0B0] px-2 py-1 hover:text-white transition-colors">IT</button>
+                    <Link href={itHref} hrefLang="it" aria-label="Switch to Italian" className="text-[#B0B0B0] px-2 py-1 hover:text-white transition-colors">IT</Link>
                   </>
                 )}
               </div>
@@ -542,13 +542,15 @@ function NavigationInner({ data }: NavigationProps) {
           <div className="flex items-center gap-3 text-sm font-medium">
             {isIt ? (
               <>
-                <button
-                  onClick={() => switchLocale('en')}
+                <Link
+                  href={enHref}
+                  hrefLang="en"
+                  onClick={() => setMobileOpen(false)}
                   aria-label="Switch to English"
                   className="text-[#B0B0B0] px-2 py-1 hover:text-white transition-colors"
                 >
                   EN
-                </button>
+                </Link>
                 <span className="text-white/20" aria-hidden="true">|</span>
                 <span
                   className="text-white px-3 py-1 border border-white/40 rounded"
@@ -566,13 +568,15 @@ function NavigationInner({ data }: NavigationProps) {
                   EN
                 </span>
                 <span className="text-white/20" aria-hidden="true">|</span>
-                <button
-                  onClick={() => switchLocale('it')}
+                <Link
+                  href={itHref}
+                  hrefLang="it"
+                  onClick={() => setMobileOpen(false)}
                   aria-label="Switch to Italian"
                   className="text-[#B0B0B0] px-2 py-1 hover:text-white transition-colors"
                 >
                   IT
-                </button>
+                </Link>
               </>
             )}
           </div>
