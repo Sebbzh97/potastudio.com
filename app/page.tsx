@@ -13,20 +13,49 @@ import CtaSection from '@/components/home/cta-section'
 
 export const revalidate = 60
 
+// Canonical positioning copy. Editors can still override these via the
+// homepage document in Sanity (`seoTitle` / `seoDescription`); we fall
+// back to these strings whenever the CMS field is empty or whitespace.
+const FALLBACK_TITLE = 'Pota Studio | Full Service Marketing Agency'
+const FALLBACK_DESCRIPTION =
+  "L'agenzia di marketing che costruisce brand scalabili su performance, contenuto e community."
+
 export async function generateMetadata(): Promise<Metadata> {
   const data = await getHomepage('en')
-  // Use Sanity values when set; fall back to the canonical positioning copy.
   // `||` (not `??`) so empty strings from Studio also fall back.
-  const title =
-    data?.seoTitle?.trim() ||
-    'Pota Studio - Social Media, Influencer Marketing & Ads'
-  const description =
-    data?.seoDescription?.trim() ||
-    'Full-service agency for social media, influencer marketing, paid advertising and TikTok. No handoffs, all in-house. Europe & US clients. See our work.'
+  const title = data?.seoTitle?.trim() || FALLBACK_TITLE
+  const description = data?.seoDescription?.trim() || FALLBACK_DESCRIPTION
+
   return {
-    title,
+    // `title.absolute` bypasses the root layout's `%s | Pota Studio`
+    // template — without this we'd ship "Pota Studio | Full Service
+    // Marketing Agency | Pota Studio" (double brand) to Google.
+    title: { absolute: title },
     description,
     ...getHreflang('/'),
+    openGraph: {
+      type: 'website',
+      url: 'https://www.potastudio.com',
+      siteName: 'Pota Studio',
+      title,
+      description,
+      images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: 'Pota Studio' }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: ['/og-image.jpg'],
+    },
+    // Force-refresh signals for Google's index. NOTE: `revisit-after` is a
+    // non-standard meta tag ignored by Googlebot since ~2010 (per John
+    // Mueller). We emit it because it was explicitly requested AND because
+    // a few legacy crawlers still parse it, but the *real* re-crawl signal
+    // is `sitemap.xml`'s `<lastmod>` + the `Last-Modified` HTTP header,
+    // both already wired up elsewhere in this project.
+    other: {
+      'revisit-after': '1 days',
+    },
   }
 }
 
