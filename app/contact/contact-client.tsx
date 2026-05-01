@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { ArrowUpRight, Instagram, Linkedin } from 'lucide-react'
+import { ArrowUpRight, Instagram, Linkedin, Loader2 } from 'lucide-react'
 import {
   trackContactClick,
   trackContactForm,
@@ -21,8 +21,21 @@ const defaultServices = [
   'Web Design & Development',
   'Influencer Marketing',
   'Brand Representation',
+  'TikTok Marketing',
   'Other',
 ]
+
+// Google Apps Script Web App endpoint that owns the Google Sheet write.
+// Hardcoded so the form works out-of-the-box on any deploy, but overridable
+// via NEXT_PUBLIC_CONTACT_ENDPOINT for staging/preview environments. The
+// Apps Script URL is intentionally public — Apps Script doesn't support
+// signed origin-bound tokens, so the only "secret" here is the slug,
+// which is fine for a fire-and-forget contact form.
+const SCRIPT_URL =
+  process.env.NEXT_PUBLIC_CONTACT_ENDPOINT ||
+  'https://script.google.com/macros/s/AKfycbwzXHKe-VNT87GQEbDpNdj-H1L7eto6AQf0dgUbfjPdwHt9tD3OMYyb2Ay0TqaABVGL/exec'
+
+type Status = 'idle' | 'loading' | 'success' | 'error'
 
 interface ContactData {
   heroLabel?: string
@@ -49,6 +62,8 @@ interface ContactData {
   formPrivacyDisclaimer?: string
   formSuccessTitle?: string
   formSuccessBody?: string
+  formErrorBody?: string
+  formLoadingLabel?: string
 }
 
 export default function ContactPageClient({ data }: { data?: ContactData | null }) {
@@ -81,25 +96,82 @@ export default function ContactPageClient({ data }: { data?: ContactData | null 
   const formBudgetLabel  = data?.formBudgetLabel  ?? 'Monthly Budget'
   const formMessageLabel = data?.formMessageLabel ?? 'Your Brief'
   const formButtonLabel  = data?.formButtonLabel  ?? 'Send Brief'
+  const formLoadingLabel = data?.formLoadingLabel ?? 'Sending…'
   const privacyDisclaimer = data?.formPrivacyDisclaimer ?? ''
   const successTitle     = data?.formSuccessTitle ?? 'Message sent.'
   const successBody      = data?.formSuccessBody  ?? 'We will review your brief and get back to you within 24 hours. Usually much faster.'
+  const errorBody        = data?.formErrorBody    ?? 'Something went wrong. Please try again or email ciao@potastudio.com'
 
   const [form, setForm] = useState({ name: '', email: '', company: '', service: '', budget: '', message: '' })
-  const [submitted, setSubmitted] = useState(false)
+  const [status, setStatus] = useState<Status>('idle')
+
+  const isLoading = status === 'loading'
+  const isSuccess = status === 'success'
+  const isError = status === 'error'
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }))
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    trackContactForm({
-      formName: 'main_contact',
-      service: form.service || undefined,
-      budget: form.budget || undefined,
-    })
-    setSubmitted(true)
+    if (isLoading) return
+
+    setStatus('loading')
+
+    // Best-effort IP capture for the Google Sheet row. ipify is rate-limited
+    // and may fail; we never block submission on it.
+    let userIP = 'N/A'
+    try {
+      const ipResponse = await fetch('https://api.ipify.org?format=json')
+      const ipData = await ipResponse.json()
+      userIP = ipData.ip ?? 'N/A'
+    } catch {
+      // Swallow — IP is informational, not required.
+    }
+
+    const submitData = {
+      nome: form.name,
+      email: form.email,
+      azienda: form.company,
+      servizi: form.service,
+      budget: form.budget,
+      messaggio: form.message,
+      telefono: '',
+      ip: userIP,
+      timestamp: new Date().toISOString(),
+    }
+
+    try {
+      // Apps Script Web Apps don't return CORS headers, so we MUST use
+      // `no-cors`. This means the response is opaque (we can't read status
+      // codes), but the request is delivered and the sheet row is written
+      // server-side. We treat the request resolving as success.
+      await fetch(SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(submitData),
+      })
+
+      trackContactForm({
+        formName: 'main_contact',
+        service: form.service || undefined,
+        budget: form.budget || undefined,
+      })
+
+      setStatus('success')
+
+      // Auto-reset form values + state after 5s so the success card stays
+      // visible long enough to be read, then yields to a fresh form for
+      // multi-submitters (e.g. agencies sending multiple briefs).
+      setTimeout(() => {
+        setForm({ name: '', email: '', company: '', service: '', budget: '', message: '' })
+        setStatus('idle')
+      }, 5000)
+    } catch {
+      setStatus('error')
+    }
   }
 
   return (
@@ -205,7 +277,7 @@ export default function ContactPageClient({ data }: { data?: ContactData | null 
 
             {/* Right: Form */}
             <div className="lg:col-span-3">
-              {submitted ? (
+              {isSuccess ? (
                 <div className="flex flex-col items-center justify-center text-center py-16 sm:py-20 border border-white/10 rounded-2xl bg-[#141414]">
                   <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#FF5C00]/20 flex items-center justify-center mb-5 sm:mb-6">
                     <ArrowUpRight className="text-[#FF5C00]" size={24} />
@@ -216,78 +288,97 @@ export default function ContactPageClient({ data }: { data?: ContactData | null 
                   <p className="text-[#B0B0B0] max-w-sm text-sm sm:text-base px-4">{successBody}</p>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} className="flex flex-col gap-4 sm:gap-5">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
-                    <div className="flex flex-col gap-2">
-                      <label htmlFor="name" className="text-xs font-semibold text-[#B0B0B0] uppercase tracking-widest">
-                        {formNameLabel} <span className="text-[#FF5C00]">*</span>
-                      </label>
-                      <input id="name" name="name" type="text" required aria-required="true" value={form.name} onChange={handleChange}
-                        placeholder="Sebastian Bonfanti"
-                        className="px-4 py-3 bg-[#141414] border border-white/10 rounded-lg text-white placeholder-[#B0B0B0] text-sm focus:outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF5C00] focus-visible:border-[#FF5C00] focus:border-[#FF5C00] transition-colors" />
+                <form onSubmit={handleSubmit} className="flex flex-col gap-4 sm:gap-5" noValidate>
+                  {/* `fieldset` lets us disable the entire form during submission with one toggle */}
+                  <fieldset disabled={isLoading} className="flex flex-col gap-4 sm:gap-5 disabled:opacity-60 disabled:cursor-not-allowed">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+                      <div className="flex flex-col gap-2">
+                        <label htmlFor="name" className="text-xs font-semibold text-[#B0B0B0] uppercase tracking-widest">
+                          {formNameLabel} <span className="text-[#FF5C00]">*</span>
+                        </label>
+                        <input id="name" name="name" type="text" required aria-required="true" value={form.name} onChange={handleChange}
+                          placeholder="Sebastian Bonfanti"
+                          className="px-4 py-3 bg-[#141414] border border-white/10 rounded-lg text-white placeholder-[#B0B0B0] text-sm focus:outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF5C00] focus-visible:border-[#FF5C00] focus:border-[#FF5C00] transition-colors" />
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <label htmlFor="email" className="text-xs font-semibold text-[#B0B0B0] uppercase tracking-widest">
+                          {formEmailLabel} <span className="text-[#FF5C00]">*</span>
+                        </label>
+                        <input id="email" name="email" type="email" required aria-required="true" value={form.email} onChange={handleChange}
+                          placeholder="you@company.com"
+                          className="px-4 py-3 bg-[#141414] border border-white/10 rounded-lg text-white placeholder-[#B0B0B0] text-sm focus:outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF5C00] focus-visible:border-[#FF5C00] focus:border-[#FF5C00] transition-colors" />
+                      </div>
                     </div>
-                    <div className="flex flex-col gap-2">
-                      <label htmlFor="email" className="text-xs font-semibold text-[#B0B0B0] uppercase tracking-widest">
-                        {formEmailLabel} <span className="text-[#FF5C00]">*</span>
-                      </label>
-                      <input id="email" name="email" type="email" required aria-required="true" value={form.email} onChange={handleChange}
-                        placeholder="you@company.com"
-                        className="px-4 py-3 bg-[#141414] border border-white/10 rounded-lg text-white placeholder-[#B0B0B0] text-sm focus:outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF5C00] focus-visible:border-[#FF5C00] focus:border-[#FF5C00] transition-colors" />
-                    </div>
-                  </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
-                    <div className="flex flex-col gap-2">
-                      <label htmlFor="company" className="text-xs font-semibold text-[#B0B0B0] uppercase tracking-widest">
-                        {formCompanyLabel}
-                      </label>
-                      <input id="company" name="company" type="text" value={form.company} onChange={handleChange}
-                        placeholder="Acme S.r.l."
-                        className="px-4 py-3 bg-[#141414] border border-white/10 rounded-lg text-white placeholder-[#B0B0B0] text-sm focus:outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF5C00] focus-visible:border-[#FF5C00] focus:border-[#FF5C00] transition-colors" />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+                      <div className="flex flex-col gap-2">
+                        <label htmlFor="company" className="text-xs font-semibold text-[#B0B0B0] uppercase tracking-widest">
+                          {formCompanyLabel}
+                        </label>
+                        <input id="company" name="company" type="text" value={form.company} onChange={handleChange}
+                          placeholder="Acme S.r.l."
+                          className="px-4 py-3 bg-[#141414] border border-white/10 rounded-lg text-white placeholder-[#B0B0B0] text-sm focus:outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF5C00] focus-visible:border-[#FF5C00] focus:border-[#FF5C00] transition-colors" />
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <label htmlFor="service" className="text-xs font-semibold text-[#B0B0B0] uppercase tracking-widest">
+                          {formServiceLabel}
+                        </label>
+                        <select id="service" name="service" value={form.service} onChange={handleChange}
+                          className="px-4 py-3 bg-[#141414] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF5C00] focus-visible:border-[#FF5C00] focus:border-[#FF5C00] transition-colors appearance-none">
+                          <option value="" className="bg-[#141414]">Select...</option>
+                          {defaultServices.map((s) => (
+                            <option key={s} value={s} className="bg-[#141414]">{s}</option>
+                          ))}
+                        </select>
+                      </div>
                     </div>
+
                     <div className="flex flex-col gap-2">
-                      <label htmlFor="service" className="text-xs font-semibold text-[#B0B0B0] uppercase tracking-widest">
-                        {formServiceLabel}
+                      <label htmlFor="budget" className="text-xs font-semibold text-[#B0B0B0] uppercase tracking-widest">
+                        {formBudgetLabel}
                       </label>
-                      <select id="service" name="service" value={form.service} onChange={handleChange}
+                      <select id="budget" name="budget" value={form.budget} onChange={handleChange}
                         className="px-4 py-3 bg-[#141414] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF5C00] focus-visible:border-[#FF5C00] focus:border-[#FF5C00] transition-colors appearance-none">
                         <option value="" className="bg-[#141414]">Select...</option>
-                        {defaultServices.map((s) => (
-                          <option key={s} value={s} className="bg-[#141414]">{s}</option>
-                        ))}
+                        <option value="under-2k" className="bg-[#141414]">Under €2,000</option>
+                        <option value="2k-5k" className="bg-[#141414]">€2,000 – €5,000</option>
+                        <option value="5k-10k" className="bg-[#141414]">€5,000 – €10,000</option>
+                        <option value="10k-25k" className="bg-[#141414]">€10,000 – €25,000</option>
+                        <option value="25k+" className="bg-[#141414]">€25,000+</option>
                       </select>
                     </div>
-                  </div>
 
-                  <div className="flex flex-col gap-2">
-                    <label htmlFor="budget" className="text-xs font-semibold text-[#B0B0B0] uppercase tracking-widest">
-                      {formBudgetLabel}
-                    </label>
-                    <select id="budget" name="budget" value={form.budget} onChange={handleChange}
-                      className="px-4 py-3 bg-[#141414] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF5C00] focus-visible:border-[#FF5C00] focus:border-[#FF5C00] transition-colors appearance-none">
-                      <option value="" className="bg-[#141414]">Select...</option>
-                      <option value="under-2k" className="bg-[#141414]">Under €2,000</option>
-                      <option value="2k-5k" className="bg-[#141414]">€2,000 – €5,000</option>
-                      <option value="5k-10k" className="bg-[#141414]">€5,000 – €10,000</option>
-                      <option value="10k-25k" className="bg-[#141414]">€10,000 – €25,000</option>
-                      <option value="25k+" className="bg-[#141414]">€25,000+</option>
-                    </select>
-                  </div>
+                    <div className="flex flex-col gap-2">
+                      <label htmlFor="message" className="text-xs font-semibold text-[#B0B0B0] uppercase tracking-widest">
+                        {formMessageLabel} <span className="text-[#FF5C00]">*</span>
+                      </label>
+                      <textarea id="message" name="message" required aria-required="true" rows={5} value={form.message} onChange={handleChange}
+                        placeholder="Tell us about your brand, your goals, and what you need help with..."
+                        className="px-4 py-3 bg-[#141414] border border-white/10 rounded-lg text-white placeholder-[#B0B0B0] text-sm focus:outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF5C00] focus-visible:border-[#FF5C00] focus:border-[#FF5C00] transition-colors resize-none" />
+                    </div>
+                  </fieldset>
 
-                  <div className="flex flex-col gap-2">
-                    <label htmlFor="message" className="text-xs font-semibold text-[#B0B0B0] uppercase tracking-widest">
-                      {formMessageLabel} <span className="text-[#FF5C00]">*</span>
-                    </label>
-                    <textarea id="message" name="message" required aria-required="true" rows={5} value={form.message} onChange={handleChange}
-                      placeholder="Tell us about your brand, your goals, and what you need help with..."
-                      className="px-4 py-3 bg-[#141414] border border-white/10 rounded-lg text-white placeholder-[#B0B0B0] text-sm focus:outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF5C00] focus-visible:border-[#FF5C00] focus:border-[#FF5C00] transition-colors resize-none" />
-                  </div>
-
-                  <button type="submit"
-                    className="self-start inline-flex items-center gap-2 px-6 sm:px-8 py-3.5 sm:py-4 bg-[#FF5C00] text-white font-semibold rounded-lg hover:bg-[#e04f00] hover:shadow-[0_0_20px_rgba(255,92,0,0.4)] transition-all text-sm sm:text-base">
-                    {formButtonLabel}
-                    <ArrowUpRight size={16} />
+                  <button type="submit" disabled={isLoading}
+                    className="self-start inline-flex items-center gap-2 px-6 sm:px-8 py-3.5 sm:py-4 bg-[#FF5C00] text-white font-semibold rounded-lg hover:bg-[#e04f00] hover:shadow-[0_0_20px_rgba(255,92,0,0.4)] transition-all text-sm sm:text-base disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:shadow-none">
+                    {isLoading ? (
+                      <>
+                        <Loader2 size={16} className="animate-spin" />
+                        {formLoadingLabel}
+                      </>
+                    ) : (
+                      <>
+                        {formButtonLabel}
+                        <ArrowUpRight size={16} />
+                      </>
+                    )}
                   </button>
+
+                  {/* Inline error: visible only when submission fails. Polite live region so screen readers announce it without stealing focus. */}
+                  {isError && (
+                    <div role="alert" aria-live="polite" className="rounded-lg border border-[#ef4444]/40 bg-[#ef4444]/10 px-4 py-3 text-sm text-[#fca5a5]">
+                      {errorBody}
+                    </div>
+                  )}
 
                   {privacyDisclaimer && (
                     <p className="text-[#666] text-xs leading-relaxed mt-1 max-w-lg">
