@@ -99,6 +99,26 @@ export const metadata: Metadata = {
       'x-default': '/',
     },
   },
+  // Icon resolution. The App Router already auto-serves any `icon.png` /
+  // `apple-icon.png` / `favicon.ico` placed in `/app` via convention, but
+  // we ALSO declare them explicitly here so:
+  //   1. Crawlers that read the JSON-like Next metadata payload (Google,
+  //      Bing, AI engines) get unambiguous absolute paths.
+  //   2. Legacy tools that probe `/favicon.ico` directly find it (we
+  //      keep `favicon.ico` in `/app` so Next serves it from `/`).
+  //   3. Multiple sizes are advertised so iOS/Android home-screen
+  //      shortcuts pick the right asset without re-scaling our 512×512.
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any', rel: 'icon' },
+      { url: '/icon.png', type: 'image/png', sizes: '512x512' },
+    ],
+    apple: [
+      { url: '/apple-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+    shortcut: ['/favicon.ico'],
+  },
+  manifest: '/manifest.webmanifest',
 }
 
 export default async function RootLayout({
