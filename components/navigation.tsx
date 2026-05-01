@@ -286,6 +286,19 @@ function NavigationInner({ data }: NavigationProps) {
   const itHref =
     pathname === '/' || enHref === '/' ? '/it' : `/it${enHref}`
 
+  // The proxy (`proxy.ts`) auto-redirects Italian visitors (`country === 'IT'`
+  // or `accept-language: it`) to the `/it` tree on every full request — UNLESS
+  // the `pota-locale` cookie is set, which is treated as an explicit user
+  // preference. Without setting that cookie on click, an IT-located user who
+  // toggles to English would be forced back to /it on the next refresh, making
+  // it look like the EN switcher doesn't work. We persist the choice for one
+  // year so refreshes, deep links, and return visits all honour it.
+  const setLocaleCookie = (locale: 'en' | 'it') => {
+    if (typeof document === 'undefined') return
+    const secure = location.protocol === 'https:' ? '; Secure' : ''
+    document.cookie = `pota-locale=${locale}; path=/; max-age=31536000; SameSite=Lax${secure}`
+  }
+
   const ctaLabel = data?.ctaLabel ?? (isIt ? 'Contattaci' : "Let's Talk")
   const ctaHref = data?.ctaHref ?? '/contact'
   const activeCta = isIt && !ctaHref.startsWith('/it') ? `/it${ctaHref}` : ctaHref
@@ -399,7 +412,7 @@ function NavigationInner({ data }: NavigationProps) {
               <div className="flex items-center gap-1 text-xs font-medium">
                 {isIt ? (
                   <>
-                    <Link href={enHref} hrefLang="en" aria-label="Switch to English" className="text-[#B0B0B0] px-2 py-1 hover:text-white transition-colors">EN</Link>
+                    <Link href={enHref} hrefLang="en" aria-label="Switch to English" onClick={() => setLocaleCookie('en')} className="text-[#B0B0B0] px-2 py-1 hover:text-white transition-colors">EN</Link>
                     <span className="text-white/20" aria-hidden="true">|</span>
                     <span className="text-white px-2 py-1 border border-white/20 rounded" aria-current="true">IT</span>
                   </>
@@ -407,7 +420,7 @@ function NavigationInner({ data }: NavigationProps) {
                   <>
                     <span className="text-white px-2 py-1 border border-white/20 rounded" aria-current="true">EN</span>
                     <span className="text-white/20" aria-hidden="true">|</span>
-                    <Link href={itHref} hrefLang="it" aria-label="Switch to Italian" className="text-[#B0B0B0] px-2 py-1 hover:text-white transition-colors">IT</Link>
+                    <Link href={itHref} hrefLang="it" aria-label="Switch to Italian" onClick={() => setLocaleCookie('it')} className="text-[#B0B0B0] px-2 py-1 hover:text-white transition-colors">IT</Link>
                   </>
                 )}
               </div>
@@ -545,7 +558,10 @@ function NavigationInner({ data }: NavigationProps) {
                 <Link
                   href={enHref}
                   hrefLang="en"
-                  onClick={() => setMobileOpen(false)}
+                  onClick={() => {
+                    setLocaleCookie('en')
+                    setMobileOpen(false)
+                  }}
                   aria-label="Switch to English"
                   className="text-[#B0B0B0] px-2 py-1 hover:text-white transition-colors"
                 >
@@ -571,7 +587,10 @@ function NavigationInner({ data }: NavigationProps) {
                 <Link
                   href={itHref}
                   hrefLang="it"
-                  onClick={() => setMobileOpen(false)}
+                  onClick={() => {
+                    setLocaleCookie('it')
+                    setMobileOpen(false)
+                  }}
                   aria-label="Switch to Italian"
                   className="text-[#B0B0B0] px-2 py-1 hover:text-white transition-colors"
                 >
