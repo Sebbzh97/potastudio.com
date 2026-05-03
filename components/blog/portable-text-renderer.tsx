@@ -308,7 +308,30 @@ function groupBlocksBySection(blocks: PortableTextBlock[]): PortableTextBlock[][
 
 export default function PortableTextRenderer({ value, accent = '#FF5C00' }: Props) {
   if (!Array.isArray(value) || value.length === 0) return null
-  const components = buildComponents(accent)
+  const baseComponents = buildComponents(accent)
+
+  // Defensive fallbacks: if the imported content contains a custom block type
+  // for which we did not register a handler (or a malformed inline mark), the
+  // default @portabletext/react behaviour is to throw — which manifests as
+  // a fully blank "Application error" page on production. We intercept those
+  // cases and render nothing visible, while logging a warning so we can fix
+  // the underlying data later. This is the difference between "one missing
+  // table renders empty" vs "the whole article page is unreachable".
+  const components: PortableTextComponents = {
+    ...baseComponents,
+    unknownType: ({ value: v }) => {
+      if (typeof window !== 'undefined') {
+        // eslint-disable-next-line no-console
+        console.warn('[PortableText] Unknown block type:', v?._type, v)
+      }
+      return null
+    },
+    unknownMark: ({ children }) => <>{children}</>,
+    unknownBlockStyle: ({ children }) => <p className="text-[#C0C0C0] leading-relaxed mb-6 text-[17px]">{children}</p>,
+    unknownList: ({ children }) => <ul className="my-6 space-y-2 pl-6 list-disc text-[#C0C0C0]">{children}</ul>,
+    unknownListItem: ({ children }) => <li className="leading-relaxed">{children}</li>,
+  }
+
   const sections = groupBlocksBySection(value as PortableTextBlock[])
   return (
     <>

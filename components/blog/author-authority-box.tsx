@@ -1,16 +1,33 @@
 import Image from 'next/image'
 import { Linkedin, Award } from 'lucide-react'
+import { PortableText, type PortableTextBlock } from '@portabletext/react'
 import { urlFor } from '@/sanity/lib/client'
 
 type Author = {
   name?: string
   role?: string
-  bio?: string
+  // The schema declares `bio` as `text` (string), but historical content
+  // imported via `scripts/import-articles.js` was written as a Portable
+  // Text array. We accept both shapes and the renderer below picks the
+  // right path so a stale data shape can never crash the page again.
+  bio?: string | PortableTextBlock[] | unknown[]
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   photo?: { asset?: any; alt?: string }
   linkedin?: string
   twitterX?: string
   credentials?: string[]
+}
+
+// Narrow guard: returns `true` only for a non-empty array of objects that
+// look like Portable Text blocks. This keeps plain strings from being
+// fed to <PortableText /> (which would render nothing) and stops
+// arbitrary arrays from reaching React as children.
+function isPortableTextArray(v: unknown): v is PortableTextBlock[] {
+  return (
+    Array.isArray(v) &&
+    v.length > 0 &&
+    v.every((b) => b != null && typeof b === 'object' && '_type' in (b as object))
+  )
 }
 
 /**
@@ -143,11 +160,22 @@ export default function AuthorAuthorityBox({
             </p>
           )}
 
-          {author.bio && (
-            <p className="text-[#C0C0C0] text-base leading-relaxed mb-4 max-w-2xl" itemProp="description">
-              {author.bio}
-            </p>
-          )}
+          {author.bio &&
+            (isPortableTextArray(author.bio) ? (
+              <div
+                className="text-[#C0C0C0] text-base leading-relaxed mb-4 max-w-2xl [&_p]:mb-2 last:[&_p]:mb-0"
+                itemProp="description"
+              >
+                <PortableText value={author.bio as PortableTextBlock[]} />
+              </div>
+            ) : typeof author.bio === 'string' && author.bio.trim() ? (
+              <p
+                className="text-[#C0C0C0] text-base leading-relaxed mb-4 max-w-2xl"
+                itemProp="description"
+              >
+                {author.bio}
+              </p>
+            ) : null)}
 
           {author.credentials && author.credentials.length > 0 && (
             <div className="mb-4">
