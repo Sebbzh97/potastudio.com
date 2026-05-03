@@ -37,25 +37,10 @@ export default function HeroSection({ data, locale }: { data?: HeroData; locale?
 
   return (
     <section className="relative min-h-[100svh] flex flex-col bg-[#0D0D0D] overflow-hidden">
-      {/* Background video. The poster is preloaded with `fetchPriority="high"`
-          in the root <head> so the LCP frame is served from cache the
-          moment React mounts; `preload="metadata"` keeps the video itself
-          off the critical path so the browser can paint the poster first
-          and stream the MP4 only after layout stabilises. */}
-      <video
-        className="absolute inset-0 w-full h-full object-cover"
-        src="/videos/hero-reel.mp4"
-        autoPlay
-        muted
-        loop
-        playsInline
-        poster="/images/hero-poster.jpg"
-        preload="metadata"
-        aria-hidden="true"
-      />
-
-      {/* Dark overlay */}
-      <div className="absolute inset-0 bg-black/60" aria-hidden="true" />
+      {/* Solid dark background — the previous reel video was replaced
+          with a flat black canvas + dual glow so the LCP element is the
+          hero headline itself, which is the fastest possible LCP. */}
+      <div className="absolute inset-0 bg-[#0D0D0D]" aria-hidden="true" />
 
       {/* Yellow+orange dual glow */}
       <div
