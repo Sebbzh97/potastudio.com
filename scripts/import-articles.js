@@ -1296,7 +1296,7 @@ In Pota Studio abbiamo gestito strategie di Shoppertainment per PMI italiane in 
     faqItems: [
       { q: 'Quali sono i migliori strumenti AI gratuiti per il marketing delle PMI italiane?', a: "I migliori tool AI gratuiti o con piano free significativo sono: ChatGPT (piano gratuito con GPT-3.5), Canva (piano gratuito con funzioni base), Meta Advantage+ (incluso in Meta Ads), Google Analytics 4 (gratuito), e Ubersuggest (3 query/giorno gratuite). Per risultati professionali, il piano a pagamento di ChatGPT Plus è quasi sempre necessario." },
       { q: 'Quanto tempo serve per imparare a usare gli strumenti AI per il marketing?', a: "La maggior parte dei tool AI per il marketing ha una curva di apprendimento di 1-2 settimane per l'uso base. Per ChatGPT, bastano 2-3 ore di pratica per ottenere risultati utili. Per strumenti più tecnici come Surfer SEO, servono 2-4 settimane per sfruttarne appieno le funzionalità." },
-      { q: 'L\'AI può sostituire un'agenzia di marketing per una PMI italiana?', a: "No. Gli strumenti AI amplificano le capacità umane ma non possono sostituire la visione strategica, la conoscenza del mercato locale e la supervisione creativa che un'agenzia specializzata fornisce. Le PMI ottengono i migliori risultati combinando strumenti AI con la consulenza di professionisti del marketing." },
+      { q: `L'AI può sostituire un'agenzia di marketing per una PMI italiana?`, a: `No. Gli strumenti AI amplificano le capacità umane ma non possono sostituire la visione strategica, la conoscenza del mercato locale e la supervisione creativa che un'agenzia specializzata fornisce. Le PMI ottengono i migliori risultati combinando strumenti AI con la consulenza di professionisti del marketing.` },
     ],
     body: mdToPortableText(`
 ## L'AI non è più un Lusso: È una Necessità Operativa per le PMI Italiane
@@ -1733,7 +1733,7 @@ function buildTranslationMap() {
 
 // ─────────────────────────────────────────────────────────────────────────────
 // 5.  MAIN IMPORT FUNCTION
-// ─────────────────────────────────────────────────────────────────────────────
+// ───────────────────────────────────────────────────────────────────────���─────
 
 async function main() {
   console.log(`[import] Connected to Sanity project: ${projectId} / dataset: ${dataset}`)
