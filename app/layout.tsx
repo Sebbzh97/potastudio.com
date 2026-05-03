@@ -151,15 +151,6 @@ export default async function RootLayout({
         <link rel="dns-prefetch" href="https://connect.facebook.net" />
         <link rel="dns-prefetch" href="https://analytics.tiktok.com" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
-        {/* Preload the hero video poster — it is the LCP element on the
-            home page until the background <video> can play, so warming it
-            in parallel with the HTML parse measurably improves LCP. */}
-        <link
-          rel="preload"
-          as="image"
-          href="/images/hero-poster.jpg"
-          fetchPriority="high"
-        />
         {/* Google tag (gtag.js) — server-rendered so Google's tag detector can find it */}
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-CMP5TYMZP3" />
         <script
