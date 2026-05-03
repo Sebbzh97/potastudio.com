@@ -383,6 +383,18 @@ export default defineType({
       validation: (Rule) => Rule.max(3),
     }),
 
+    // ── INTERNATIONALISATION FLAGS ────────────────────────────────────────
+    defineField({
+      name: 'isInternational',
+      title: 'International Content',
+      type: 'boolean',
+      initialValue: false,
+      description:
+        'Set to true for posts targeting global/international audiences (US, UK, EU multi-market). ' +
+        'Set to false for posts primarily targeting the Italian domestic market. ' +
+        'Used for content filtering, hreflang strategy, and analytics segmentation.',
+    }),
+
     // Legacy field kept for backwards compatibility with existing documents
     defineField({
       name: 'isPublished',
