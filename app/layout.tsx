@@ -99,26 +99,23 @@ export const metadata: Metadata = {
       'x-default': '/',
     },
   },
-  // Icon resolution. The App Router already auto-serves any `icon.png` /
-  // `apple-icon.png` / `favicon.ico` placed in `/app` via convention, but
-  // we ALSO declare them explicitly here so:
-  //   1. Crawlers that read the JSON-like Next metadata payload (Google,
-  //      Bing, AI engines) get unambiguous absolute paths.
-  //   2. Legacy tools that probe `/favicon.ico` directly find it (we
-  //      keep `favicon.ico` in `/app` so Next serves it from `/`).
-  //   3. Multiple sizes are advertised so iOS/Android home-screen
-  //      shortcuts pick the right asset without re-scaling our 512×512.
+  // Icon resolution.
+  // - app/icon.png and app/apple-icon.png are auto-served by Next.js App Router
+  //   convention as <link rel="icon"> and <link rel="apple-touch-icon">.
+  // - public/favicon.ico is served statically at /favicon.ico for legacy
+  //   browser and crawler probing. It must NOT live inside /app alongside
+  //   icon.png — having both triggers a Turbopack route conflict in Next 16
+  //   that crashes the client bundle entirely (black screen on production).
   icons: {
     icon: [
-      { url: '/favicon.ico', sizes: 'any', rel: 'icon' },
+      { url: '/favicon.ico', sizes: 'any' },
       { url: '/icon.png', type: 'image/png', sizes: '512x512' },
     ],
     apple: [
       { url: '/apple-icon.png', sizes: '180x180', type: 'image/png' },
     ],
-    shortcut: ['/favicon.ico'],
+    shortcut: '/favicon.ico',
   },
-  manifest: '/manifest.webmanifest',
 }
 
 export default async function RootLayout({
