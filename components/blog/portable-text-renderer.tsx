@@ -183,11 +183,32 @@ function buildComponents(accent: string): PortableTextComponents {
       // Renders Sanity tableBlock as a clean HTML <table> with semantic
       // <thead>/<tbody>. The first row is treated as the header row — this
       // is the convention Google's structured data parsers expect.
+      //
+      // Cells may arrive in two shapes depending on how the document was
+      // authored / imported:
+      //   1. Plain strings — `cells: ['Feature', 'Old', 'New']`
+      //   2. Object cells  — `cells: [{ _type: 'tableCell', content: 'Feature' }, …]`
+      // We normalize both into a string before rendering so React never
+      // receives a raw object as children (which would crash with React
+      // error #31 — "Objects are not valid as a React child").
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       tableBlock: ({ value }: { value: any }) => {
-        const rows: { cells?: string[] }[] = Array.isArray(value?.rows) ? value.rows : []
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const cellText = (cell: any): string => {
+          if (cell == null) return ''
+          if (typeof cell === 'string') return cell
+          if (typeof cell === 'object') {
+            if (typeof cell.content === 'string') return cell.content
+            if (typeof cell.text === 'string') return cell.text
+            if (typeof cell.value === 'string') return cell.value
+          }
+          return String(cell)
+        }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const rows: { cells?: any[] }[] = Array.isArray(value?.rows) ? value.rows : []
         if (rows.length === 0) return null
         const [headerRow, ...bodyRows] = rows
+        const headerCells = (headerRow?.cells ?? []).map(cellText)
         const caption = (value?.caption ?? '') as string
         return (
           <figure className="my-10 overflow-x-auto rounded-xl border border-white/10">
@@ -197,10 +218,10 @@ function buildComponents(accent: string): PortableTextComponents {
                   {caption}
                 </caption>
               )}
-              {headerRow?.cells && headerRow.cells.length > 0 && (
+              {headerCells.length > 0 && (
                 <thead>
                   <tr className="bg-white/[0.04] border-b border-white/10">
-                    {headerRow.cells.map((cell, i) => (
+                    {headerCells.map((cell, i) => (
                       <th
                         key={i}
                         scope="col"
@@ -221,7 +242,7 @@ function buildComponents(accent: string): PortableTextComponents {
                   >
                     {(row.cells ?? []).map((cell, ci) => (
                       <td key={ci} className="px-4 py-3 text-[#C0C0C0] align-top">
-                        {cell}
+                        {cellText(cell)}
                       </td>
                     ))}
                   </tr>
