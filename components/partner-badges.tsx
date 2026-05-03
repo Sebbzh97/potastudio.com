@@ -36,11 +36,10 @@ export default function PartnerBadges({ locale = 'en' }: { locale?: 'en' | 'it' 
 
       <div className="mt-6 flex flex-wrap items-center gap-x-8 gap-y-6">
         {/*
-         * iubenda Certified Partner Badge — Small (Bronze).
-         * Using a plain <img> because the asset is hosted on iubenda's CDN
-         * and we don't want to add a `remotePatterns` entry just for one
-         * small badge. Width/height are fixed per iubenda's brand
-         * guidelines. `loading="lazy"` keeps it off the LCP critical path.
+         * iubenda Certified Partner Badge — Bronze (local asset).
+         * Downloaded from iubenda's CDN and served from /public/badges/
+         * to avoid CSP blocks on external image sources and guarantee
+         * availability regardless of CDN changes.
          */}
         <a
           href="/iubenda-partner"
@@ -49,12 +48,13 @@ export default function PartnerBadges({ locale = 'en' }: { locale?: 'en' | 'it' 
           className="inline-block transition-opacity hover:opacity-80"
         >
           <img
-            src="https://www.iubenda.com/wp-content/uploads/2026/04/Bronze.png"
+            src="/badges/iubenda-bronze-partner.png"
             alt={iubendaAlt}
             width={153}
             height={54}
             loading="lazy"
             decoding="async"
+            style={{ height: '54px', width: 'auto' }}
           />
         </a>
 
