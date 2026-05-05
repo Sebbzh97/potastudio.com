@@ -148,6 +148,12 @@ export default defineConfig({
               .child(S.documentTypeList('client').title('Clients')),
             S.listItem().title('Blog Posts').id('coll-blogPost')
               .child(S.documentTypeList('blogPost').title('Blog Posts')),
+
+            S.divider(),
+
+            // ─── Marketing ───────────────────────────────────────────────────
+            S.listItem().title('Lead Magnets').id('coll-leadMagnet')
+              .child(S.documentTypeList('leadMagnet').title('Lead Magnets')),
           ]),
     }),
     visionTool(),
