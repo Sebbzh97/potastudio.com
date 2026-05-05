@@ -70,22 +70,22 @@ const itColumnsFallback: FooterColumn[] = [
   {
     title: 'Servizi',
     links: [
-      { label: 'Social Media Management', href: '/it/services' },
-      { label: 'Paid Advertising',        href: '/it/services' },
-      { label: 'Content Production',      href: '/it/services' },
-      { label: 'Web Design & Dev',        href: '/it/services' },
+      { label: 'Social Media Marketing',  href: '/it/services' },
+      { label: 'Advertising a Pagamento', href: '/it/services' },
+      { label: 'Produzione Contenuti',    href: '/it/services' },
+      { label: 'Web Design & Sviluppo',   href: '/it/services' },
       { label: 'Influencer Marketing',    href: '/it/services' },
       { label: 'Brand Representation',    href: '/it/services' },
     ],
   },
   {
-    title: 'Company',
+    title: 'Azienda',
     links: [
-      { label: 'Chi siamo', href: '/it/about' },
-      { label: 'Lavori',    href: '/it/work' },
-      { label: 'Clienti',   href: '/it/clients' },
-      { label: 'Careers',   href: '/it/careers' },
-      { label: 'Blog',      href: '/it/blog' },
+      { label: 'Chi siamo',       href: '/it/about' },
+      { label: 'Lavori',          href: '/it/work' },
+      { label: 'Clienti',         href: '/it/clients' },
+      { label: 'Lavora con noi',  href: '/it/careers' },
+      { label: 'Blog',            href: '/it/blog' },
     ],
   },
   {

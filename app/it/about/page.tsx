@@ -128,7 +128,7 @@ export default async function AboutPageIT() {
                       <div className="flex items-center gap-3 flex-wrap">
                         <h3 className={`text-lg sm:text-xl font-bold ${office.comingSoon ? 'text-white/60' : 'text-white'}`} style={{ fontFamily: 'var(--font-space-grotesk)' }}>{office.name}</h3>
                         {office.comingSoon && (
-                          <span className="text-[10px] font-semibold text-[#FFC629] bg-[#FFC629]/10 px-2 py-0.5 rounded uppercase tracking-wider">Coming Soon</span>
+                          <span className="text-[10px] font-semibold text-[#FFC629] bg-[#FFC629]/10 px-2 py-0.5 rounded uppercase tracking-wider">In Arrivo</span>
                         )}
                       </div>
                       {office.country && (
