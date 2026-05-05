@@ -10,6 +10,7 @@ import testimonial from './testimonial'
 import client from './client'
 import { siteSettings } from './siteSettings'
 import { pageContent } from './pageContent'
+import leadMagnet from './leadMagnet'
 
 export const schemaTypes = [
   // Blog
@@ -24,6 +25,8 @@ export const schemaTypes = [
   jobOpening,
   testimonial,
   client,
+  // Marketing
+  leadMagnet,
   // Site-wide config + page content
   siteSettings,
   pageContent,
