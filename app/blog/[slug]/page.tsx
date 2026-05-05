@@ -3,7 +3,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { ArrowLeft, Clock, Calendar } from 'lucide-react'
-import { getBlogPostBySlug, getBlogPostSlugs, getTranslationSlug } from '@/sanity/lib/blog'
+import { getBlogPostBySlug, getBlogPostSlugs, getTranslationSlug, getDefaultLeadMagnet } from '@/sanity/lib/blog'
 import { buildBlogAlternates } from '@/lib/blog/hreflang'
 import { urlFor } from '@/sanity/lib/client'
 import Breadcrumbs from '@/components/breadcrumbs'
@@ -116,7 +116,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function BlogPostPage({ params }: Props) {
   const { slug } = await params
-  const post = await getBlogPostBySlug(slug, 'en')
+  const [post, leadMagnet] = await Promise.all([
+    getBlogPostBySlug(slug, 'en'),
+    getDefaultLeadMagnet(),
+  ])
 
   if (!post) notFound()
 
@@ -340,7 +343,7 @@ export default async function BlogPostPage({ params }: Props) {
             )}
 
             {/* Lead Magnet — primary email capture between body and FAQ */}
-            <LeadMagnetBox location={`blog_${post.slug?.current ?? 'post'}`} locale="en" />
+            <LeadMagnetBox location={`blog_${post.slug?.current ?? 'post'}`} locale="en" data={leadMagnet} />
 
             {/* FAQ — paired with FAQPage JSON-LD emitted in <head>.
                 Visible <details>/<summary> with schema.org microdata so the

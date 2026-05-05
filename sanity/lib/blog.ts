@@ -168,3 +168,62 @@ export async function getTranslationSlug(postId: string, fromLang: string): Prom
     return null
   }
 }
+
+// ── LEAD MAGNET ───────────────────────────────────────────────────────────────
+
+export type LeadMagnetData = {
+  _id: string
+  isActive: boolean
+  eyebrow: string
+  badge: string
+  headline: string
+  subhead: string
+  socialProof: string
+  ctaLabel: string
+  successMessage: string
+  downloadCtaLabel: string
+  consentText: string
+  emailPlaceholder: string
+  eyebrow_it?: string
+  badge_it?: string
+  headline_it?: string
+  subhead_it?: string
+  socialProof_it?: string
+  ctaLabel_it?: string
+  successMessage_it?: string
+  downloadCtaLabel_it?: string
+  consentText_it?: string
+  emailPlaceholder_it?: string
+  pdfFallbackUrl?: string
+  pageCount?: number
+}
+
+const leadMagnetProjection = `
+  _id,
+  isActive,
+  eyebrow, badge, headline, subhead, socialProof, ctaLabel,
+  successMessage, downloadCtaLabel, consentText, emailPlaceholder,
+  eyebrow_it, badge_it, headline_it, subhead_it, socialProof_it,
+  ctaLabel_it, successMessage_it, downloadCtaLabel_it, consentText_it,
+  emailPlaceholder_it,
+  "pdfFallbackUrl": pdfAsset.asset->url,
+  pageCount
+`
+
+/**
+ * Fetch the active default lead magnet (slug == 'default').
+ * Falls back to null so callers can safely fall back to hardcoded copy.
+ */
+export async function getDefaultLeadMagnet(): Promise<LeadMagnetData | null> {
+  try {
+    return await client.fetch(
+      `*[_type == "leadMagnet" && slug.current == "default" && isActive == true][0] {
+        ${leadMagnetProjection}
+      }`,
+      {},
+      { next: { revalidate: 3600 } },
+    )
+  } catch {
+    return null
+  }
+}

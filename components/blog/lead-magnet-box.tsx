@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from 'react'
 import { ArrowRight, Check, Download, FileText } from 'lucide-react'
 import { trackFileDownload, trackNewsletterSignup } from '@/lib/gtm-events'
+import type { LeadMagnetData } from '@/sanity/lib/blog'
 
 interface LeadMagnetBoxProps {
   /** Where on the site this magnet appears, used for analytics segmentation. */
@@ -14,6 +15,11 @@ interface LeadMagnetBoxProps {
    * download to a specific lead magnet variant.
    */
   assetSlug?: string
+  /**
+   * When provided, Sanity copy overrides the built-in COPY dict.
+   * Passed from the RSC page so the client component stays pure.
+   */
+  data?: LeadMagnetData | null
 }
 
 const COPY = {
@@ -62,12 +68,32 @@ export default function LeadMagnetBox({
   location,
   locale = 'en',
   assetSlug = 'marketing-plan-template-2026',
+  data,
 }: LeadMagnetBoxProps) {
-  const t = COPY[locale]
+  // If Sanity data is available, build a locale-resolved copy object from it;
+  // otherwise fall back to the hardcoded COPY dict so the component always works
+  // even when Sanity is unreachable.
+  const t = data
+    ? {
+        eyebrow:     (locale === 'it' ? data.eyebrow_it     : undefined) ?? data.eyebrow,
+        badge:       (locale === 'it' ? data.badge_it       : undefined) ?? data.badge,
+        headline:    (locale === 'it' ? data.headline_it    : undefined) ?? data.headline,
+        subhead:     (locale === 'it' ? data.subhead_it     : undefined) ?? data.subhead,
+        socialProof: (locale === 'it' ? data.socialProof_it : undefined) ?? data.socialProof,
+        placeholder: (locale === 'it' ? data.emailPlaceholder_it : undefined) ?? data.emailPlaceholder,
+        cta:         (locale === 'it' ? data.ctaLabel_it    : undefined) ?? data.ctaLabel,
+        success:     (locale === 'it' ? data.successMessage_it : undefined) ?? data.successMessage,
+        downloadCta: (locale === 'it' ? data.downloadCtaLabel_it : undefined) ?? data.downloadCtaLabel,
+        consent:     (locale === 'it' ? data.consentText_it : undefined) ?? data.consentText,
+      }
+    : COPY[locale]
+
   const [email, setEmail] = useState('')
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success'>('idle')
 
-  const downloadHref = `/downloads/${assetSlug}.pdf`
+  // Use the Sanity PDF asset URL if available, otherwise fall back to the
+  // static /downloads/ path.
+  const downloadHref = data?.pdfFallbackUrl ?? `/downloads/${assetSlug}.pdf`
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault()
