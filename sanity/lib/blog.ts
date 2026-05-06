@@ -28,6 +28,7 @@ const fullProjection = `
   "author": author->{
   _id,
   name,
+  "slug": slug.current,
   role,
   bio,
   "photo": photo { asset, alt },
@@ -167,6 +168,85 @@ export async function getTranslationSlug(postId: string, fromLang: string): Prom
   } catch {
     return null
   }
+}
+
+// ── AUTHOR PAGES ──────────────────────────────────────────────────────────────
+//
+// Powers the dedicated /author/[slug] (EN) and /it/autore/[slug] (IT) routes.
+// We expose three helpers:
+//   - getAllAuthorSlugs    → static params for prerendering
+//   - getAuthorBySlug      → full profile (long bio, expertise, social, etc.)
+//   - getPostsByAuthor     → that author's articles in a given language
+
+const authorProfileProjection = `
+  _id,
+  name,
+  "slug": slug.current,
+  role,
+  bio,
+  longBio,
+  longBio_it,
+  expertise,
+  yearsOfExperience,
+  location,
+  email,
+  website,
+  linkedin,
+  twitterX,
+  instagram,
+  "photo": photo { asset, alt },
+  "credentials": credentials[]
+`
+
+/**
+ * Slugs of every blogAuthor document, used by generateStaticParams.
+ * Returns a stable shape `{ slug: string }[]`.
+ */
+export async function getAllAuthorSlugs(): Promise<{ slug: string }[]> {
+  return client
+    .fetch(
+      `*[_type == "blogAuthor" && defined(slug.current)] { "slug": slug.current }`,
+      {},
+      { cache: 'no-store' },
+    )
+    .catch(() => [] as { slug: string }[])
+}
+
+/**
+ * Full author profile by slug. Returns null when not found so callers can
+ * trigger notFound() cleanly.
+ */
+export async function getAuthorBySlug(slug: string) {
+  return client
+    .fetch(
+      `*[_type == "blogAuthor" && slug.current == $slug][0] {
+        ${authorProfileProjection}
+      }`,
+      { slug },
+      { cache: 'no-store' },
+    )
+    .catch(() => null)
+}
+
+/**
+ * Posts written by a specific author in a specific language. Sorted by
+ * publishedAt desc. Used to power the "Articles" section of /author/[slug].
+ * Reuses `listingProjection` so the cards render identically to /blog.
+ */
+export async function getPostsByAuthor(authorSlug: string, lang: string) {
+  return client
+    .fetch(
+      `*[_type == "blogPost"
+          && language == $lang
+          && isPublished != false
+          && author->slug.current == $authorSlug
+        ] | order(publishedAt desc) {
+        ${listingProjection}
+      }`,
+      { authorSlug, lang },
+      { cache: 'no-store' },
+    )
+    .catch(() => null)
 }
 
 // ── LEAD MAGNET ───────────────────────────────────────────────────────────────

@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next'
-import { getBlogPostSlugs } from '@/sanity/lib/blog'
+import { getBlogPostSlugs, getAllAuthorSlugs } from '@/sanity/lib/blog'
 import { getBlogPosts } from '@/sanity/lib/page-queries'
 import { client } from '@/sanity/lib/client'
 import { slugifyCategory } from '@/lib/blog-categories'
@@ -166,5 +166,43 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     return entries
   })
 
-  return [...staticEntries, ...blogEntries, ...caseStudyEntries, ...categoryEntries]
+  // Author profile pages — EN at /author/[slug], IT at /it/autore/[slug].
+  // We mirror every author across both locales (the long bio falls back to
+  // EN when the IT translation is missing) and emit hreflang alternates
+  // pointing at the same Person across languages.
+  const authorSlugs = await getAllAuthorSlugs()
+  const authorEntries: MetadataRoute.Sitemap = (authorSlugs ?? [])
+    .map((s: { slug: string }) => s.slug)
+    .filter(Boolean)
+    .flatMap((slug: string) => {
+      const enUrl = `${BASE_URL}/author/${slug}`
+      const itUrl = `${BASE_URL}/it/autore/${slug}`
+      const alternates = {
+        languages: { en: enUrl, it: itUrl, 'x-default': enUrl },
+      } as const
+      return [
+        {
+          url: enUrl,
+          lastModified: now,
+          changeFrequency: 'monthly' as const,
+          priority: 0.6,
+          alternates,
+        },
+        {
+          url: itUrl,
+          lastModified: now,
+          changeFrequency: 'monthly' as const,
+          priority: 0.55,
+          alternates,
+        },
+      ]
+    })
+
+  return [
+    ...staticEntries,
+    ...blogEntries,
+    ...caseStudyEntries,
+    ...categoryEntries,
+    ...authorEntries,
+  ]
 }
