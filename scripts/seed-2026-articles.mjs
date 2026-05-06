@@ -174,7 +174,7 @@ const shoppertainmentEN = {
       _key: k(),
       value: '11.2%',
       label: 'Average Live Commerce conversion rate observed in 2026',
-      source: 'Pota Studio client portfolio (Samsung, Atalanta BC, Airbnb)',
+      source: 'Pota Studio client portfolio (Samsung, Isybank, Lucca Comics & Games)',
     },
   ],
   faqItems: [
@@ -267,7 +267,7 @@ const shoppertainmentIT = {
       _key: k(),
       value: '11.2%',
       label: 'Conversion rate medio del Live Commerce nel 2026',
-      source: 'Portfolio Pota Studio (Samsung, Atalanta BC, Airbnb)',
+      source: 'Portfolio Pota Studio (Samsung, Isybank, Lucca Comics & Games)',
     },
   ],
   faqItems: [

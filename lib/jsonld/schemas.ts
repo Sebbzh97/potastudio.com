@@ -654,10 +654,17 @@ export function faqPageSchema(
   items: FaqItem[],
   options: { pageUrl?: string; locale?: "en" | "it" } = {},
 ): Record<string, unknown> | null {
-  const cleaned = (items ?? []).filter(
-    (i): i is FaqItem => Boolean(i?.question?.trim() && i?.answer?.trim()),
-  )
-  if (cleaned.length === 0) return null
+  // Schema.org-shaped items: question must end with `?`, answer must have
+  // some substance. Anything else is silently dropped — better to omit the
+  // schema than to ship an invalid one.
+  const cleaned = (items ?? []).filter((i): i is FaqItem => {
+    const q = i?.question?.trim() ?? ""
+    const a = i?.answer?.trim() ?? ""
+    return Boolean(q && a) && q.endsWith("?") && a.length >= 30
+  })
+  // Google's rich-result guidance: FAQPage with a single Q/A pair is
+  // routinely rejected. We require at least 2 to emit anything.
+  if (cleaned.length < 2) return null
 
   const { pageUrl, locale } = options
   const schema: Record<string, unknown> = {

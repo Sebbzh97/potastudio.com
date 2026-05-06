@@ -1,5 +1,6 @@
 import type React from 'react'
 import { defineField, defineType } from 'sanity'
+import { slugIsUrlSafe } from '../lib/slug-validation'
 
 // v2 — isUnique removed, slug validated via custom Rule only
 //
@@ -71,14 +72,7 @@ export default defineType({
         source: 'title',
         maxLength: 96,
       },
-      validation: (Rule) =>
-        Rule.required().custom((slug) => {
-          if (!slug?.current) return 'Slug is required'
-          if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug.current)) {
-            return 'Slug must be lowercase, hyphens only, no special characters'
-          }
-          return true
-        }),
+      validation: (Rule) => Rule.required().custom(slugIsUrlSafe),
     }),
     defineField({
       name: 'language',

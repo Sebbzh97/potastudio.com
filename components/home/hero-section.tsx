@@ -53,6 +53,15 @@ export default function HeroSection({ data, locale }: { data?: HeroData; locale?
       <div className="container-site relative pt-24 sm:pt-32 pb-8 flex-1 flex flex-col justify-center">
         {heroLabel && <span className="sr-only">{heroLabel}</span>}
 
+        {/*
+          H1 spacing — explicit `{' '}` BEFORE every `<br />` and BEFORE every
+          following text fragment. This is critical: `<br />` is a hard break
+          in the rendered DOM but it does NOT contribute whitespace to the
+          accessible text or to crawlers' textContent. Without these explicit
+          spaces, ChatGPT / Claude / Perplexity ingest the headline as the
+          single token "WemakebrandimpossibletoIgnore", which is precisely
+          the SSR bug reported in the audit. Keep them — do not "tidy up".
+        */}
         <h1
           className="font-bold leading-[0.9] tracking-tight text-white mb-6 sm:mb-8 text-balance break-words"
           style={{
@@ -60,18 +69,18 @@ export default function HeroSection({ data, locale }: { data?: HeroData; locale?
             fontSize: 'clamp(3rem, 9vw, 9rem)',
           }}
         >
-          {prefix}{' '}
+          <span>{prefix}</span>{' '}
           <span
             style={{ display: 'inline', verticalAlign: 'baseline' }}
             aria-live="polite"
             aria-atomic="true"
           >
             <CyclingWord words={cyclingWords} />
-          </span>
+          </span>{' '}
           <br />
-          <span className="text-[#FFC629]">{accentLine}</span>
+          <span className="text-[#FFC629]">{accentLine}</span>{' '}
           <br />
-          {suffix}
+          <span>{suffix}</span>
         </h1>
 
         {subheadline && (

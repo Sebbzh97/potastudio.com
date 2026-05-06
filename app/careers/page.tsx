@@ -64,7 +64,7 @@ export default async function CareersPage() {
             style={{ fontFamily: 'var(--font-space-grotesk)', fontSize: 'clamp(3rem, 11vw, 8rem)' }}
           >
             {heroHeadline}
-            {heroAccent && (<><br /><span className="text-[#FF5C00]">{heroAccent}</span></>)}
+            {heroAccent && (<>{' '}<br /><span className="text-[#FF5C00]">{heroAccent}</span></>)}
           </h1>
           {heroBody && <p className="text-base sm:text-xl text-[#B0B0B0] max-w-2xl leading-relaxed">{heroBody}</p>}
         </div>

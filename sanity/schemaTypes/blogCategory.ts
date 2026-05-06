@@ -1,4 +1,5 @@
 import { defineField, defineType } from 'sanity'
+import { slugIsUrlSafe } from '../lib/slug-validation'
 
 export const blogCategory = defineType({
   name: 'blogCategory',
@@ -16,7 +17,7 @@ export const blogCategory = defineType({
       title: 'Slug',
       type: 'slug',
       options: { source: 'title', maxLength: 96 },
-      validation: (Rule) => Rule.required(),
+      validation: (Rule) => Rule.required().custom(slugIsUrlSafe),
     }),
     defineField({
       name: 'language',

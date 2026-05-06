@@ -66,6 +66,34 @@ const nextConfig = {
       { source: '/media', destination: '/', permanent: true },
       { source: '/it/media', destination: '/it', permanent: true },
 
+      // ─── Case-study slug normalisation ────────────────────────────────
+      // The historical sitemap shipped /work/isybank-gaming tour with a
+      // literal space character, which 404s on every properly-encoding
+      // crawler. The canonical slug is now `isybank-gaming-tour` and the
+      // Sanity schema enforces URL-safe slugs going forward.
+      // Both the literal-space form and the percent-encoded form redirect
+      // to the canonical hyphenated slug, in EN and IT.
+      {
+        source: '/work/isybank-gaming tour',
+        destination: '/work/isybank-gaming-tour',
+        permanent: true,
+      },
+      {
+        source: '/work/isybank-gaming%20tour',
+        destination: '/work/isybank-gaming-tour',
+        permanent: true,
+      },
+      {
+        source: '/it/work/isybank-gaming tour',
+        destination: '/it/work/isybank-gaming-tour',
+        permanent: true,
+      },
+      {
+        source: '/it/work/isybank-gaming%20tour',
+        destination: '/it/work/isybank-gaming-tour',
+        permanent: true,
+      },
+
       // ─── Cross-locale blog mismatches (Ahrefs 17 noindex pages) ───────
       // These 17 URLs were crawled by Ahrefs/Google with the wrong locale
       // path: IT-slug articles sit under /blog (EN) and EN-slug articles

@@ -154,26 +154,38 @@ export function extractFaqFromBody(
  * source available. Resolution order:
  *
  *   1. Curated `faqItems[]` from Sanity — editor-validated, always wins.
- *   2. Body H2-extracted FAQs — auto-mined when no curated list exists.
+ *   2. Body H2-extracted FAQs — auto-mined when no curated list exists
+ *      (only kept when the H2 looks like a real question).
  *
- * On top of that, when a `quickAnswer` is present AND a `postTitle` is
- * passed in, the (title, quickAnswer) pair is *prepended* as the lead FAQ
- * entry. This wires the visible "Quick Answer" block straight into the
- * FAQPage JSON-LD without forcing editors to duplicate the content.
+ * IMPORTANT (audit fix, 2026-05): we DO NOT inject the article title as a
+ * Question entry anymore. The article title is a STATEMENT (e.g.
+ * "OpenAI Ads: The Future of Advertising"), and Schema.org FAQPage requires
+ * `Question.name` to be an actual question. Pairing `postTitle` with
+ * `quickAnswer` produced invalid markup that could trigger Google manual
+ * actions against the rich result. The visible TL;DR / Quick Answer block
+ * is rendered separately on-page; it is not part of the FAQPage JSON-LD.
  *
- * Duplicate questions are deduped (case-insensitive) so the pre-pended
- * Quick Answer never collides with a curated entry that asks the same
- * thing.
+ * The optional `postTitle` and `quickAnswer` arguments are kept in the
+ * signature only so existing callers do not break — they are now ignored
+ * and intentionally documented as deprecated.
+ *
+ * Final list is filtered to questions that end with `?` so the schema is
+ * always Schema.org-conformant, and capped at 10 entries.
  */
 export function resolveFaqItems(args: {
   curated?: { question?: string; answer?: string }[] | null
   body?: PtBlock[] | null
   maxExtracted?: number
-  /** Title of the article — used as the question text for `quickAnswer`. */
+  /** @deprecated Ignored — never used as a Question.name. */
   postTitle?: string
-  /** The post's TL;DR/Quick Answer copy. Becomes the lead FAQ answer. */
+  /** @deprecated Ignored — TL;DR is rendered visually, not in FAQPage JSON-LD. */
   quickAnswer?: string
 }): ExtractedFaq[] {
+  // Touch deprecated args to keep them in the public signature without
+  // tripping the unused-vars lint rule when callers pass them.
+  void args.postTitle
+  void args.quickAnswer
+
   const curated = (args.curated ?? [])
     .map((f) => ({
       question: (f?.question ?? "").trim(),
@@ -185,21 +197,21 @@ export function resolveFaqItems(args: {
     ? curated
     : extractFaqFromBody(args.body, args.maxExtracted ?? 8)
 
-  // Prepend Quick Answer as the lead FAQ entry when both pieces exist.
-  if (args.quickAnswer?.trim() && args.postTitle?.trim()) {
-    const lead: ExtractedFaq = {
-      question: args.postTitle.trim(),
-      answer: args.quickAnswer.trim(),
-    }
-    const seen = new Set([lead.question.toLowerCase()])
-    const deduped = base.filter((f) => {
-      const k = f.question.toLowerCase()
-      if (seen.has(k)) return false
-      seen.add(k)
-      return true
-    })
-    return [lead, ...deduped]
-  }
+  // Hard rule: every Question MUST end with `?`. Auto-extracted entries
+  // that started with an interrogative word but did not end with `?` are
+  // dropped here so the JSON-LD never carries a Statement masquerading as
+  // a Question.
+  const questionShaped = base.filter((f) => f.question.trim().endsWith("?"))
 
-  return base
+  // Dedupe (case-insensitive) and cap at 10.
+  const seen = new Set<string>()
+  const deduped: ExtractedFaq[] = []
+  for (const f of questionShaped) {
+    const key = f.question.toLowerCase()
+    if (seen.has(key)) continue
+    seen.add(key)
+    deduped.push(f)
+    if (deduped.length >= 10) break
+  }
+  return deduped
 }
