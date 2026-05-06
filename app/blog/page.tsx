@@ -9,8 +9,9 @@ import { blogSchema } from '@/lib/jsonld/schemas'
 import { slugifyCategory } from '@/lib/blog-categories'
 import NewsletterCTA from '@/components/blog/newsletter-cta'
 
-export const dynamic = 'force-dynamic'
-export const revalidate = 0
+// ISR: blog index regenerates every hour. New articles appear instantly
+// when /api/revalidate is hit by the Sanity webhook.
+export const revalidate = 3600
 
 // `| Pota Studio` is appended automatically by the root layout template,
 // so we omit the brand suffix here to avoid a double-suffixed title.

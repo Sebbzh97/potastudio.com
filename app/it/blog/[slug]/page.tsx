@@ -18,8 +18,11 @@ import StickyMobileCta from '@/components/blog/sticky-mobile-cta'
 import AuthorAuthorityBox from '@/components/blog/author-authority-box'
 import FaqSection from '@/components/blog/faq-section'
 
-export const dynamic = 'force-dynamic'
-export const revalidate = 0
+// ISR: regenerate every hour. Articles are pre-rendered at build time via
+// `generateStaticParams` and on-demand via `revalidateTag` from the Sanity
+// webhook (see `/api/revalidate`). Previously force-dynamic which forced a
+// Lambda hit on every request.
+export const revalidate = 3600
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 
