@@ -18,8 +18,11 @@ import StickyMobileCta from '@/components/blog/sticky-mobile-cta'
 import AuthorAuthorityBox from '@/components/blog/author-authority-box'
 import FaqSection from '@/components/blog/faq-section'
 
-export const dynamic = 'force-dynamic'
-export const revalidate = 0
+// ISR: regenerate every hour. `generateStaticParams` pre-renders every
+// known slug at build time; `revalidateTag` (called from /api/revalidate)
+// pushes editor changes instantly. Previously force-dynamic — every
+// request hit a Lambda, hurting LCP and CDN-cache effectiveness.
+export const revalidate = 3600
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 

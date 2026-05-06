@@ -9,8 +9,9 @@ import { categoryMetaCopy, findCategoryName, slugifyCategory } from '@/lib/blog-
 import { getBlogPosts, type SanityBlogPost } from '@/sanity/lib/page-queries'
 import NewsletterCTA from '@/components/blog/newsletter-cta'
 
-export const dynamic = 'force-dynamic'
-export const revalidate = 0
+// ISR: category page regenerates every hour. Webhook can target this
+// with `revalidateTag(`category:${slug}`)` for instant updates.
+export const revalidate = 3600
 
 const SITE = 'https://www.potastudio.com'
 

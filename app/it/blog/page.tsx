@@ -8,8 +8,8 @@ import { blogSchema } from '@/lib/jsonld/schemas'
 import { slugifyCategory } from '@/lib/blog-categories'
 import NewsletterCTA from '@/components/blog/newsletter-cta'
 
-export const dynamic = 'force-dynamic'
-export const revalidate = 0
+// ISR: blog index, IT locale.
+export const revalidate = 3600
 
 const FALLBACK_TITLE =
   'Blog Marketing Digitale - Guide su Social Media, TikTok & Ads | Pota Studio'

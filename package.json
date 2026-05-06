@@ -8,7 +8,17 @@
     "start": "next start",
     "lint": "eslint .",
     "seed:articles": "node --env-file-if-exists=/vercel/share/.env.project --env-file-if-exists=.env.local scripts/seed-2026-articles.mjs",
-    "import:articles": "node --env-file-if-exists=/vercel/share/.env.project --env-file-if-exists=.env.local scripts/import-articles.js"
+    "import:articles": "node --env-file-if-exists=/vercel/share/.env.project --env-file-if-exists=.env.local scripts/import-articles.js",
+    "pre-deploy": "node --env-file-if-exists=/vercel/share/.env.project --env-file-if-exists=.env.local scripts/pre-deploy-check.mjs"
+  },
+  "//pnpm": "Whitelist native build scripts so sharp (used by next/image) and esbuild compile their native binaries instead of being silently skipped — eliminates the 'Ignored build scripts' warning and speeds up image processing at build time.",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "sharp",
+      "@sanity/icons",
+      "@vercel/speed-insights"
+    ]
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
