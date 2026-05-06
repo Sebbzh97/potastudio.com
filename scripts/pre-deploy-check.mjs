@@ -93,7 +93,24 @@ async function checkSanity() {
     )
   }
 
-  // 3. Published blog posts must have isPublished !== false AND a category.
+  // 3. seoTitle must NOT contain the brand name when the document type is
+  // a page-level entity. The root layout's metadata.title.template
+  // appends ` | Pota Studio` automatically; baking it into the source
+  // produces the dreaded `Servizi | Pota Studio | Pota Studio` double
+  // brand that the audit flagged.
+  const titleRows = await client.fetch(
+    `*[_type in ['pageContent','servicesPage','homepage','aboutPage','workPage','clientsPage','careersPage','contactPage','blogIndex','privacyPage','cookiePage'] && defined(seoTitle) && seoTitle match '*Pota Studio*']{
+      _id, _type, language, seoTitle
+    }`,
+  )
+  for (const r of titleRows) {
+    fail(
+      'sanity-title',
+      `${r._type} ${r._id} (${r.language ?? 'no-lang'}) has seoTitle "${r.seoTitle}" containing the brand name. The layout template adds " | Pota Studio" automatically — strip it from the field.`,
+    )
+  }
+
+  // 4. Published blog posts must have isPublished !== false AND a category.
   // The original isybank/openai-ads outage was caused by `isPublished: null`
   // being filtered out by the GROQ `!= false` clause.
   const publishedPosts = await client.fetch(
