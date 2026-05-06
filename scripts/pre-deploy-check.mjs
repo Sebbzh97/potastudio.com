@@ -93,14 +93,18 @@ async function checkSanity() {
     )
   }
 
-  // 3. seoTitle must NOT contain the brand name when the document type is
-  // a page-level entity. The root layout's metadata.title.template
-  // appends ` | Pota Studio` automatically; baking it into the source
-  // produces the dreaded `Servizi | Pota Studio | Pota Studio` double
-  // brand that the audit flagged.
+  // 3. seoTitle must NOT contain the brand name when the document is a
+  // page-level entity that relies on Next.js metadata.title.template
+  // (which appends ` | Pota Studio` automatically). Homepage docs are
+  // exempt because the route uses metadata.title.absolute and the brand
+  // *is* part of the canonical positioning string ("Pota Studio | Full
+  // Service Marketing Agency").
   const titleRows = await client.fetch(
-    `*[_type in ['pageContent','servicesPage','homepage','aboutPage','workPage','clientsPage','careersPage','contactPage','blogIndex','privacyPage','cookiePage'] && defined(seoTitle) && seoTitle match '*Pota Studio*']{
-      _id, _type, language, seoTitle
+    `*[_type in ['pageContent','servicesPage','aboutPage','workPage','clientsPage','careersPage','contactPage','blogIndex','privacyPage','cookiePage']
+        && pageKey != 'homepage'
+        && defined(seoTitle)
+        && seoTitle match '*Pota Studio*']{
+      _id, _type, language, pageKey, seoTitle
     }`,
   )
   for (const r of titleRows) {
