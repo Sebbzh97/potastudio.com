@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { ArrowLeft, Clock, Calendar } from 'lucide-react'
 import Breadcrumbs from '@/components/breadcrumbs'
@@ -7,6 +8,7 @@ import { JsonLd } from '@/components/json-ld'
 import { blogSchema, collectionPageSchema, breadcrumbListSchema } from '@/lib/jsonld/schemas'
 import { categoryMetaCopy, findCategoryName, slugifyCategory } from '@/lib/blog-categories'
 import { getBlogPosts, type SanityBlogPost } from '@/sanity/lib/page-queries'
+import { withSanityTransform } from '@/lib/sanity-image'
 import NewsletterCTA from '@/components/blog/newsletter-cta'
 
 // ISR: category page regenerates every hour. Webhook can target this
@@ -24,6 +26,9 @@ interface Post {
   date: string
   author: string
   publishedAt?: string
+  // Sanity CDN URL + alt; falls back to category-letter placeholder.
+  coverImageUrl?: string
+  coverImageAlt?: string
 }
 
 const categoryColors: Record<string, string> = {
@@ -58,6 +63,8 @@ function toPost(s: SanityBlogPost): Post {
     date: formatDate(s.publishedAt),
     author: s.author?.name ?? 'Pota Studio',
     publishedAt: s.publishedAt,
+    coverImageUrl: s.coverImageUrl,
+    coverImageAlt: s.coverImageAlt,
   }
 }
 
@@ -253,14 +260,26 @@ export default async function BlogCategoryPage({ params }: Props) {
                 href={`/blog/${filteredPosts[0].slug}`}
                 className="group grid grid-cols-1 lg:grid-cols-2 bg-[#141414] border border-white/10 rounded-xl overflow-hidden hover:border-[#FF5C00]/40 transition-colors"
               >
-                <div className="aspect-video lg:aspect-auto bg-[#1A0D00] flex items-center justify-center min-h-[180px] sm:min-h-[220px]">
-                  <span
-                    className="text-[8rem] sm:text-[12rem] font-bold opacity-10 select-none"
-                    style={{ fontFamily: 'var(--font-space-grotesk)', color: accent }}
-                    aria-hidden="true"
-                  >
-                    {canonicalName[0]}
-                  </span>
+                <div className="relative aspect-video lg:aspect-auto bg-[#1A0D00] flex items-center justify-center min-h-[180px] sm:min-h-[220px] overflow-hidden">
+                  {filteredPosts[0].coverImageUrl ? (
+                    <Image
+                      src={withSanityTransform(filteredPosts[0].coverImageUrl, { w: 1200, fit: 'crop' })!}
+                      alt={filteredPosts[0].coverImageAlt || filteredPosts[0].title}
+                      fill
+                      sizes="(min-width: 1024px) 50vw, 100vw"
+                      className="object-cover"
+                      priority
+                      unoptimized
+                    />
+                  ) : (
+                    <span
+                      className="text-[8rem] sm:text-[12rem] font-bold opacity-10 select-none"
+                      style={{ fontFamily: 'var(--font-space-grotesk)', color: accent }}
+                      aria-hidden="true"
+                    >
+                      {canonicalName[0]}
+                    </span>
+                  )}
                 </div>
                 <div className="p-6 sm:p-8 lg:py-12 flex flex-col justify-center">
                   <span
@@ -308,13 +327,24 @@ export default async function BlogCategoryPage({ params }: Props) {
                     className="group bg-[#141414] border border-white/10 rounded-xl overflow-hidden hover:border-[#FF5C00]/30 transition-colors flex flex-col"
                   >
                     <div className="aspect-video bg-[#0D0D0D] flex items-center justify-center relative overflow-hidden">
-                      <span
-                        className="text-[7rem] sm:text-[8rem] font-bold opacity-10 select-none"
-                        style={{ fontFamily: 'var(--font-space-grotesk)', color: accent }}
-                        aria-hidden="true"
-                      >
-                        {canonicalName[0]}
-                      </span>
+                      {post.coverImageUrl ? (
+                        <Image
+                          src={withSanityTransform(post.coverImageUrl, { w: 800, fit: 'crop' })!}
+                          alt={post.coverImageAlt || post.title}
+                          fill
+                          sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                          className="object-cover"
+                          unoptimized
+                        />
+                      ) : (
+                        <span
+                          className="text-[7rem] sm:text-[8rem] font-bold opacity-10 select-none"
+                          style={{ fontFamily: 'var(--font-space-grotesk)', color: accent }}
+                          aria-hidden="true"
+                        >
+                          {canonicalName[0]}
+                        </span>
+                      )}
                     </div>
                     <div className="p-5 sm:p-6 flex flex-col flex-1">
                       <h3
