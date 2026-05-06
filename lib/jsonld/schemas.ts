@@ -127,24 +127,20 @@ export function organizationSchema(locale: "en" | "it" = "en"): Record<string, u
     // Partner certifications strengthen E-E-A-T signals (Authoritativeness +
     // Trustworthiness). Mirrored visually in the footer's PartnerBadges
     // component so HTML and structured data stay in sync.
-    award: [
-      "TikTok Official Marketing Partner",
-      "Google Partner",
-    ],
     hasCredential: [
       {
         "@type": "EducationalOccupationalCredential",
-        name: "TikTok Official Marketing Partner",
+        name: "Shopify Partner",
         credentialCategory: "Certification",
-        recognizedBy: { "@type": "Organization", name: "TikTok" },
-        url: "https://www.tiktok.com/business/en/partners",
+        recognizedBy: { "@type": "Organization", name: "Shopify" },
+        url: "https://www.shopify.com/partners",
       },
       {
         "@type": "EducationalOccupationalCredential",
-        name: "Google Partner",
+        name: "Iubenda Bronze Certified Partner",
         credentialCategory: "Certification",
-        recognizedBy: { "@type": "Organization", name: "Google" },
-        url: "https://partnersdirectory.withgoogle.com/",
+        recognizedBy: { "@type": "Organization", name: "Iubenda" },
+        url: "https://www.iubenda.com/en/partner-program",
       },
     ],
   }
