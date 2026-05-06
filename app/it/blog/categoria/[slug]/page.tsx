@@ -8,6 +8,7 @@ import { JsonLd } from '@/components/json-ld'
 import { blogSchema, collectionPageSchema, breadcrumbListSchema } from '@/lib/jsonld/schemas'
 import { categoryMetaCopy, findCategoryName, slugifyCategory } from '@/lib/blog-categories'
 import { getBlogPosts, type SanityBlogPost } from '@/sanity/lib/page-queries'
+import { withSanityTransform } from '@/lib/sanity-image'
 import NewsletterCTA from '@/components/blog/newsletter-cta'
 
 // ISR: category page (IT). See EN counterpart for rationale.
@@ -257,12 +258,13 @@ export default async function BlogCategoryPageIT({ params }: Props) {
                 <div className="relative aspect-video lg:aspect-auto bg-[#1A0D00] flex items-center justify-center min-h-[180px] sm:min-h-[220px] overflow-hidden">
                   {filteredPosts[0].coverImageUrl ? (
                     <Image
-                      src={filteredPosts[0].coverImageUrl}
+                      src={withSanityTransform(filteredPosts[0].coverImageUrl, { w: 1200, fit: 'crop' })!}
                       alt={filteredPosts[0].coverImageAlt || filteredPosts[0].title}
                       fill
                       sizes="(min-width: 1024px) 50vw, 100vw"
                       className="object-cover"
                       priority
+                      unoptimized
                     />
                   ) : (
                     <span
@@ -321,11 +323,12 @@ export default async function BlogCategoryPageIT({ params }: Props) {
                     <div className="aspect-video bg-[#0D0D0D] flex items-center justify-center relative overflow-hidden">
                       {post.coverImageUrl ? (
                         <Image
-                          src={post.coverImageUrl}
+                          src={withSanityTransform(post.coverImageUrl, { w: 800, fit: 'crop' })!}
                           alt={post.coverImageAlt || post.title}
                           fill
                           sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
                           className="object-cover"
+                          unoptimized
                         />
                       ) : (
                         <span

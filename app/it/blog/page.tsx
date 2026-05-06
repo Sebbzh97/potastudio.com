@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { redirect } from 'next/navigation'
 import { Clock, Calendar } from 'lucide-react'
 import { getBlogPosts, getBlogPage, type SanityBlogPost } from '@/sanity/lib/page-queries'
+import { withSanityTransform } from '@/lib/sanity-image'
 import { JsonLd } from '@/components/json-ld'
 import { blogSchema } from '@/lib/jsonld/schemas'
 import { slugifyCategory } from '@/lib/blog-categories'
@@ -185,12 +186,13 @@ export default async function BlogPageIT({ searchParams }: Props) {
                 <div className="relative aspect-video lg:aspect-auto bg-[#1A0D00] flex items-center justify-center min-h-[180px] sm:min-h-[220px] overflow-hidden">
                   {allPosts[0].coverImageUrl ? (
                     <Image
-                      src={allPosts[0].coverImageUrl}
+                      src={withSanityTransform(allPosts[0].coverImageUrl, { w: 1200, fit: 'crop' })!}
                       alt={allPosts[0].coverImageAlt || allPosts[0].title}
                       fill
                       sizes="(min-width: 1024px) 50vw, 100vw"
                       className="object-cover"
                       priority
+                      unoptimized
                     />
                   ) : (
                     <span
@@ -248,11 +250,12 @@ export default async function BlogPageIT({ searchParams }: Props) {
                     <div className="aspect-video bg-[#0D0D0D] flex items-center justify-center relative overflow-hidden">
                       {post.coverImageUrl ? (
                         <Image
-                          src={post.coverImageUrl}
+                          src={withSanityTransform(post.coverImageUrl, { w: 800, fit: 'crop' })!}
                           alt={post.coverImageAlt || post.title}
                           fill
                           sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
                           className="object-cover"
+                          unoptimized
                         />
                       ) : (
                         <span
