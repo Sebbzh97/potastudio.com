@@ -153,18 +153,24 @@ function buildComponents(accent: string): PortableTextComponents {
         )
       },
 
-      // ── Callout (info / warning / tip / stat) ────────────────────────────
+      // ── Callout (info / warning / tip / stat / insight) ──────────────────
+      // Hardened: any non-listed type falls back to "info" instead of
+      // crashing the Server Component render.
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       callout: ({ value }: { value: any }) => {
-        const type = (value?.type ?? 'info') as 'info' | 'warning' | 'tip' | 'stat'
-        const text = (value?.text ?? '') as string
-        const palette: Record<typeof type, { color: string; label: string }> = {
-          info: { color: '#5DA9FF', label: 'INFO' },
+        const palette = {
+          info:    { color: '#5DA9FF', label: 'INFO' },
           warning: { color: '#FFB547', label: 'WARNING' },
-          tip: { color: '#3DD68C', label: 'TIP' },
-          stat: { color: accent, label: 'STAT' },
-        }
+          tip:     { color: '#3DD68C', label: 'TIP' },
+          stat:    { color: accent,    label: 'STAT' },
+          insight: { color: '#A78BFA', label: 'INSIGHT' },
+        } as const
+
+        const rawType = typeof value?.type === 'string' ? value.type : 'info'
+        const type = (rawType in palette ? rawType : 'info') as keyof typeof palette
         const { color, label } = palette[type]
+        const text = typeof value?.text === 'string' ? value.text : ''
+
         return (
           <aside
             className="my-8 rounded-xl p-5 border"

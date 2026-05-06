@@ -95,6 +95,7 @@ export const blockContent = defineType({
               { title: 'Warning', value: 'warning' },
               { title: 'Tip', value: 'tip' },
               { title: 'Stat', value: 'stat' },
+              { title: 'Insight', value: 'insight' },
             ],
           },
           validation: (Rule) => Rule.required(),
