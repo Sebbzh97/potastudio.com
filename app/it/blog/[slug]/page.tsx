@@ -134,6 +134,12 @@ export default async function BlogPostPageIT({ params }: Props) {
   const accent = categoryColors[category] ?? '#FF5C00'
   const authorName = post.author?.name ?? 'Pota Studio'
   const authorRole = post.author?.role ?? 'Founder & CEO'
+  // See EN counterpart — author slug threads into the Article JSON-LD so
+  // Google can merge the byline with the /it/autore/[slug] profile page.
+  const authorSlug =
+    post.author?.slug && post.author?.name && post.author.name !== 'Pota Studio'
+      ? (post.author.slug as string)
+      : undefined
   const coverSrc = post.coverImage?.asset
     ? urlFor(post.coverImage).width(1600).height(900).fit('crop').auto('format').url()
     : null
@@ -148,6 +154,7 @@ export default async function BlogPostPageIT({ params }: Props) {
     updatedAt: post.updatedAt,
     authorName,
     authorRole,
+    authorSlug,
     keywords: [post.primaryKeyword, ...(post.secondaryKeywords ?? [])].filter(Boolean) as string[],
     locale: 'it',
     section: 'blog',
@@ -219,13 +226,25 @@ export default async function BlogPostPageIT({ params }: Props) {
                 </p>
               )}
               <div className="flex flex-wrap items-center gap-6 text-sm text-[#B0B0B0]">
+                {/* Byline — link to the IT author profile when the slug is
+                    available; the page is mounted at /it/autore/[slug]. */}
                 <span className="flex items-center gap-2">
                   <div className="w-6 h-6 rounded-full bg-[#FF5C00]/20 flex items-center justify-center">
                     <span className="text-[#FF5C00] text-xs font-bold">{authorName[0]}</span>
                   </div>
-                  <span>
-                    {authorName} · {authorRole}
-                  </span>
+                  {authorSlug ? (
+                    <Link
+                      href={`/it/autore/${authorSlug}`}
+                      className="hover:text-white transition-colors"
+                      rel="author"
+                    >
+                      {authorName} · {authorRole}
+                    </Link>
+                  ) : (
+                    <span>
+                      {authorName} · {authorRole}
+                    </span>
+                  )}
                 </span>
                 <span className="flex items-center gap-1.5">
                   <Clock size={13} />

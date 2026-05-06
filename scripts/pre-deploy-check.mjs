@@ -93,7 +93,32 @@ async function checkSanity() {
     )
   }
 
-  // 3. Published blog posts must have isPublished !== false AND a category.
+  // 3. seoTitle must NOT contain the brand name when the document is a
+  // page-level entity that relies on Next.js metadata.title.template
+  // (which appends ` | Pota Studio` automatically). Homepage docs are
+  // exempt because the route uses metadata.title.absolute and the brand
+  // *is* part of the canonical positioning string ("Pota Studio | Full
+  // Service Marketing Agency"). We exclude them by `_id` since the
+  // `pageKey` field is null on the existing homepage documents (legacy
+  // schema) — filtering by ID is the only stable signal.
+  const HOMEPAGE_IDS = ['pageContent-homepage-en', 'pageContent-homepage-it']
+  const titleRows = await client.fetch(
+    `*[_type in ['pageContent','servicesPage','aboutPage','workPage','clientsPage','careersPage','contactPage','blogIndex','privacyPage','cookiePage']
+        && !(_id in $homepageIds)
+        && defined(seoTitle)
+        && seoTitle match '*Pota Studio*']{
+      _id, _type, language, pageKey, seoTitle
+    }`,
+    { homepageIds: HOMEPAGE_IDS },
+  )
+  for (const r of titleRows) {
+    fail(
+      'sanity-title',
+      `${r._type} ${r._id} (${r.language ?? 'no-lang'}) has seoTitle "${r.seoTitle}" containing the brand name. The layout template adds " | Pota Studio" automatically — strip it from the field.`,
+    )
+  }
+
+  // 4. Published blog posts must have isPublished !== false AND a category.
   // The original isybank/openai-ads outage was caused by `isPublished: null`
   // being filtered out by the GROQ `!= false` clause.
   const publishedPosts = await client.fetch(

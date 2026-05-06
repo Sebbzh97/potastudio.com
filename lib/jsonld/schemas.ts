@@ -476,6 +476,14 @@ export interface ArticleSchemaInput {
   updatedAt?: string
   authorName?: string
   authorRole?: string
+  /**
+   * Optional slug of the author's profile document. When provided, the
+   * Article references the Person by `@id` (`/author/${slug}#person`)
+   * instead of inlining a Person object. This is what lets Google merge
+   * every byline with the dedicated `/author/[slug]` profile page and
+   * compounds E-E-A-T across the whole archive.
+   */
+  authorSlug?: string
   keywords?: string[]
   locale?: "en" | "it"
   section?: "blog" | "work"
@@ -490,6 +498,7 @@ export function articleSchema(input: ArticleSchemaInput): Record<string, unknown
     updatedAt,
     authorName = POTA_BRAND_NAME,
     authorRole,
+    authorSlug,
     keywords = [],
     locale = "en",
     section = "blog",
@@ -498,8 +507,14 @@ export function articleSchema(input: ArticleSchemaInput): Record<string, unknown
   const path = locale === "it" ? `/it/${section}/${slug}` : `/${section}/${slug}`
   const url = `${SITE}${path}`
 
-  const author: Record<string, unknown> =
-    authorName === POTA_BRAND_NAME
+  // Author resolution priority:
+  //   1. authorSlug present → reference Person profile by `@id` (best for
+  //      E-E-A-T: Google merges this Article's byline with the profile page).
+  //   2. authorName === brand name → fall back to the Organization itself.
+  //   3. Inline Person (legacy fallback when slug isn't yet wired in).
+  const author: Record<string, unknown> = authorSlug
+    ? { "@id": `${SITE}/author/${authorSlug}#person` }
+    : authorName === POTA_BRAND_NAME
       ? { "@id": `${SITE}/#organization` }
       : {
           "@type": "Person",
@@ -688,4 +703,107 @@ export function faqPageSchema(
   if (locale) schema.inLanguage = locale
 
   return schema
+}
+
+// ───────────────────────────────────────────────────────────────────────────────
+// Person + ProfilePage
+// ───────────────────────────────────────────────────────────────────────────────
+
+export interface AuthorProfileInput {
+  /** Stable slug used for the URL, e.g. 'sebastian-bonfanti'. */
+  slug: string
+  name: string
+  role?: string
+  /** One-paragraph bio (string only — Portable Text is rendered separately). */
+  shortBio?: string
+  /** Absolute URL of the profile photo (already CDN-resolved via urlFor). */
+  imageUrl?: string
+  /** Public email — emitted as Person.email when set. */
+  email?: string
+  /** Topics this author writes about with authority. */
+  expertise?: string[]
+  /** Optional credential strings (rendered as badges + Person.knowsAbout). */
+  credentials?: string[]
+  /** Social profile URLs — become Person.sameAs. */
+  linkedin?: string
+  twitterX?: string
+  instagram?: string
+  website?: string
+  /** Locale of the profile page being emitted. */
+  locale?: "en" | "it"
+}
+
+/**
+ * Build a Person + ProfilePage schema graph for `/author/[slug]` pages.
+ *
+ * Why a graph: the article-level schema already references this author by
+ * `@id`, so emitting the same `@id` here lets Google merge the byline on
+ * every Article with the dedicated profile page (E-E-A-T compounding).
+ *
+ * The Person uses `worksFor` → Organization (`#organization` from
+ * organizationSchema) so the entity model is fully connected.
+ */
+export function authorProfileSchemaGraph(
+  input: AuthorProfileInput,
+): Record<string, unknown> {
+  const {
+    slug,
+    name,
+    role,
+    shortBio,
+    imageUrl,
+    email,
+    expertise = [],
+    credentials = [],
+    linkedin,
+    twitterX,
+    instagram,
+    website,
+    locale = "en",
+  } = input
+
+  const path = locale === "it" ? `/it/autore/${slug}` : `/author/${slug}`
+  const url = `${SITE}${path}`
+  const personId = `${SITE}/author/${slug}#person`
+  const profilePageId = `${url}#profilepage`
+
+  // sameAs — only include defined, absolute URLs.
+  const sameAs = [linkedin, twitterX, instagram, website].filter(
+    (u): u is string => Boolean(u && /^https?:\/\//.test(u)),
+  )
+
+  // Person.knowsAbout — merge expertise + credentials, dedupe.
+  const knowsAbout = Array.from(
+    new Set([...expertise, ...credentials].filter(Boolean)),
+  )
+
+  const person: Record<string, unknown> = {
+    "@type": "Person",
+    "@id": personId,
+    name,
+    url,
+    jobTitle: role,
+    worksFor: { "@id": `${SITE}/#organization` },
+  }
+  if (imageUrl) person.image = imageUrl
+  if (shortBio) person.description = shortBio
+  if (email) person.email = email
+  if (knowsAbout.length > 0) person.knowsAbout = knowsAbout
+  if (sameAs.length > 0) person.sameAs = sameAs
+
+  const profilePage: Record<string, unknown> = {
+    "@type": "ProfilePage",
+    "@id": profilePageId,
+    url,
+    name: `${name}${role ? ` — ${role}` : ""}`,
+    inLanguage: locale,
+    isPartOf: { "@id": `${SITE}/#website` },
+    mainEntity: { "@id": personId },
+    about: { "@id": personId },
+  }
+
+  return {
+    "@context": "https://schema.org",
+    "@graph": [person, profilePage],
+  }
 }

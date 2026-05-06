@@ -67,6 +67,65 @@ export const blogAuthor = defineType({
       description: "E-E-A-T signals: certifications, partnerships, notable achievements. E.g. 'Full Service Marketing Agency', 'Shopify Plus Certified'. Rendered as a badge list on the author profile.",
       validation: (Rule) => Rule.max(5),
     }),
+    // ── Author profile page extras ────────────────────────────────────────────
+    // Surfaced on /author/[slug] and serialised into the Person JSON-LD
+    // (`description`, `knowsAbout`, `email`, `sameAs`).
+    defineField({
+      name: 'longBio',
+      title: 'Long Bio (author page)',
+      type: 'array',
+      of: [{ type: 'block' }],
+      description:
+        'Full biography for the dedicated /author/[slug] page (EN). Use blocks, lists, and links to build an authoritative profile that establishes Experience-Expertise-Authoritativeness-Trustworthiness for both Google E-E-A-T and AI engine citations.',
+    }),
+    defineField({
+      name: 'longBio_it',
+      title: 'Long Bio — Italiano',
+      type: 'array',
+      of: [{ type: 'block' }],
+      description:
+        'Biografia estesa per la pagina autore italiana /it/autore/[slug]. Se vuota, la versione inglese viene mostrata anche su /it.',
+    }),
+    defineField({
+      name: 'expertise',
+      title: 'Areas of Expertise',
+      type: 'array',
+      of: [{ type: 'string' }],
+      description:
+        "Topics this author writes about with authority. Rendered on the profile page and emitted as Person.knowsAbout in JSON-LD. E.g. 'TikTok Advertising', 'E-commerce Conversion'.",
+      validation: (Rule) => Rule.max(8),
+    }),
+    defineField({
+      name: 'yearsOfExperience',
+      title: 'Years of Experience',
+      type: 'number',
+      description: 'Used in author profile heading to surface expertise depth.',
+      validation: (Rule) => Rule.min(0).max(60),
+    }),
+    defineField({
+      name: 'location',
+      title: 'Location',
+      type: 'string',
+      description: "City / country, e.g. 'Bergamo, Italy'. Surfaced on profile.",
+    }),
+    defineField({
+      name: 'email',
+      title: 'Public Email',
+      type: 'string',
+      description:
+        'Optional public contact email. Emitted as Person.email in JSON-LD.',
+    }),
+    defineField({
+      name: 'website',
+      title: 'Personal Website',
+      type: 'url',
+      description: 'Personal site or portfolio. Adds another sameAs entry.',
+    }),
+    defineField({
+      name: 'instagram',
+      title: 'Instagram URL',
+      type: 'url',
+    }),
   ],
   preview: {
     select: {
