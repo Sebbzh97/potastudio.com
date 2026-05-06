@@ -98,14 +98,18 @@ async function checkSanity() {
   // (which appends ` | Pota Studio` automatically). Homepage docs are
   // exempt because the route uses metadata.title.absolute and the brand
   // *is* part of the canonical positioning string ("Pota Studio | Full
-  // Service Marketing Agency").
+  // Service Marketing Agency"). We exclude them by `_id` since the
+  // `pageKey` field is null on the existing homepage documents (legacy
+  // schema) — filtering by ID is the only stable signal.
+  const HOMEPAGE_IDS = ['pageContent-homepage-en', 'pageContent-homepage-it']
   const titleRows = await client.fetch(
     `*[_type in ['pageContent','servicesPage','aboutPage','workPage','clientsPage','careersPage','contactPage','blogIndex','privacyPage','cookiePage']
-        && pageKey != 'homepage'
+        && !(_id in $homepageIds)
         && defined(seoTitle)
         && seoTitle match '*Pota Studio*']{
       _id, _type, language, pageKey, seoTitle
     }`,
+    { homepageIds: HOMEPAGE_IDS },
   )
   for (const r of titleRows) {
     fail(
