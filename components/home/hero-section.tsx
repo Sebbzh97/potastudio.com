@@ -54,10 +54,10 @@ export default function HeroSection({ data, locale }: { data?: HeroData; locale?
         {heroLabel && <span className="sr-only">{heroLabel}</span>}
 
         <h1
-          className="font-bold leading-[1] sm:leading-[1.02] tracking-tight text-white mb-6 sm:mb-8 text-balance break-words"
+          className="font-bold leading-[0.9] tracking-tight text-white mb-6 sm:mb-8 text-balance break-words"
           style={{
             fontFamily: 'var(--font-space-grotesk)',
-            fontSize: 'clamp(3rem, 12vw, 9rem)',
+            fontSize: 'clamp(3rem, 9vw, 9rem)',
           }}
         >
           {prefix}{' '}

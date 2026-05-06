@@ -1,24 +1,50 @@
 # Pota Studio
-> Italian full service marketing agency from Bergamo. Trusted by Samsung, Isybank and Cookies Digital.
+> Italian full-service marketing agency from Bergamo. We help international brands grow through paid media, social, content, influencer marketing, TikTok LIVE, and Shopify development. Trusted by Samsung, Isybank and Cookies Digital.
 
-## Pages
+## Brand
+- Legal name: Anyped S.R.L. (operating as Pota Studio)
+- HQ: Via Zanica 85, Bergamo 24126, Italy
+- VAT: IT04545460166
+- Languages served: English, Italian
+- Markets: Italy, Europe, United States
+- Contact: ciao@potastudio.com
+
+## Services
+- Paid Advertising — Meta Ads, TikTok Ads, Google Ads, programmatic; full-funnel campaigns with creative, media buying, and ROAS optimisation.
+- Social Media Marketing — strategy, content production, community management, organic growth on TikTok, Instagram, LinkedIn, YouTube.
+- Content Production — short-form video, photo, motion design, branded content, UGC orchestration.
+- Influencer Marketing — creator strategy, talent sourcing, contract negotiation, end-to-end campaign management.
+- TikTok LIVE & Live Shopping — host casting, production, real-time selling for retail and D2C brands.
+- Web Design & Development — Shopify storefronts, landing pages, brand sites built on Next.js.
+- Brand Representation — fractional in-market presence for non-Italian brands entering Italy / EU.
+
+## Pages (English)
 - [Home](https://www.potastudio.com): Agency overview, clients, services summary
-- [Services](https://www.potastudio.com/services): Full list of services - paid ADS, social media, content production, influencer marketing, TikTok LIVE, Shopify
-- [Work](https://www.potastudio.com/work): Case studies portfolio - Samsung, Isybank, Cookies Digital
-- [About](https://www.potastudio.com/about): Team, story, culture
-- [Clients](https://www.potastudio.com/clients): Our clients
-- [Blog](https://www.potastudio.com/blog): Marketing insights, strategy, TikTok, digital marketing
+- [Services](https://www.potastudio.com/services): Full list of services and engagement models
+- [Work](https://www.potastudio.com/work): Case studies portfolio (Samsung, Isybank, Cookies Digital, +20)
+- [About](https://www.potastudio.com/about): Team, story, culture, offices
+- [Clients](https://www.potastudio.com/clients): Brands we have served
+- [Blog](https://www.potastudio.com/blog): Marketing playbooks, strategy, TikTok, paid media, AI
 - [Careers](https://www.potastudio.com/careers): Open positions
-- [Contact](https://www.potastudio.com/contact): Start a project
+- [Contact](https://www.potastudio.com/contact): Project briefs and partnerships
 - [Privacy](https://www.potastudio.com/privacy): Privacy policy
 - [Cookie](https://www.potastudio.com/cookie): Cookie policy
 
-## Italian Pages
+## Pages (Italiano)
 - [Homepage IT](https://www.potastudio.com/it)
 - [Servizi](https://www.potastudio.com/it/services)
 - [Lavori](https://www.potastudio.com/it/work)
 - [Chi Siamo](https://www.potastudio.com/it/about)
 - [Clienti](https://www.potastudio.com/it/clients)
 - [Blog](https://www.potastudio.com/it/blog)
-- [Careers](https://www.potastudio.com/it/careers)
+- [Lavora con noi](https://www.potastudio.com/it/careers)
 - [Contatti](https://www.potastudio.com/it/contact)
+
+## Featured Articles
+- [OpenAI Ads — The Future of Advertising in the AI Era (2026)](https://www.potastudio.com/blog/openai-ads-future-advertising-2026)
+- [Global Media Buying 2026: Why Boutique Agencies Outperform Giants for D2C Brands](https://www.potastudio.com/blog/global-media-buying-2026-boutique-agencies)
+- [OpenAI Ads in Italia: Guida 2026 per le PMI e i Brand](https://www.potastudio.com/it/blog/openai-ads-italia-pmi-2026)
+
+## Optional
+- [Sitemap](https://www.potastudio.com/sitemap.xml)
+- [Full LLM context](https://www.potastudio.com/llms-full.txt)

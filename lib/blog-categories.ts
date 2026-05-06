@@ -66,12 +66,12 @@ const CATEGORY_COPY_EN: Record<string, { title: string; description: string }> =
   TikTok: {
     title: "TikTok Marketing Articles - Strategy, Ads & Creator Playbooks | Pota Studio",
     description:
-      "TikTok marketing playbooks from an official TikTok Marketing Partner. Organic strategy, TikTok Ads, creator collaborations, and live shopping insights.",
+      "TikTok marketing playbooks from a team that runs campaigns daily. Organic strategy, TikTok Ads, creator collaborations, and live shopping insights.",
   },
   "TikTok Marketing": {
     title: "TikTok Marketing Articles - Strategy, Ads & Creator Playbooks | Pota Studio",
     description:
-      "TikTok marketing playbooks from an official TikTok Marketing Partner. Organic strategy, TikTok Ads, creator collaborations, and live shopping insights.",
+      "TikTok marketing playbooks from a team that runs campaigns daily. Organic strategy, TikTok Ads, creator collaborations, and live shopping insights.",
   },
   "Influencer Marketing": {
     title:
@@ -116,13 +116,13 @@ const CATEGORY_COPY_IT: Record<string, { title: string; description: string }> =
     title:
       "Articoli TikTok Marketing - Strategia, Ads & Playbook Creator | Pota Studio",
     description:
-      "Playbook di TikTok marketing da un Marketing Partner ufficiale. Strategia organica, TikTok Ads, collaborazioni con creator e live shopping.",
+      "Playbook di TikTok marketing da un team che gestisce campagne ogni giorno. Strategia organica, TikTok Ads, collaborazioni con creator e live shopping.",
   },
   "TikTok Marketing": {
     title:
       "Articoli TikTok Marketing - Strategia, Ads & Playbook Creator | Pota Studio",
     description:
-      "Playbook di TikTok marketing da un Marketing Partner ufficiale. Strategia organica, TikTok Ads, collaborazioni con creator e live shopping.",
+      "Playbook di TikTok marketing da un team che gestisce campagne ogni giorno. Strategia organica, TikTok Ads, collaborazioni con creator e live shopping.",
   },
   "Influencer Marketing": {
     title:
