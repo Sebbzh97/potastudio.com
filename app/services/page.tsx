@@ -72,9 +72,12 @@ export default async function ServicesPage() {
         <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'linear-gradient(#FFFFFF 1px, transparent 1px), linear-gradient(90deg, #FFFFFF 1px, transparent 1px)', backgroundSize: '80px 80px' }} aria-hidden="true" />
         <div className="container-site relative">
           {heroLabel && <span className="text-xs font-semibold text-[#FF5C00] uppercase tracking-[0.3em] mb-4 sm:mb-6 block">{heroLabel}</span>}
+          {/* `{' '}` before <br /> preserves whitespace in the SSR textContent
+              so crawlers / LLMs do NOT read "Services designedto scale." as
+              one concatenated token. */}
           <h1 className="font-bold text-white leading-[1.05] mb-5 sm:mb-6" style={{ fontFamily: 'var(--font-space-grotesk)', fontSize: 'clamp(3rem, 11vw, 8rem)' }}>
-            {heroHeadline}
-            {heroAccent && (<><br /><span className="text-[#FF5C00]">{heroAccent}</span></>)}
+            <span>{heroHeadline}</span>
+            {heroAccent && (<>{' '}<br /><span className="text-[#FF5C00]">{heroAccent}</span></>)}
           </h1>
           {heroBody && <p className="text-base sm:text-xl text-[#B0B0B0] max-w-2xl leading-relaxed">{heroBody}</p>}
         </div>
@@ -137,7 +140,7 @@ export default async function ServicesPage() {
           <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-white mb-4" style={{ fontFamily: 'var(--font-space-grotesk)' }}>
               {ctaHeadline}
-              {ctaAccent && (<><br /><span className="text-[#FF5C00]">{ctaAccent}</span></>)}
+              {ctaAccent && (<>{' '}<br /><span className="text-[#FF5C00]">{ctaAccent}</span></>)}
             </h2>
             {ctaBody && <p className="text-[#B0B0B0] text-base sm:text-lg mb-8 sm:mb-10">{ctaBody}</p>}
             <Link href={ctaHref} className="inline-flex items-center gap-2 px-6 sm:px-8 py-3.5 sm:py-4 bg-[#FF5C00] text-white font-bold rounded transition-all hover:bg-[#e04f00] hover:shadow-[0_0_30px_rgba(255,92,0,0.4)] group">

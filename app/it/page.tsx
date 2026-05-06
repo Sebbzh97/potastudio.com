@@ -16,14 +16,21 @@ export async function generateMetadata(): Promise<Metadata> {
   const data = await getHomepage('it')
   // Use Sanity values when set; fall back to the canonical positioning copy.
   // `||` (not `??`) so empty strings from Studio also fall back.
+  // Description name-drops the verified Italian clients only (Samsung,
+  // Isybank, Lucca Comics & Games) — Ferrari/Lamborghini/Atalanta are NOT
+  // clients and were removed in the 2026-05 audit cleanup.
   const title =
     data?.seoTitle?.trim() ||
-    'Pota Studio - Social Media, Influencer Marketing e Ads'
+    'Pota Studio | Agenzia di Marketing Full-Service'
   const description =
     data?.seoDescription?.trim() ||
-    'Agenzia marketing completa: social media, influencer, advertising, TikTok. Nessun subappalto, tutto in-house. Clienti in Europa e USA. Scopri i progetti.'
+    'Agenzia di marketing full-service da Bergamo. Lavoriamo con Samsung, Isybank, Lucca Comics & Games. Social media, advertising, content production, influencer marketing.'
   return {
-    title,
+    // `title.absolute` bypasses the root layout's `%s | Pota Studio`
+    // template — without this the IT home shipped
+    // "Pota Studio - Social Media, Influencer Marketing e Ads | Pota Studio"
+    // (double brand) to Google.
+    title: { absolute: title },
     description,
     alternates: {
       canonical: 'https://www.potastudio.com/it',

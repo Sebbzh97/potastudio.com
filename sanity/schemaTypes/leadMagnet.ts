@@ -1,5 +1,6 @@
 import { defineType, defineField } from 'sanity'
 import { Download } from 'lucide-react'
+import { slugIsUrlSafe } from '../lib/slug-validation'
 
 /**
  * Lead Magnet
@@ -40,7 +41,7 @@ export const leadMagnet = defineType({
       group: 'content',
       description: 'Use "default" for the main magnet, or a specific slug for variants.',
       options: { source: 'internalTitle', maxLength: 64 },
-      validation: (R) => R.required(),
+      validation: (R) => R.required().custom(slugIsUrlSafe),
     }),
     defineField({
       name: 'isActive',

@@ -1,4 +1,5 @@
 import { defineField, defineType } from 'sanity'
+import { slugIsUrlSafe } from '../lib/slug-validation'
 
 export default defineType({
   name: 'jobOpening',
@@ -12,6 +13,7 @@ export default defineType({
       title: 'Slug',
       type: 'slug',
       options: { source: 'title', maxLength: 96 },
+      validation: (R) => R.custom(slugIsUrlSafe),
     }),
     defineField({
       name: 'department',

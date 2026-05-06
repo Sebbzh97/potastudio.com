@@ -1,4 +1,5 @@
 import { defineArrayMember, defineField, defineType } from 'sanity'
+import { slugIsUrlSafe } from '../lib/slug-validation'
 
 export default defineType({
   name: 'caseStudy',
@@ -39,8 +40,11 @@ export default defineType({
       title: 'Slug',
       type: 'slug',
       group: 'core',
+      // Auto-slug from the client name. The custom rule below rejects any
+      // slug containing whitespace / uppercase / special characters — this
+      // is what stopped the historical "isybank-gaming tour" sitemap bug.
       options: { source: 'client', maxLength: 96 },
-      validation: (R) => R.required(),
+      validation: (R) => R.required().custom(slugIsUrlSafe),
     }),
     defineField({
       name: 'category',

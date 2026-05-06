@@ -16,9 +16,15 @@ export const revalidate = 60
 // Canonical positioning copy. Editors can still override these via the
 // homepage document in Sanity (`seoTitle` / `seoDescription`); we fall
 // back to these strings whenever the CMS field is empty or whitespace.
+//
+// Description is intentionally name-dropping the *verified* clients only
+// (Samsung, Isybank, Lucca Comics & Games). Earlier copy mentioned Ferrari,
+// Lamborghini and Atalanta — none of those are clients, and Google's
+// snippet was indexing that phrase. Keep this list ↔ /lib/jsonld/schemas.ts
+// `clientLogos` in sync.
 const FALLBACK_TITLE = 'Pota Studio | Full Service Marketing Agency'
 const FALLBACK_DESCRIPTION =
-  "L'agenzia di marketing che costruisce brand scalabili su performance, contenuto e community."
+  'Italian full-service marketing agency from Bergamo. Trusted by Samsung, Isybank, Lucca Comics & Games. Social media, paid ADS, content production, influencer marketing. Worldwide ready.'
 
 export async function generateMetadata(): Promise<Metadata> {
   const data = await getHomepage('en')

@@ -24,7 +24,9 @@ interface CaseStudyCard {
 export async function generateMetadata(): Promise<Metadata> {
   const data = await getWorkPage('it')
   return {
-    title: data?.seoTitle ?? 'Lavori | Pota Studio',
+    // Brand suffix is appended automatically by the root layout's title
+    // template — never pre-include "| Pota Studio" here.
+    title: data?.seoTitle ?? 'Lavori',
     description: data?.seoDescription ?? '',
     alternates: {
       canonical: 'https://www.potastudio.com/it/work',
@@ -79,7 +81,7 @@ export default async function WorkPageIT() {
             style={{ fontFamily: 'var(--font-space-grotesk)', fontSize: 'clamp(3rem, 11vw, 8rem)' }}
           >
             {heroHeadline}
-            {heroAccent && (<><br /><span className="text-[#FF5C00]">{heroAccent}</span></>)}
+            {heroAccent && (<>{' '}<br /><span className="text-[#FF5C00]">{heroAccent}</span></>)}
           </h1>
           {heroBody && (
             <p className="text-base sm:text-xl text-[#B0B0B0] max-w-2xl leading-relaxed">{heroBody}</p>
