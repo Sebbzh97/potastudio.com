@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import Image from 'next/image'
 import { redirect } from 'next/navigation'
 import { Clock, Calendar } from 'lucide-react'
 import { getHreflang } from '@/lib/hreflang'
@@ -40,6 +41,10 @@ interface Post {
   date: string
   author: string
   publishedAt?: string
+  // Resolved Sanity asset URL + alt text. When undefined we fall back to
+  // the category-letter placeholder so the layout never collapses.
+  coverImageUrl?: string
+  coverImageAlt?: string
 }
 
 const categoryColors: Record<string, string> = {
@@ -71,6 +76,8 @@ function toPost(s: SanityBlogPost): Post {
     date: formatDate(s.publishedAt),
     author: s.author?.name ?? 'Pota Studio',
     publishedAt: s.publishedAt,
+    coverImageUrl: s.coverImageUrl,
+    coverImageAlt: s.coverImageAlt,
   }
 }
 
@@ -171,14 +178,25 @@ export default async function BlogPage({ searchParams }: Props) {
                 href={`/blog/${allPosts[0].slug}`}
                 className="group grid grid-cols-1 lg:grid-cols-2 bg-[#141414] border border-white/10 rounded-xl overflow-hidden hover:border-[#FF5C00]/40 transition-colors"
               >
-                <div className="aspect-video lg:aspect-auto bg-[#1A0D00] flex items-center justify-center min-h-[180px] sm:min-h-[220px]">
-                  <span
-                    className="text-[8rem] sm:text-[12rem] font-bold opacity-10 select-none"
-                    style={{ fontFamily: 'var(--font-space-grotesk)', color: categoryColors[allPosts[0].category] ?? '#FF5C00' }}
-                    aria-hidden="true"
-                  >
-                    {allPosts[0].category[0]}
-                  </span>
+                <div className="relative aspect-video lg:aspect-auto bg-[#1A0D00] flex items-center justify-center min-h-[180px] sm:min-h-[220px] overflow-hidden">
+                  {allPosts[0].coverImageUrl ? (
+                    <Image
+                      src={allPosts[0].coverImageUrl}
+                      alt={allPosts[0].coverImageAlt || allPosts[0].title}
+                      fill
+                      sizes="(min-width: 1024px) 50vw, 100vw"
+                      className="object-cover"
+                      priority
+                    />
+                  ) : (
+                    <span
+                      className="text-[8rem] sm:text-[12rem] font-bold opacity-10 select-none"
+                      style={{ fontFamily: 'var(--font-space-grotesk)', color: categoryColors[allPosts[0].category] ?? '#FF5C00' }}
+                      aria-hidden="true"
+                    >
+                      {allPosts[0].category[0]}
+                    </span>
+                  )}
                 </div>
                 <div className="p-6 sm:p-8 lg:py-12 flex flex-col justify-center">
                   <span
@@ -225,15 +243,25 @@ export default async function BlogPage({ searchParams }: Props) {
                     className="group bg-[#141414] border border-white/10 rounded-xl overflow-hidden hover:border-[#FF5C00]/30 transition-colors flex flex-col"
                   >
                     <div className="aspect-video bg-[#0D0D0D] flex items-center justify-center relative overflow-hidden">
+                      {post.coverImageUrl ? (
+                        <Image
+                          src={post.coverImageUrl}
+                          alt={post.coverImageAlt || post.title}
+                          fill
+                          sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                          className="object-cover"
+                        />
+                      ) : (
+                        <span
+                          className="text-[7rem] sm:text-[8rem] font-bold opacity-10 select-none"
+                          style={{ fontFamily: 'var(--font-space-grotesk)', color: categoryColors[post.category] ?? '#FF5C00' }}
+                          aria-hidden="true"
+                        >
+                          {post.category[0]}
+                        </span>
+                      )}
                       <span
-                        className="text-[7rem] sm:text-[8rem] font-bold opacity-10 select-none"
-                        style={{ fontFamily: 'var(--font-space-grotesk)', color: categoryColors[post.category] ?? '#FF5C00' }}
-                        aria-hidden="true"
-                      >
-                        {post.category[0]}
-                      </span>
-                      <span
-                        className="absolute top-3 left-3 text-xs font-semibold uppercase tracking-widest px-2 py-1 rounded"
+                        className="absolute top-3 left-3 text-xs font-semibold uppercase tracking-widest px-2 py-1 rounded backdrop-blur-sm"
                         style={{
                           color: categoryColors[post.category] ?? '#FF5C00',
                           backgroundColor: `${categoryColors[post.category] ?? '#FF5C00'}15`,
