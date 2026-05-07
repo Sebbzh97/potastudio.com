@@ -36,9 +36,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     bioPlain.slice(0, 160) ||
     `Articoli scritti da ${author.name}${author.role ? `, ${author.role}` : ''} per Pota Studio.`
 
-  const ogImage = author.photo?.asset
-    ? urlFor(author.photo).width(1200).height(630).fit('crop').auto('format').url()
-    : undefined
+  let ogImage: string | undefined
+  try {
+    if (author.photo?.asset?._ref || author.photo?.asset?._id) {
+      ogImage = urlFor(author.photo).width(1200).height(630).fit('crop').auto('format').url()
+    }
+  } catch {
+    ogImage = undefined
+  }
 
   const canonical = `https://www.potastudio.com/it/autore/${slug}`
   const enHref = `https://www.potastudio.com/author/${slug}`
@@ -54,6 +59,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         'x-default': enHref,
       },
     },
+    authors: [{ name: author.name, url: `https://www.potastudio.com/author/${slug}` }],
     openGraph: {
       type: 'profile',
       title,
@@ -79,9 +85,14 @@ export default async function AuthorPageIT({ params }: Props) {
 
   const posts = await getPostsByAuthor(slug, 'it')
 
-  const photoUrl = author.photo?.asset
-    ? urlFor(author.photo).width(800).height(800).fit('crop').auto('format').url()
-    : undefined
+  let photoUrl: string | undefined
+  try {
+    if (author.photo?.asset?._ref || author.photo?.asset?._id) {
+      photoUrl = urlFor(author.photo).width(800).height(800).fit('crop').auto('format').url()
+    }
+  } catch {
+    photoUrl = undefined
+  }
 
   const schemaBio = portableTextToPlainText(author.bio ?? author.longBio_it ?? author.longBio).slice(0, 300) || undefined
   const schema = authorProfileSchemaGraph({

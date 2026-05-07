@@ -67,8 +67,8 @@ export function organizationSchema(locale: "en" | "it" = "en"): Record<string, u
     image: POTA_LOGO,
     foundingDate: POTA_FOUNDING_DATE,
     slogan: locale === "it"
-      ? "Creiamo contenuti impossibili da ignorare."
-      : "We make content impossible to ignore.",
+      ? "Rendiamo i brand impossibili da ignorare."
+      : "We make brands impossible to ignore.",
     description: locale === "it" ? POTA_DESCRIPTION_IT : POTA_DESCRIPTION_EN,
     address: {
       "@type": "PostalAddress",

@@ -14,7 +14,6 @@ const navLinksEn = [
     href: '/services',
     children: [
       { label: 'All Services', href: '/services' },
-      { label: 'Coming Soon', href: null, isSoon: true },
     ],
   },
   { label: 'Work', href: '/work' },
@@ -35,7 +34,6 @@ const navLinksIt = [
     href: '/it/services',
     children: [
       { label: 'Tutti i servizi', href: '/it/services' },
-      { label: 'In Arrivo', href: null, isSoon: true },
     ],
   },
   { label: 'Lavori', href: '/it/work' },

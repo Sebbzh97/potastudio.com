@@ -199,12 +199,14 @@ export const getCaseStudies = (): Promise<SanityCaseStudy[]> =>
 export const getHomepageCaseStudies = (): Promise<SanityCaseStudy[]> =>
   client
     .fetch(
-  `*[_type == "caseStudy" && isPublished != false] | order(featured desc, year desc) {
+  // [0..5] = GROQ slice — max 6 documents fetched from Sanity, not post-JS filter.
+  // Halves network payload vs fetching all and slicing in JS.
+  `*[_type == "caseStudy" && isPublished != false] | order(featured desc, year desc) [0..5] {
   _id,
   "slug": slug.current,
   client, type, year, bg, accent, featured,
   description, descriptionIt,
-  "coverImageUrl": coverImage.asset->url,
+  "coverImageUrl": coverImage.asset->url + "?w=900&auto=format&q=75&fit=crop",
   "galleryUrls": galleryUrls[0..0]
   }`,
       {},
@@ -222,7 +224,7 @@ export const getHomepageClients = (): Promise<SanityClient[]> =>
     .fetch(
       `*[_type == "client"] | order(lower(name) asc) {
         _id, name,
-        "logoUrl": logo.asset->url
+        "logoUrl": logo.asset->url + "?w=288&auto=format&q=80"
       }`,
       {},
       { next: { tags: ['client'] } },
