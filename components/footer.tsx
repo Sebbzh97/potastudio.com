@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import PartnerBadges from '@/components/partner-badges'
+import { LINKEDIN_URL } from '@/lib/constants'
 
 interface FooterLink {
   _key?: string
@@ -59,7 +60,7 @@ const enColumnsFallback: FooterColumn[] = [
     links: [
       { label: 'Get in Touch', href: '/contact' },
       { label: 'Work With Us', href: '/careers' },
-      { label: 'LinkedIn',     href: 'https://www.linkedin.com/company/potastudio' },
+      { label: 'LinkedIn',     href: LINKEDIN_URL },
       { label: 'Instagram',    href: 'https://www.instagram.com/potastudio' },
       { label: 'TikTok',       href: 'https://www.tiktok.com/@potastudio' },
     ],
@@ -93,7 +94,7 @@ const itColumnsFallback: FooterColumn[] = [
     links: [
       { label: 'Contattaci',     href: '/it/contact' },
       { label: 'Lavora con noi', href: '/it/careers' },
-      { label: 'LinkedIn',       href: 'https://www.linkedin.com/company/potastudio' },
+      { label: 'LinkedIn',       href: LINKEDIN_URL },
       { label: 'Instagram',      href: 'https://www.instagram.com/potastudio' },
       { label: 'TikTok',         href: 'https://www.tiktok.com/@potastudio' },
     ],

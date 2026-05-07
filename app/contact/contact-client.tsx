@@ -7,6 +7,7 @@ import {
   trackContactForm,
   trackSocialClick,
 } from '@/lib/gtm-events'
+import { LINKEDIN_URL } from '@/lib/constants'
 
 const TikTokIcon = () => (
   <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5" aria-hidden="true">
@@ -266,7 +267,7 @@ export default function ContactPageClient({ data }: { data?: ContactData | null 
                     className="w-11 h-11 border border-white/20 rounded-full flex items-center justify-center text-[#B0B0B0] hover:text-[#FF5C00] hover:border-[#FF5C00] transition-colors">
                     <TikTokIcon />
                   </a>
-                  <a href="https://www.linkedin.com/company/potastudio" target="_blank" rel="noopener noreferrer" aria-label="Follow Pota Studio on LinkedIn"
+                  <a href={LINKEDIN_URL} target="_blank" rel="noopener noreferrer" aria-label="Follow Pota Studio on LinkedIn"
                     onClick={() => trackSocialClick({ platform: 'linkedin', location: 'contact_page' })}
                     className="w-11 h-11 border border-white/20 rounded-full flex items-center justify-center text-[#B0B0B0] hover:text-[#FF5C00] hover:border-[#FF5C00] transition-colors">
                     <Linkedin size={18} aria-hidden="true" />
