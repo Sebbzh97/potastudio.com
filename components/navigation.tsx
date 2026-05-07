@@ -282,9 +282,41 @@ function NavigationInner({ data }: NavigationProps) {
   // Pre-compute locale switch targets so they ship as real <Link href> in the
   // SSR HTML — this lets Googlebot discover and crawl the IT pages, fixing the
   // "URL is unknown to Google" indexing issue for /it routes.
-  const enHref = pathname.replace(/^\/it(\/|$)/, '/') || '/'
-  const itHref =
-    pathname === '/' || enHref === '/' ? '/it' : `/it${enHref}`
+  //
+  // Some routes have asymmetric path segments (e.g. /author/ vs /it/autore/).
+  // We normalise those explicitly before applying the generic /it prefix logic
+  // so the switcher always resolves to a valid URL on both sides.
+  const PATH_MAP_EN_TO_IT: [RegExp, string][] = [
+    [/^\/author\/(.+)$/, '/it/autore/$1'],
+    [/^\/author$/, '/it/autore'],
+  ]
+  const PATH_MAP_IT_TO_EN: [RegExp, string][] = [
+    [/^\/it\/autore\/(.+)$/, '/author/$1'],
+    [/^\/it\/autore$/, '/author'],
+  ]
+
+  let enHref: string
+  let itHref: string
+
+  if (pathname.startsWith('/it')) {
+    // Try asymmetric map first, then fall back to stripping the /it prefix.
+    const mapped = PATH_MAP_IT_TO_EN.reduce<string | null>((acc, [re, replacement]) => {
+      if (acc !== null) return acc
+      const m = pathname.match(re)
+      return m ? pathname.replace(re, replacement) : null
+    }, null)
+    enHref = (mapped ?? pathname.replace(/^\/it(\/|$)/, '/')) || '/'
+    itHref = pathname
+  } else {
+    // Try asymmetric map first, then fall back to prepending /it.
+    const mapped = PATH_MAP_EN_TO_IT.reduce<string | null>((acc, [re, replacement]) => {
+      if (acc !== null) return acc
+      const m = pathname.match(re)
+      return m ? pathname.replace(re, replacement) : null
+    }, null)
+    itHref = mapped ?? (pathname === '/' ? '/it' : `/it${pathname}`)
+    enHref = pathname
+  }
 
   // The proxy (`proxy.ts`) auto-redirects Italian visitors (`country === 'IT'`
   // or `accept-language: it`) to the `/it` tree on every full request — UNLESS
@@ -516,7 +548,7 @@ function NavigationInner({ data }: NavigationProps) {
                             className="flex items-center gap-2 py-2 text-base text-[#B0B0B0]"
                           >
                             <span className="w-1.5 h-1.5 rounded-full bg-[#FF5C00]" />
-                            Coming Soon
+                            {child.label || (isIt ? 'In Arrivo' : 'Coming Soon')}
                           </div>
                         ) : (
                           <Link
