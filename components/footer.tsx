@@ -157,37 +157,6 @@ export default function Footer({ locale = 'en', settings }: FooterProps = {}) {
           </div>
         </div>
 
-        {/* Author attribution — links homepage → /author/sebastian-bonfanti
-            so the home page earns an internal link to the author profile,
-            fixing the "0 links from homepage to author page" indexing gap. */}
-        <div className="mb-10 pb-10 border-b border-white/10">
-          <p className="text-xs font-semibold uppercase tracking-widest text-[#666] mb-3">
-            {isIt ? 'Scritto da' : 'Written by'}
-          </p>
-          <Link
-            href="/author/sebastian-bonfanti"
-            className="inline-flex items-center gap-3 group"
-            rel="author"
-          >
-            <div className="w-9 h-9 rounded-full bg-[#FF5C00]/20 flex items-center justify-center flex-shrink-0">
-              <span
-                className="text-[#FF5C00] text-sm font-bold"
-                aria-hidden="true"
-              >
-                S
-              </span>
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-white group-hover:text-[#FF5C00] transition-colors">
-                Sebastian Bonfanti
-              </p>
-              <p className="text-xs text-[#666]">
-                {isIt ? 'Founder & CEO — Pota Studio' : 'Founder & CEO — Pota Studio'}
-              </p>
-            </div>
-          </Link>
-        </div>
-
         {/* Partner & certification badges for E-E-A-T */}
         <PartnerBadges locale={locale} />
 
