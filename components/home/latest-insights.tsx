@@ -127,13 +127,13 @@ export default async function LatestInsights({ locale = 'en' }: { locale?: 'en' 
                 coverSrc = withSanityTransform(
                   urlFor(post.coverImage).width(800).height(450).fit('crop').auto('format').url(),
                   {},
-                )
+                ) ?? null
               } catch {
                 coverSrc = null
               }
             }
             if (!coverSrc && post.coverImageUrl) {
-              coverSrc = withSanityTransform(post.coverImageUrl, { w: 800, fit: 'crop' })
+              coverSrc = withSanityTransform(post.coverImageUrl, { w: 800, fit: 'crop' }) ?? null
             }
 
             const dateStr = isIt
