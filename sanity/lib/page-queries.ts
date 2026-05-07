@@ -190,6 +190,46 @@ export const getCaseStudies = (): Promise<SanityCaseStudy[]> =>
     .then((r: SanityCaseStudy[]) => r ?? [])
     .catch(() => [])
 
+/**
+ * Slim query for homepage FeaturedWork cards.
+ * Fetches ONLY the fields needed for the card UI — excludes large text fields
+ * (challenge, approach, results, relatedSlugs, metricsIt arrays) to keep
+ * the RSC payload small.
+ */
+export const getHomepageCaseStudies = (): Promise<SanityCaseStudy[]> =>
+  client
+    .fetch(
+  `*[_type == "caseStudy" && isPublished != false] | order(featured desc, year desc) {
+  _id,
+  "slug": slug.current,
+  client, type, year, bg, accent, featured,
+  description, descriptionIt,
+  "coverImageUrl": coverImage.asset->url,
+  "galleryUrls": galleryUrls[0..0]
+  }`,
+      {},
+      { next: { tags: ['caseStudy'] } },
+    )
+    .then((r: SanityCaseStudy[]) => r ?? [])
+    .catch(() => [])
+
+/**
+ * Slim query for homepage ClientLogoWall marquee.
+ * Fetches only name + logoUrl — no metadata needed for the visual marquee.
+ */
+export const getHomepageClients = (): Promise<SanityClient[]> =>
+  client
+    .fetch(
+      `*[_type == "client"] | order(lower(name) asc) {
+        _id, name,
+        "logoUrl": logo.asset->url
+      }`,
+      {},
+      { next: { tags: ['client'] } },
+    )
+    .then((r: SanityClient[]) => r ?? [])
+    .catch(() => [])
+
 /** Returns a single case study by slug */
 export const getCaseStudyBySlug = (slug: string): Promise<SanityCaseStudy | null> =>
   client

@@ -139,12 +139,105 @@ async function checkSanity() {
 }
 
 async function checkBuildOutput() {
-  // Look for Ferrari/Lambo/Atalanta in the .next output (post-build).
-  // Skipped here because pre-deploy runs BEFORE the build by design;
-  // we instead grep the SOURCE tree.
-  // (Implemented elsewhere via repo search; this section reserved for
-  //  future use when pre-deploy runs post-build.)
   void 0
+}
+
+/**
+ * Definition-of-Done checks (8 checks from the 2026-05 SEO audit).
+ * These hit the LIVE site so they must run as a post-deploy smoke test.
+ * Skip when SKIP_LIVE_CHECKS=1 (e.g. during local dev where live != local).
+ */
+async function checkLiveSite() {
+  if (process.env.SKIP_LIVE_CHECKS === '1') {
+    warn('live', 'Skipping live site checks (SKIP_LIVE_CHECKS=1)')
+    return
+  }
+
+  let html = ''
+  try {
+    const resp = await fetch(SITE + '/', { signal: AbortSignal.timeout(20_000) })
+    html = await resp.text()
+  } catch (e) {
+    warn('live', `Could not fetch ${SITE}/ — ${e.message}. Skipping live checks.`)
+    return
+  }
+
+  // 1. Author page: no [object Object] in description
+  try {
+    const authorResp = await fetch(`${SITE}/author/sebastian-bonfanti`, { signal: AbortSignal.timeout(15_000) })
+    const authorHtml = await authorResp.text()
+    const objectObjectCount = (authorHtml.match(/\[object Object\]/g) ?? []).length
+    if (objectObjectCount > 0) {
+      fail('dod-1', `Author page contains ${objectObjectCount} "[object Object]" occurrences — bio serialization is broken`)
+    } else {
+      console.log('[pre-deploy] check 1 (author [object Object]): PASS')
+    }
+
+    // 2. Author has photo (cdn.sanity.io) + Wikidata sameAs
+    if (!authorHtml.includes('cdn.sanity.io') && !authorHtml.includes('wikidata.org/wiki/Q137637995')) {
+      fail('dod-2', 'Author page missing Sanity photo CDN URL or Wikidata sameAs in JSON-LD')
+    } else {
+      console.log('[pre-deploy] check 2 (author photo + wikidata): PASS')
+    }
+
+    // 8. Language switcher: /it/autore/ (not /it/author/)
+    if (!authorHtml.includes('/it/autore/sebastian-bonfanti')) {
+      fail('dod-8', 'Author page missing /it/autore/ language switcher link — might be /it/author/ (broken)')
+    } else {
+      console.log('[pre-deploy] check 8 (lang switcher /it/autore/): PASS')
+    }
+  } catch (e) {
+    warn('live', `Author page fetch failed: ${e.message}`)
+  }
+
+  // 3. Homepage meta description mentions verified clients
+  if (!/Samsung|Isybank|Lucca/.test(html)) {
+    fail('dod-3', 'Homepage meta description does not mention Samsung, Isybank or Lucca Comics & Games')
+  } else {
+    console.log('[pre-deploy] check 3 (homepage description): PASS')
+  }
+
+  // 4. Homepage internal links to /work/, /blog/, /author/
+  const workLinks   = (html.match(/href="\/work\//g) ?? []).length
+  const blogLinks   = (html.match(/href="\/blog\//g) ?? []).length
+  const authorLinks = (html.match(/href="\/author\//g) ?? []).length
+  if (workLinks < 6) fail('dod-4a', `Homepage has only ${workLinks} /work/* links — expected ≥6`)
+  else console.log(`[pre-deploy] check 4a (work links ${workLinks}): PASS`)
+  if (blogLinks < 3) fail('dod-4b', `Homepage has only ${blogLinks} /blog/* links — expected ≥3`)
+  else console.log(`[pre-deploy] check 4b (blog links ${blogLinks}): PASS`)
+  if (authorLinks < 1) fail('dod-4c', `Homepage has ${authorLinks} /author/* links — expected ≥1`)
+  else console.log(`[pre-deploy] check 4c (author link ${authorLinks}): PASS`)
+
+  // 5. No full-page skeleton in SSR
+  const pulseCount = (html.match(/animate-pulse/g) ?? []).length
+  if (pulseCount > 2) {
+    fail('dod-5', `Homepage SSR contains ${pulseCount} "animate-pulse" occurrences — skeleton is being rendered in SSR HTML (expect ≤2)`)
+  } else {
+    console.log(`[pre-deploy] check 5 (animate-pulse count ${pulseCount}): PASS`)
+  }
+
+  // 6. Homepage HTML size
+  const byteSize = Buffer.byteLength(html, 'utf8')
+  if (byteSize > 200_000) {
+    fail('dod-6', `Homepage HTML is ${byteSize} bytes — expected < 200,000`)
+  } else {
+    console.log(`[pre-deploy] check 6 (homepage size ${byteSize} bytes): PASS`)
+  }
+
+  // 7. Sitemap blog hreflang
+  try {
+    const sitemapResp = await fetch(`${SITE}/sitemap.xml`, { signal: AbortSignal.timeout(15_000) })
+    const sitemapXml = await sitemapResp.text()
+    // Find a block containing the openai-ads post and check for xhtml:link
+    const hasHreflang = sitemapXml.includes('/blog/openai-ads') && sitemapXml.includes('xhtml:link')
+    if (!hasHreflang) {
+      fail('dod-7', 'Sitemap blog entries missing hreflang xhtml:link alternates')
+    } else {
+      console.log('[pre-deploy] check 7 (sitemap hreflang): PASS')
+    }
+  } catch (e) {
+    warn('live', `Sitemap fetch failed: ${e.message}`)
+  }
 }
 
 // ─── main ───────────────────────────────────────────────────────────────
@@ -153,6 +246,7 @@ async function main() {
   console.log(`[pre-deploy] target site: ${SITE}`)
   await checkSanity()
   await checkBuildOutput()
+  await checkLiveSite()
 
   if (warnings.length > 0) {
     console.warn('\n[pre-deploy] WARNINGS:')

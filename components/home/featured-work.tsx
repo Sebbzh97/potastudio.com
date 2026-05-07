@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowUpRight } from 'lucide-react'
-import { getCaseStudies, pickLocalizedCaseStudy } from '@/sanity/lib/page-queries'
+import { getHomepageCaseStudies, pickLocalizedCaseStudy } from '@/sanity/lib/page-queries'
 
 type FeaturedWorkData = {
   featuredWorkLabel?: string
@@ -52,7 +52,7 @@ export default async function FeaturedWork({
   locale?: 'en' | 'it'
 }) {
   const isIt = locale === 'it'
-  const sanity = await getCaseStudies()
+  const sanity = await getHomepageCaseStudies()
   const localized = sanity.map((cs) => pickLocalizedCaseStudy(cs, isIt ? 'it' : 'en'))
 
   // 1) Pick curated slugs in declared order, deduping by _id.

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import { getHomepage, getTestimonials } from '@/sanity/lib/page-queries'
 import HeroSection from '@/components/home/hero-section'
 import StatsBar from '@/components/home/stats-bar'
@@ -51,10 +52,30 @@ export default async function ItalianHomePage() {
       <HeroSection data={data ?? undefined} locale="it" />
       <StatsBar data={data} locale="it" />
       <ServicesPreview data={data} locale="it" />
-      <FeaturedWork data={data ?? undefined} locale="it" />
-      <LatestInsights locale="it" />
+      <Suspense fallback={
+        <section className="py-16 sm:py-24 bg-[#0D0D0D]" aria-hidden="true">
+          <div className="container-site">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+              {Array.from({ length: 6 }).map((_, i) => <div key={i} className="aspect-[4/5] max-h-[560px] bg-white/5 rounded-lg" />)}
+            </div>
+          </div>
+        </section>
+      }>
+        <FeaturedWork data={data ?? undefined} locale="it" />
+      </Suspense>
+      <Suspense fallback={
+        <section className="py-16 sm:py-24 bg-[#0A0A0A]" aria-hidden="true">
+          <div className="container-site grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {Array.from({ length: 3 }).map((_, i) => <div key={i} className="h-72 bg-white/5 rounded-xl" />)}
+          </div>
+        </section>
+      }>
+        <LatestInsights locale="it" />
+      </Suspense>
       <WhyPota data={data} locale="it" />
-      <ClientLogoWall data={data ?? undefined} locale="it" />
+      <Suspense fallback={<section className="py-16 bg-[#141414] border-t border-b border-white/10 h-36" aria-hidden="true" />}>
+        <ClientLogoWall data={data ?? undefined} locale="it" />
+      </Suspense>
       <Testimonials testimonials={testimonials} locale="it" />
       <CtaSection data={data} locale="it" />
     </main>
