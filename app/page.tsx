@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { Suspense } from 'react'
 import { getHreflang } from '@/lib/hreflang'
 import { getHomepage, getTestimonials } from '@/sanity/lib/page-queries'
 
@@ -10,6 +11,42 @@ import WhyPota from '@/components/home/why-pota'
 import ClientLogoWall from '@/components/home/client-logo-wall'
 import Testimonials from '@/components/home/testimonials'
 import CtaSection from '@/components/home/cta-section'
+import LatestInsights from '@/components/home/latest-insights'
+
+/** Inline skeleton fallbacks — only shown during streaming, never in initial SSR HTML */
+function WorkSkeleton() {
+  return (
+    <section className="py-16 sm:py-24 bg-[#0D0D0D]" aria-hidden="true">
+      <div className="container-site">
+        <div className="h-6 w-40 bg-white/10 rounded mb-4" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="aspect-[4/5] max-h-[560px] bg-white/5 rounded-lg" />
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function InsightsSkeleton() {
+  return (
+    <section className="py-16 sm:py-24 bg-[#0A0A0A]" aria-hidden="true">
+      <div className="container-site">
+        <div className="h-6 w-40 bg-white/10 rounded mb-4" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="h-72 bg-white/5 rounded-xl" />
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+function LogoWallSkeleton() {
+  return <section className="py-16 bg-[#141414] border-t border-b border-white/10 h-36" aria-hidden="true" />
+}
 
 export const revalidate = 60
 
@@ -72,9 +109,16 @@ export default async function HomePage() {
       <HeroSection data={data ?? undefined} locale="en" />
       <StatsBar data={data} locale="en" />
       <ServicesPreview data={data} />
-      <FeaturedWork data={data ?? undefined} locale="en" />
+      <Suspense fallback={<WorkSkeleton />}>
+        <FeaturedWork data={data ?? undefined} locale="en" />
+      </Suspense>
+      <Suspense fallback={<InsightsSkeleton />}>
+        <LatestInsights locale="en" />
+      </Suspense>
       <WhyPota data={data} locale="en" />
-      <ClientLogoWall data={data ?? undefined} locale="en" />
+      <Suspense fallback={<LogoWallSkeleton />}>
+        <ClientLogoWall data={data ?? undefined} locale="en" />
+      </Suspense>
       <Testimonials testimonials={testimonials} locale="en" />
       <CtaSection data={data} />
     </main>

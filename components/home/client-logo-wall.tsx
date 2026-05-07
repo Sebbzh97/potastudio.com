@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import { getClients } from '@/sanity/lib/page-queries'
+import { getHomepageClients } from '@/sanity/lib/page-queries'
 
 type ClientsData = {
   clientsHeadline?: string
@@ -26,7 +26,7 @@ export default async function ClientLogoWall({
   data?: ClientsData
   locale?: 'en' | 'it'
 }) {
-  const sanityClients = await getClients()
+  const sanityClients = await getHomepageClients()
 
   if (sanityClients.length === 0) return null
 
