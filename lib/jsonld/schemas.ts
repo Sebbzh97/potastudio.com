@@ -729,6 +729,17 @@ export interface AuthorProfileInput {
   twitterX?: string
   instagram?: string
   website?: string
+  /**
+   * Personal website separate from the generic `website` field (e.g.
+   * https://sebastianbonfanti.com). Added to sameAs alongside `website`.
+   */
+  personalWebsite?: string
+  /**
+   * Wikidata entity ID (e.g. 'Q137637995'). When set, we emit the full
+   * Wikidata URL in sameAs — the strongest E-E-A-T entity disambiguation
+   * signal available for AI search engines (Perplexity, Google, ChatGPT).
+   */
+  wikidataId?: string
   /** Locale of the profile page being emitted. */
   locale?: "en" | "it"
 }
@@ -759,6 +770,8 @@ export function authorProfileSchemaGraph(
     twitterX,
     instagram,
     website,
+    personalWebsite,
+    wikidataId,
     locale = "en",
   } = input
 
@@ -767,10 +780,17 @@ export function authorProfileSchemaGraph(
   const personId = `${SITE}/author/${slug}#person`
   const profilePageId = `${url}#profilepage`
 
-  // sameAs — only include defined, absolute URLs.
-  const sameAs = [linkedin, twitterX, instagram, website].filter(
-    (u): u is string => Boolean(u && /^https?:\/\//.test(u)),
-  )
+  // sameAs — ordered: LinkedIn (most authoritative for professionals) → X →
+  // personal site → personal website → Wikidata (entity disambiguator).
+  // Wikidata URL is the strongest AI-engine E-E-A-T signal when present.
+  const sameAs = [
+    linkedin,
+    twitterX,
+    instagram,
+    website,
+    personalWebsite,
+    wikidataId ? `https://www.wikidata.org/wiki/${wikidataId}` : undefined,
+  ].filter((u): u is string => Boolean(u && /^https?:\/\//.test(u)))
 
   // Person.knowsAbout — merge expertise + credentials, dedupe.
   const knowsAbout = Array.from(

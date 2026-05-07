@@ -1265,7 +1265,7 @@ const TESTIMONIALS = [
 const SOCIALS = {
   instagram: 'https://www.instagram.com/pota.studio/',
   tiktok:    'https://www.tiktok.com/@potastudio',
-  linkedin:  'https://www.linkedin.com/company/pota-studio/',
+  linkedin:  'https://www.linkedin.com/company/potastudio',
 }
 
 const SITE_SETTINGS = [

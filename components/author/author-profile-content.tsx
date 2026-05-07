@@ -60,6 +60,8 @@ type Author = {
   location?: string
   email?: string
   website?: string
+  personalWebsite?: string
+  wikidataId?: string
   linkedin?: string
   twitterX?: string
   instagram?: string
@@ -187,7 +189,7 @@ export default function AuthorProfileContent({
               )}
 
               {/* Social proof links */}
-              {(author.linkedin || author.twitterX || author.instagram || author.website) && (
+              {(author.linkedin || author.twitterX || author.instagram || author.website || author.personalWebsite || author.wikidataId) && (
                 <div className="flex flex-wrap gap-2 mt-6">
                   {author.linkedin && (
                     <a
@@ -221,6 +223,29 @@ export default function AuthorProfileContent({
                     >
                       <Globe size={16} aria-hidden="true" />
                       {copy.contact}
+                    </a>
+                  )}
+                  {author.personalWebsite && author.personalWebsite !== author.website && (
+                    <a
+                      href={author.personalWebsite}
+                      target="_blank"
+                      rel="noopener noreferrer me"
+                      className="inline-flex items-center gap-2 text-sm font-medium border border-white/20 rounded-lg px-4 py-2 text-[#B0B0B0] hover:text-white hover:border-white/40 transition-colors"
+                      aria-label={`${author.name} personal website`}
+                    >
+                      <Globe size={16} aria-hidden="true" />
+                      Personal site
+                    </a>
+                  )}
+                  {author.wikidataId && (
+                    <a
+                      href={`https://www.wikidata.org/wiki/${author.wikidataId}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 text-sm font-medium border border-white/20 rounded-lg px-4 py-2 text-[#B0B0B0] hover:text-white hover:border-white/40 transition-colors"
+                      aria-label={`${author.name} on Wikidata`}
+                    >
+                      Wikidata
                     </a>
                   )}
                 </div>
