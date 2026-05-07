@@ -111,9 +111,16 @@ export default function AuthorProfileContent({
   locale: 'en' | 'it'
 }) {
   const copy = COPY[locale]
-  const photoSrc = author.photo?.asset
-    ? urlFor(author.photo).width(320).height(320).fit('crop').auto('format').url()
-    : null
+  // Guard: urlFor() throws when the Sanity asset reference is null/undefined.
+  // A missing photo in Sanity must never cause a render crash.
+  let photoSrc: string | null = null
+  try {
+    if (author.photo?.asset?._ref || author.photo?.asset?._id) {
+      photoSrc = urlFor(author.photo).width(320).height(320).fit('crop').auto('format').url()
+    }
+  } catch {
+    photoSrc = null
+  }
   const photoAlt = author.photo?.alt ?? author.name
 
   // Localised long bio: prefer the locale-specific field, fall back to EN
@@ -380,14 +387,14 @@ export default function AuthorProfileContent({
           ) : (
             <ul className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {posts.map((post) => {
-                const cover = post.coverImage?.asset
-                  ? urlFor(post.coverImage)
-                      .width(800)
-                      .height(450)
-                      .fit('crop')
-                      .auto('format')
-                      .url()
-                  : null
+                let cover: string | null = null
+                try {
+                  if (post.coverImage?.asset?._ref || post.coverImage?.asset?._id) {
+                    cover = urlFor(post.coverImage).width(800).height(450).fit('crop').auto('format').url()
+                  }
+                } catch {
+                  cover = null
+                }
                 const category = post.categories?.[0]?.title
                 const blogHref =
                   locale === 'it' ? `/it/blog/${post.slug}` : `/blog/${post.slug}`

@@ -40,9 +40,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   // OG image: prefer the Sanity profile photo (cropped square so social
   // previews stay consistent across LinkedIn, X, Slack, iMessage).
-  const ogImage = author.photo?.asset
-    ? urlFor(author.photo).width(1200).height(630).fit('crop').auto('format').url()
-    : undefined
+  // Guard against null asset ref — urlFor() throws on missing refs.
+  let ogImage: string | undefined
+  try {
+    if (author.photo?.asset?._ref || author.photo?.asset?._id) {
+      ogImage = urlFor(author.photo).width(1200).height(630).fit('crop').auto('format').url()
+    }
+  } catch {
+    ogImage = undefined
+  }
 
   const canonical = `https://www.potastudio.com/author/${slug}`
   const itHref = `https://www.potastudio.com/it/autore/${slug}`
@@ -58,6 +64,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         'x-default': canonical,
       },
     },
+    // `authors` ensures Next.js renders:
+    //   <meta name="author" content="Sebastian Bonfanti">
+    //   <link rel="author" href="https://www.potastudio.com/author/sebastian-bonfanti">
+    // Both point to the person, not the organisation.
+    authors: [{ name: author.name, url: canonical }],
     openGraph: {
       type: 'profile',
       title,
@@ -80,14 +91,23 @@ export default async function AuthorPage({ params }: Props) {
   const author = await getAuthorBySlug(slug)
   if (!author) notFound()
 
-  const posts = await getPostsByAuthor(slug, 'en')
+  const posts = await getPostsByAuthor(slug, 'en').catch(() => [])
 
   // Person + ProfilePage JSON-LD. The Person uses a stable @id keyed on
   // the unprefixed (EN) URL — the IT counterpart deliberately emits the
   // SAME @id so search engines see one canonical entity bilingually.
-  const photoUrl = author.photo?.asset
-    ? urlFor(author.photo).width(800).height(800).fit('crop').auto('format').url()
-    : undefined
+  //
+  // Guard: urlFor() throws when asset ref is null/undefined. We check both
+  // the photo field itself AND the nested asset before calling it, so a
+  // missing photo in Sanity never causes a 500.
+  let photoUrl: string | undefined
+  try {
+    if (author.photo?.asset?._ref || author.photo?.asset?._id) {
+      photoUrl = urlFor(author.photo).width(800).height(800).fit('crop').auto('format').url()
+    }
+  } catch {
+    photoUrl = undefined
+  }
 
   const schemaBio = portableTextToPlainText(author.bio ?? author.longBio).slice(0, 300) || undefined
   const schema = authorProfileSchemaGraph({
