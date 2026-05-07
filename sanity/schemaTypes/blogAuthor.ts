@@ -126,6 +126,24 @@ export const blogAuthor = defineType({
       title: 'Instagram URL',
       type: 'url',
     }),
+    defineField({
+      name: 'personalWebsite',
+      title: 'Personal Website',
+      type: 'url',
+      description:
+        "Authoritative personal domain (e.g. https://sebastianbonfanti.com). Used in Person.sameAs for E-E-A-T cross-verification.",
+    }),
+    defineField({
+      name: 'wikidataId',
+      title: 'Wikidata ID',
+      type: 'string',
+      description:
+        "Wikidata entity ID, e.g. Q137637995. Enables hard entity disambiguation in AI search engines. Format: Q followed by digits only.",
+      validation: (Rule) =>
+        Rule.regex(/^Q\d+$/, { name: 'Wikidata ID', invert: false }).warning(
+          'Must be in the format Q followed by digits (e.g. Q137637995)',
+        ),
+    }),
   ],
   preview: {
     select: {

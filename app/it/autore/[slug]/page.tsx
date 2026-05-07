@@ -9,6 +9,7 @@ import { urlFor } from '@/sanity/lib/client'
 import { JsonLd } from '@/components/json-ld'
 import { authorProfileSchemaGraph } from '@/lib/jsonld/schemas'
 import AuthorProfileContent from '@/components/author/author-profile-content'
+import { portableTextToPlainText } from '@/lib/portable-text'
 
 // ISR: see EN counterpart — author profiles re-render hourly so newly
 // published posts surface in the "Articoli scritti da" grid without a
@@ -28,11 +29,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!author) return { title: 'Autore non trovato' }
 
   const title = `${author.name}${author.role ? ` — ${author.role}` : ''}`
+  // Same defensive serialisation as the EN counterpart — handles both plain
+  // string and Portable Text array without emitting [object Object].
+  const bioPlain = portableTextToPlainText(author.bio ?? author.longBio_it ?? author.longBio)
   const description =
-    author.bio ??
-    `Articoli scritti da ${author.name}${
-      author.role ? `, ${author.role}` : ''
-    } per Pota Studio.`
+    bioPlain.slice(0, 160) ||
+    `Articoli scritti da ${author.name}${author.role ? `, ${author.role}` : ''} per Pota Studio.`
 
   const ogImage = author.photo?.asset
     ? urlFor(author.photo).width(1200).height(630).fit('crop').auto('format').url()
@@ -81,11 +83,12 @@ export default async function AuthorPageIT({ params }: Props) {
     ? urlFor(author.photo).width(800).height(800).fit('crop').auto('format').url()
     : undefined
 
+  const schemaBio = portableTextToPlainText(author.bio ?? author.longBio_it ?? author.longBio).slice(0, 300) || undefined
   const schema = authorProfileSchemaGraph({
     slug,
     name: author.name,
     role: author.role,
-    shortBio: author.bio,
+    shortBio: schemaBio,
     imageUrl: photoUrl,
     email: author.email,
     expertise: author.expertise ?? [],
@@ -94,6 +97,8 @@ export default async function AuthorPageIT({ params }: Props) {
     twitterX: author.twitterX,
     instagram: author.instagram,
     website: author.website,
+    personalWebsite: author.personalWebsite,
+    wikidataId: author.wikidataId,
     locale: 'it',
   })
 
@@ -114,6 +119,8 @@ export default async function AuthorPageIT({ params }: Props) {
           location: author.location,
           email: author.email,
           website: author.website,
+          personalWebsite: author.personalWebsite,
+          wikidataId: author.wikidataId,
           linkedin: author.linkedin,
           twitterX: author.twitterX,
           instagram: author.instagram,

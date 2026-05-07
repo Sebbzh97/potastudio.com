@@ -9,6 +9,7 @@ import { urlFor } from '@/sanity/lib/client'
 import { JsonLd } from '@/components/json-ld'
 import { authorProfileSchemaGraph } from '@/lib/jsonld/schemas'
 import AuthorProfileContent from '@/components/author/author-profile-content'
+import { portableTextToPlainText } from '@/lib/portable-text'
 
 // ISR: profiles change rarely (new posts are the most common reason to
 // re-render), so an hourly revalidate is plenty without thrashing the build.
@@ -29,11 +30,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   // Title is intentionally minimal — the brand is appended by the root
   // layout's title template (single source of truth).
   const title = `${author.name}${author.role ? ` — ${author.role}` : ''}`
+  // `bio` in Sanity is declared `type: 'text'` (plain string), but older docs
+  // may store a Portable Text array. `portableTextToPlainText` handles both
+  // safely and always returns a clean string, preventing [object Object] in meta tags.
+  const bioPlain = portableTextToPlainText(author.bio ?? author.longBio)
   const description =
-    author.bio ??
-    `Articles by ${author.name}${
-      author.role ? `, ${author.role}` : ''
-    } at Pota Studio.`
+    bioPlain.slice(0, 160) ||
+    `Articles by ${author.name}${author.role ? `, ${author.role}` : ''} at Pota Studio.`
 
   // OG image: prefer the Sanity profile photo (cropped square so social
   // previews stay consistent across LinkedIn, X, Slack, iMessage).
@@ -86,11 +89,12 @@ export default async function AuthorPage({ params }: Props) {
     ? urlFor(author.photo).width(800).height(800).fit('crop').auto('format').url()
     : undefined
 
+  const schemaBio = portableTextToPlainText(author.bio ?? author.longBio).slice(0, 300) || undefined
   const schema = authorProfileSchemaGraph({
     slug,
     name: author.name,
     role: author.role,
-    shortBio: author.bio,
+    shortBio: schemaBio,
     imageUrl: photoUrl,
     email: author.email,
     expertise: author.expertise ?? [],
@@ -99,6 +103,8 @@ export default async function AuthorPage({ params }: Props) {
     twitterX: author.twitterX,
     instagram: author.instagram,
     website: author.website,
+    personalWebsite: author.personalWebsite,
+    wikidataId: author.wikidataId,
     locale: 'en',
   })
 
@@ -119,6 +125,8 @@ export default async function AuthorPage({ params }: Props) {
           location: author.location,
           email: author.email,
           website: author.website,
+          personalWebsite: author.personalWebsite,
+          wikidataId: author.wikidataId,
           linkedin: author.linkedin,
           twitterX: author.twitterX,
           instagram: author.instagram,

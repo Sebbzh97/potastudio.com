@@ -191,6 +191,8 @@ const authorProfileProjection = `
   location,
   email,
   website,
+  personalWebsite,
+  wikidataId,
   linkedin,
   twitterX,
   instagram,
