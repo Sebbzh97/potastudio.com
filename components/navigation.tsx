@@ -305,7 +305,7 @@ function NavigationInner({ data }: NavigationProps) {
       const m = pathname.match(re)
       return m ? pathname.replace(re, replacement) : null
     }, null)
-    enHref = mapped ?? pathname.replace(/^\/it(\/|$)/, '/') || '/'
+    enHref = (mapped ?? pathname.replace(/^\/it(\/|$)/, '/')) || '/'
     itHref = pathname
   } else {
     // Try asymmetric map first, then fall back to prepending /it.
