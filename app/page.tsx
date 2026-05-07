@@ -10,6 +10,7 @@ import WhyPota from '@/components/home/why-pota'
 import ClientLogoWall from '@/components/home/client-logo-wall'
 import Testimonials from '@/components/home/testimonials'
 import CtaSection from '@/components/home/cta-section'
+import LatestInsights from '@/components/home/latest-insights'
 
 export const revalidate = 60
 
@@ -73,6 +74,7 @@ export default async function HomePage() {
       <StatsBar data={data} locale="en" />
       <ServicesPreview data={data} />
       <FeaturedWork data={data ?? undefined} locale="en" />
+      <LatestInsights locale="en" />
       <WhyPota data={data} locale="en" />
       <ClientLogoWall data={data ?? undefined} locale="en" />
       <Testimonials testimonials={testimonials} locale="en" />

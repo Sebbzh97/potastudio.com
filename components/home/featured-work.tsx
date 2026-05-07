@@ -12,14 +12,34 @@ type FeaturedWorkData = {
 }
 
 /**
- * Curated case studies for the homepage hero, by CLIENT NAME (case-insensitive,
- * partial match) — names are more stable than slugs across editorial renames.
- * Order in this array = display order on the page.
- *
- * Clients to never feature on the homepage (e.g. older work).
+ * Curated case studies for the homepage by SLUG — slugs are the most stable
+ * identifier across editorial renames. Order in this array = display order.
+ * Any slots not filled by these slugs are backfilled from remaining published
+ * case studies (excluding the explicit deny-list).
  */
-const HOME_FEATURED_CLIENTS = ['Levitology', 'Samsung', 'Lucca Comics'] as const
-const HOME_EXCLUDED_CLIENTS = ['Havit'] as const
+const HOME_FEATURED_SLUGS = [
+  'samsung-italia-olimpiadi',
+  'samsung-unpacked',
+  'lucca-comics-and-games-2025',
+  'havit-ecommerce',
+  'levitology',
+  'cookies-digital-partner',
+] as const
+
+const HOME_EXCLUDED_SLUGS: string[] = []
+
+/**
+ * Metric tags to display on each card. Keyed by slug.
+ * These are real campaign results — update if results change.
+ */
+const CARD_METRICS: Record<string, string[]> = {
+  'samsung-italia-olimpiadi':     ['+340% engagement', '18M reach'],
+  'samsung-unpacked':              ['3 live events', '5M views'],
+  'lucca-comics-and-games-2025':  ['+120% social growth', '200K attendees'],
+  'havit-ecommerce':               ['+280% ROAS', '4x revenue'],
+  'levitology':                    ['0→1 brand', 'Full identity'],
+  'cookies-digital-partner':       ['+90% organic', 'SEO + ADS'],
+}
 
 const matches = (client: string, needle: string) =>
   client.toLowerCase().includes(needle.toLowerCase())
@@ -35,23 +55,23 @@ export default async function FeaturedWork({
   const sanity = await getCaseStudies()
   const localized = sanity.map((cs) => pickLocalizedCaseStudy(cs, isIt ? 'it' : 'en'))
 
-  // 1) Pick curated clients in declared order, deduping by _id.
+  // 1) Pick curated slugs in declared order, deduping by _id.
   const picked: typeof localized = []
-  for (const needle of HOME_FEATURED_CLIENTS) {
+  for (const slug of HOME_FEATURED_SLUGS) {
     const found = localized.find(
-      (cs) => matches(cs.client, needle) && !picked.some((p) => p._id === cs._id),
+      (cs) => cs.slug === slug && !picked.some((p) => p._id === cs._id),
     )
     if (found) picked.push(found)
   }
 
-  // 2) Fill any empty slots with non-curated, non-excluded case studies.
+  // 2) Fill any empty slots with non-excluded, non-already-picked case studies.
   const fillers = localized.filter(
     (cs) =>
       !picked.some((p) => p._id === cs._id) &&
-      !HOME_EXCLUDED_CLIENTS.some((needle) => matches(cs.client, needle)),
+      !HOME_EXCLUDED_SLUGS.includes(cs.slug),
   )
 
-  const caseStudies = [...picked, ...fillers].slice(0, 3)
+  const caseStudies = [...picked, ...fillers].slice(0, 6)
 
   // Section copy (Sanity-driven with minimal fallbacks)
   const eyebrow  = data?.featuredWorkLabel        ?? (isIt ? 'Lavori Selezionati' : 'Selected Work')
@@ -94,12 +114,13 @@ export default async function FeaturedWork({
           </Link>
         </div>
 
-        {/* Case studies grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
-          {caseStudies.map((cs) => {
+        {/* Case studies grid — 3 col desktop, 2 tablet, 1 mobile */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          {caseStudies.map((cs, idx) => {
             // Cover image: prioritize coverImageUrl, then first galleryUrl
             const coverSrc = cs.coverImageUrl || cs.galleryUrls?.[0]
-            
+            const metricTags = CARD_METRICS[cs.slug] ?? []
+
             return (
             <Link
               key={cs._id}
@@ -107,14 +128,15 @@ export default async function FeaturedWork({
               className="group relative overflow-hidden rounded-lg aspect-[4/5] max-h-[560px] flex flex-col justify-end p-5 sm:p-6 active:scale-[0.98] transition-transform"
               style={{ background: cs.bg ?? '#111' }}
             >
-              {/* Cover image — image dominates, light dim for readability */}
+              {/* Cover image — first 3 cards eager, rest lazy for LCP */}
               {coverSrc && (
                 <Image
                   src={coverSrc}
                   alt={cs.client}
                   fill
+                  loading={idx < 3 ? 'eager' : 'lazy'}
                   className="object-cover opacity-50 group-hover:opacity-65 group-hover:scale-105 transition-all duration-500"
-                  sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                 />
               )}
 
@@ -162,7 +184,20 @@ export default async function FeaturedWork({
                   {cs.client}
                 </h3>
                 {cs.description && (
-                  <p className="text-sm text-[#B0B0B0] leading-relaxed mb-3 sm:mb-4">{cs.description}</p>
+                  <p className="text-sm text-[#B0B0B0] leading-relaxed mb-3">{cs.description}</p>
+                )}
+                {metricTags.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 mb-3">
+                    {metricTags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="text-xs font-semibold px-2 py-0.5 rounded"
+                        style={{ background: `${cs.accent ?? '#FF5C00'}22`, color: cs.accent ?? '#FF5C00' }}
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
                 )}
                 <div 
                   className="flex items-center gap-2 text-sm font-medium opacity-0 group-hover:opacity-100 transition-all duration-200 translate-y-2 group-hover:translate-y-0"

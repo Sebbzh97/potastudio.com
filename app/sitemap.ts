@@ -73,45 +73,114 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ]
   })
 
-  // Blog posts (Sanity-driven)
-  const [enBlog, itBlog] = await Promise.all([
+  // Blog posts (Sanity-driven).
+  // For hreflang we need to know which EN slug pairs with which IT slug.
+  // Strategy: fetch both slug lists PLUS the IT posts' translationOf field
+  // so we can build a lookup map { itSlug → enSlug }.
+  const [enBlog, itBlog, itBlogWithRef] = await Promise.all([
     getBlogPostSlugs('en'),
     getBlogPostSlugs('it'),
+    client.fetch<{ slug: string; enSlug: string | null }[]>(
+      `*[_type == "blogPost" && language == "it" && isPublished != false]{
+        "slug": slug.current,
+        "enSlug": translationOf->slug.current
+      }`,
+      {},
+      { cache: 'no-store' },
+    ).catch(() => [] as { slug: string; enSlug: string | null }[]),
   ])
+
   const enBlogSlugs = (enBlog ?? []).map((r: { slug: string }) => r.slug).filter(Boolean)
   const itBlogSlugs = (itBlog ?? []).map((r: { slug: string }) => r.slug).filter(Boolean)
 
-  const blogEntries: MetadataRoute.Sitemap = [
-    ...enBlogSlugs.map((slug: string) => ({
-      url: `${BASE_URL}/blog/${slug}`,
+  // Build bidirectional maps: EN slug → IT slug and IT slug → EN slug.
+  const enToIt = new Map<string, string>()
+  const itToEn = new Map<string, string>()
+  for (const { slug: itSlug, enSlug } of (itBlogWithRef ?? [])) {
+    if (itSlug && enSlug) {
+      enToIt.set(enSlug, itSlug)
+      itToEn.set(itSlug, enSlug)
+    }
+  }
+
+  // EN entries: emit hreflang alternates when a paired IT post exists.
+  const enBlogEntries: MetadataRoute.Sitemap = enBlogSlugs.map((slug: string) => {
+    const itSlug = enToIt.get(slug)
+    const enUrl = `${BASE_URL}/blog/${slug}`
+    if (itSlug) {
+      const itUrl = `${BASE_URL}/it/blog/${itSlug}`
+      return {
+        url: enUrl,
+        lastModified: now,
+        changeFrequency: 'weekly' as const,
+        priority: 0.7,
+        alternates: { languages: { en: enUrl, it: itUrl, 'x-default': enUrl } } as const,
+      }
+    }
+    return {
+      url: enUrl,
       lastModified: now,
       changeFrequency: 'weekly' as const,
       priority: 0.7,
-    })),
-    ...itBlogSlugs.map((slug: string) => ({
-      url: `${BASE_URL}/it/blog/${slug}`,
+      alternates: { languages: { en: enUrl, 'x-default': enUrl } } as const,
+    }
+  })
+
+  // IT entries: only emit slugs that DON'T already appear as the IT side
+  // of an EN entry (to avoid duplicate sitemap entries).
+  const itBlogEntriesSlugs = itBlogSlugs.filter(
+    (slug: string) => !itToEn.has(slug) || !enBlogSlugs.includes(itToEn.get(slug)!),
+  )
+  const itBlogEntries: MetadataRoute.Sitemap = itBlogEntriesSlugs.map((slug: string) => {
+    const enSlug = itToEn.get(slug)
+    const itUrl = `${BASE_URL}/it/blog/${slug}`
+    if (enSlug) {
+      const enUrl = `${BASE_URL}/blog/${enSlug}`
+      return {
+        url: itUrl,
+        lastModified: now,
+        changeFrequency: 'weekly' as const,
+        priority: 0.65,
+        alternates: { languages: { en: enUrl, it: itUrl, 'x-default': enUrl } } as const,
+      }
+    }
+    return {
+      url: itUrl,
       lastModified: now,
       changeFrequency: 'weekly' as const,
       priority: 0.65,
-    })),
-  ]
+      alternates: { languages: { it: itUrl, 'x-default': itUrl } } as const,
+    }
+  })
 
-  // Case studies (Sanity-driven, EN + IT mirror)
+  const blogEntries: MetadataRoute.Sitemap = [...enBlogEntries, ...itBlogEntries]
+
+  // Case studies (Sanity-driven, EN + IT mirror same slug under /work vs /it/work).
+  // Both entries in each pair share hreflang alternates referencing each other.
   const caseStudySlugs = await getCaseStudySlugs()
-  const caseStudyEntries: MetadataRoute.Sitemap = caseStudySlugs.flatMap((slug: string) => [
-    {
-      url: `${BASE_URL}/work/${slug}`,
-      lastModified: now,
-      changeFrequency: 'monthly' as const,
-      priority: 0.8,
-    },
-    {
-      url: `${BASE_URL}/it/work/${slug}`,
-      lastModified: now,
-      changeFrequency: 'monthly' as const,
-      priority: 0.75,
-    },
-  ])
+  const caseStudyEntries: MetadataRoute.Sitemap = caseStudySlugs.flatMap((slug: string) => {
+    const enUrl = `${BASE_URL}/work/${slug}`
+    const itUrl = `${BASE_URL}/it/work/${slug}`
+    const alternates = {
+      languages: { en: enUrl, it: itUrl, 'x-default': enUrl },
+    } as const
+    return [
+      {
+        url: enUrl,
+        lastModified: now,
+        changeFrequency: 'monthly' as const,
+        priority: 0.8,
+        alternates,
+      },
+      {
+        url: itUrl,
+        lastModified: now,
+        changeFrequency: 'monthly' as const,
+        priority: 0.75,
+        alternates,
+      },
+    ]
+  })
 
   // Blog categories (Sanity-driven, EN + IT). One sitemap entry per category
   // slug per locale, with hreflang alternates (slugs mirror across locales

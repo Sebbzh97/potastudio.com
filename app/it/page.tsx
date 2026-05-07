@@ -8,6 +8,7 @@ import WhyPota from '@/components/home/why-pota'
 import ClientLogoWall from '@/components/home/client-logo-wall'
 import Testimonials from '@/components/home/testimonials'
 import CtaSection from '@/components/home/cta-section'
+import LatestInsights from '@/components/home/latest-insights'
 
 
 export const revalidate = 60
@@ -51,6 +52,7 @@ export default async function ItalianHomePage() {
       <StatsBar data={data} locale="it" />
       <ServicesPreview data={data} locale="it" />
       <FeaturedWork data={data ?? undefined} locale="it" />
+      <LatestInsights locale="it" />
       <WhyPota data={data} locale="it" />
       <ClientLogoWall data={data ?? undefined} locale="it" />
       <Testimonials testimonials={testimonials} locale="it" />
