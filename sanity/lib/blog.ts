@@ -10,7 +10,7 @@ const listingProjection = `
   publishedAt,
   readingTime,
   excerpt,
-  "coverImageUrl": coverImage.asset->url + "?w=800&h=450&auto=format&q=80&fit=crop",
+  "coverImageUrl": select(defined(coverImage.asset) => coverImage.asset->url + "?w=800&h=450&auto=format&q=80&fit=crop"),
   "coverImageAlt": coalesce(coverImage.alt, title),
   "author": author->{ name, role },
   "categories": categories[]->{ title, "slug": slug.current, color }
@@ -25,7 +25,7 @@ const fullProjection = `
   updatedAt,
   readingTime,
   excerpt,
-  "coverImageUrl": coverImage.asset->url + "?w=1600&h=900&auto=format&q=80&fit=crop",
+  "coverImageUrl": select(defined(coverImage.asset) => coverImage.asset->url + "?w=1600&h=900&auto=format&q=80&fit=crop"),
   "coverImageAlt": coalesce(coverImage.alt, title),
   "author": author->{
   _id,
@@ -33,7 +33,7 @@ const fullProjection = `
   "slug": slug.current,
   role,
   bio,
-  "photoUrl": photo.asset->url + "?w=160&h=160&auto=format&q=80&fit=crop",
+  "photoUrl": select(defined(photo.asset) => photo.asset->url + "?w=160&h=160&auto=format&q=80&fit=crop"),
   "photoAlt": photo.alt,
   linkedin,
   twitterX,
@@ -44,7 +44,7 @@ const fullProjection = `
   body[] {
     ...,
     _type == "image" => {
-      "url": asset->url + "?auto=format&q=80&fit=max",
+      "url": select(defined(asset) => asset->url + "?auto=format&q=80&fit=max"),
       alt,
       caption,
       fullWidth,
