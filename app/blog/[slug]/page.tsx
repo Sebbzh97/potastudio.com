@@ -5,7 +5,6 @@ import { notFound } from 'next/navigation'
 import { ArrowLeft, Clock, Calendar } from 'lucide-react'
 import { getBlogPostBySlug, getBlogPostSlugs, getTranslationSlug, getDefaultLeadMagnet } from '@/sanity/lib/blog'
 import { buildBlogAlternates } from '@/lib/blog/hreflang'
-import { urlFor } from '@/sanity/lib/client'
 import Breadcrumbs from '@/components/breadcrumbs'
 import { JsonLd } from '@/components/json-ld'
 import { articleSchema, faqPageSchema } from '@/lib/jsonld/schemas'
@@ -143,10 +142,8 @@ export default async function BlogPostPage({ params }: Props) {
     post.author?.slug && post.author?.name && post.author.name !== 'Pota Studio'
       ? (post.author.slug as string)
       : undefined
-  const coverSrc = post.coverImage?.asset
-    ? urlFor(post.coverImage).width(1600).height(900).fit('crop').auto('format').url()
-    : null
-  const coverAlt = post.coverImage?.alt ?? post.title
+  const coverSrc = post.coverImageUrl ?? null
+  const coverAlt = post.coverImageAlt ?? post.title
 
   // ── Structured data (centralized library) ────────────────────────────────
   const article = articleSchema({
@@ -289,8 +286,8 @@ export default async function BlogPostPage({ params }: Props) {
                 width={1600}
                 height={900}
                 priority
+                unoptimized
                 className="w-full h-auto rounded-xl border border-white/10"
-                sizes="(min-width: 1024px) 56rem, 100vw"
                 itemProp="image"
               />
             ) : (
