@@ -206,7 +206,7 @@ export const getHomepageCaseStudies = (): Promise<SanityCaseStudy[]> =>
   "slug": slug.current,
   client, type, year, bg, accent, featured,
   description, descriptionIt,
-  "coverImageUrl": coverImage.asset->url + "?w=900&auto=format&q=75&fit=crop",
+  "coverImageUrl": select(defined(coverImage.asset) => coverImage.asset->url + "?w=900&auto=format&q=75&fit=crop"),
   "galleryUrls": galleryUrls[0..0]
   }`,
       {},
@@ -224,7 +224,7 @@ export const getHomepageClients = (): Promise<SanityClient[]> =>
     .fetch(
       `*[_type == "client"] | order(lower(name) asc) {
         _id, name,
-        "logoUrl": logo.asset->url + "?w=288&auto=format&q=80"
+        "logoUrl": select(defined(logo.asset) => logo.asset->url + "?w=288&auto=format&q=80")
       }`,
       {},
       { next: { tags: ['client'] } },
@@ -347,10 +347,10 @@ export const getBlogPosts = (lang = 'en'): Promise<SanityBlogPost[]> =>
         _id,
         "slug": slug.current,
         language, title, excerpt, readingTime, publishedAt, tags,
-        "coverImageUrl": coverImage.asset->url + "?w=800&h=450&auto=format&q=80&fit=crop",
+        "coverImageUrl": select(defined(coverImage.asset) => coverImage.asset->url + "?w=800&h=450&auto=format&q=80&fit=crop"),
         "coverImageAlt": coalesce(coverImage.alt, title),
         "categories": categories[]->title,
-        "author": author->{ name, credentials, "avatarUrl": avatar.asset->url }
+        "author": author->{ name, credentials, "avatarUrl": select(defined(avatar.asset) => avatar.asset->url) }
       }`,
       { lang },
       { cache: 'no-store' },
