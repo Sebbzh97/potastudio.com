@@ -1,7 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { PortableText, type PortableTextComponents, type PortableTextBlock } from '@portabletext/react'
-import { urlFor } from '@/sanity/lib/client'
 
 /**
  * Semantic + AI-friendly Portable Text renderer for blog posts.
@@ -131,20 +130,28 @@ function buildComponents(accent: string): PortableTextComponents {
       // ── Image ────────────────────────────────────────────────────────────
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       image: ({ value }: { value: any }) => {
-        if (!value?.asset) return null
+        // `url` is pre-resolved by the GROQ projection in blog.ts:
+        //   _type == "image" => { "url": asset->url + "?auto=format&q=80&fit=max", ... }
+        // This avoids calling urlFor() at render time and works for both
+        // public and CDN-served assets without any token.
+        const src: string | null = value?.url ?? null
+        if (!src) return null
         const alt = value.alt ?? ''
         const caption = value.caption ?? null
         const fullWidth = !!value.fullWidth
-        const src = urlFor(value).width(fullWidth ? 1600 : 1200).fit('max').auto('format').url()
+        // Append width hint to the already-CDN-transformed URL so the browser
+        // receives the right size without a second request.
+        const w = fullWidth ? 1600 : 1200
+        const finalSrc = src.includes('?') ? `${src}&w=${w}` : `${src}?w=${w}`
         return (
           <figure className={`my-10 ${fullWidth ? 'lg:-mx-16 xl:-mx-32' : ''}`}>
             <Image
-              src={src}
+              src={finalSrc}
               alt={alt}
-              width={fullWidth ? 1600 : 1200}
+              width={w}
               height={fullWidth ? 900 : 675}
+              unoptimized
               className="w-full h-auto rounded-xl border border-white/10"
-              sizes={fullWidth ? '(min-width: 1280px) 1280px, 100vw' : '(min-width: 768px) 768px, 100vw'}
             />
             {caption && (
               <figcaption className="text-center text-sm text-[#9A9A9A] mt-3 italic">{caption}</figcaption>

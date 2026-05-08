@@ -1,7 +1,6 @@
 import Image from 'next/image'
 import { Linkedin, Award } from 'lucide-react'
 import { PortableText, type PortableTextBlock } from '@portabletext/react'
-import { urlFor } from '@/sanity/lib/client'
 
 type Author = {
   name?: string
@@ -11,8 +10,9 @@ type Author = {
   // Text array. We accept both shapes and the renderer below picks the
   // right path so a stale data shape can never crash the page again.
   bio?: string | PortableTextBlock[] | unknown[]
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  photo?: { asset?: any; alt?: string }
+  // Pre-resolved CDN URL from GROQ projection (photo.asset->url + CDN params).
+  photoUrl?: string | null
+  photoAlt?: string
   linkedin?: string
   twitterX?: string
   credentials?: string[]
@@ -93,13 +93,10 @@ export default function AuthorAuthorityBox({
 }) {
   if (!author?.name) return null
   const copy = COPY[locale]
-  // 1) Sanity photo (CMS source of truth) → 2) hardcoded team fallback → 3) initial.
+  // 1) Sanity photoUrl (pre-resolved CDN URL from GROQ) → 2) hardcoded team fallback → 3) initial.
   const fallback = TEAM_FALLBACKS[author.name.toLowerCase()] ?? {}
-  const sanityPhotoSrc = author.photo?.asset
-    ? urlFor(author.photo).width(160).height(160).fit('crop').auto('format').url()
-    : null
-  const photoSrc = sanityPhotoSrc ?? fallback.photoSrc ?? null
-  const photoAlt = author.photo?.alt ?? author.name
+  const photoSrc = (author.photoUrl && author.photoUrl !== 'null') ? author.photoUrl : fallback.photoSrc ?? null
+  const photoAlt = author.photoAlt ?? author.name
   // Same precedence for LinkedIn — CMS wins if set, else fallback if known.
   const linkedinHref = author.linkedin ?? fallback.linkedin ?? null
 
@@ -122,6 +119,7 @@ export default function AuthorAuthorityBox({
               alt={photoAlt}
               width={96}
               height={96}
+              unoptimized
               className="rounded-full border-2 object-cover"
               style={{ borderColor: `${accent}80` }}
               itemProp="image"

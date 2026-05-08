@@ -347,8 +347,8 @@ export const getBlogPosts = (lang = 'en'): Promise<SanityBlogPost[]> =>
         _id,
         "slug": slug.current,
         language, title, excerpt, readingTime, publishedAt, tags,
-        "coverImageUrl": coverImage.asset->url,
-        "coverImageAlt": coverImage.alt,
+        "coverImageUrl": coverImage.asset->url + "?w=800&h=450&auto=format&q=80&fit=crop",
+        "coverImageAlt": coalesce(coverImage.alt, title),
         "categories": categories[]->title,
         "author": author->{ name, credentials, "avatarUrl": avatar.asset->url }
       }`,

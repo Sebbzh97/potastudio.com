@@ -10,8 +10,9 @@ const listingProjection = `
   publishedAt,
   readingTime,
   excerpt,
-  coverImage { asset, alt, caption },
-  "author": author->{ name, role, "photo": photo { asset, alt } },
+  "coverImageUrl": coverImage.asset->url + "?w=800&h=450&auto=format&q=80&fit=crop",
+  "coverImageAlt": coalesce(coverImage.alt, title),
+  "author": author->{ name, role },
   "categories": categories[]->{ title, "slug": slug.current, color }
 `
 
@@ -24,14 +25,16 @@ const fullProjection = `
   updatedAt,
   readingTime,
   excerpt,
-  coverImage { asset, alt, caption },
+  "coverImageUrl": coverImage.asset->url + "?w=1600&h=900&auto=format&q=80&fit=crop",
+  "coverImageAlt": coalesce(coverImage.alt, title),
   "author": author->{
   _id,
   name,
   "slug": slug.current,
   role,
   bio,
-  "photo": photo { asset, alt },
+  "photoUrl": photo.asset->url + "?w=160&h=160&auto=format&q=80&fit=crop",
+  "photoAlt": photo.alt,
   linkedin,
   twitterX,
   "credentials": credentials[]
@@ -40,7 +43,12 @@ const fullProjection = `
   tags,
   body[] {
     ...,
-    _type == "image" => { asset, alt, caption, fullWidth },
+    _type == "image" => {
+      "url": asset->url + "?auto=format&q=80&fit=max",
+      alt,
+      caption,
+      fullWidth,
+    },
   },
   faqItems[] { question, answer },
   keyTakeaways,
