@@ -306,8 +306,10 @@ export default async function BlogPostPage({ params }: Props) {
             )}
           </div>
 
-          {/* TL;DR — short summary above the body */}
-          {post.tldr && (
+          {/* TL;DR — short summary above the body.
+              Guard: only render if tldr is a non-empty string.
+              Array-shaped tldr (legacy import bug) would crash React otherwise. */}
+          {typeof post.tldr === 'string' && post.tldr && (
             <div className="container-site mb-12" style={{ maxWidth: '56rem' }}>
               <div className="rounded-xl p-6 bg-white/[0.03] border border-white/10">
                 <p className="text-xs font-semibold uppercase tracking-widest text-[#FF5C00] mb-2">
