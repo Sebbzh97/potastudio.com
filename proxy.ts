@@ -5,7 +5,16 @@ import type { NextRequest } from 'next/server'
 const LOCALE_COOKIE = 'pota-locale'
 
 export function proxy(request: NextRequest) {
-  const { pathname } = request.nextUrl
+  const { pathname, searchParams } = request.nextUrl
+
+  // Strip Vercel deployment-protection token from public production URLs.
+  // When `_vercel_share` is present the URL should 301-redirect to the clean
+  // version so search engines never index the token-bearing URL.
+  if (searchParams.has('_vercel_share')) {
+    const clean = request.nextUrl.clone()
+    clean.searchParams.delete('_vercel_share')
+    return NextResponse.redirect(clean, { status: 301 })
+  }
 
   // Forward the pathname as a request header so layout.tsx can detect locale
   const requestHeaders = new Headers(request.headers)
