@@ -4,6 +4,8 @@ import ClientsDisplay, { type ClientsPageCopy } from '@/components/clients-displ
 import type { Testimonial, ClientBrand } from '@/lib/types'
 import { getClientsPage, getTestimonials, getClients } from '@/sanity/lib/page-queries'
 
+export const revalidate = 3600
+
 export async function generateMetadata(): Promise<Metadata> {
   const data = await getClientsPage('en')
   return {

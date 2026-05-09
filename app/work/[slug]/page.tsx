@@ -18,6 +18,9 @@ import {
   type SanityCaseStudy,
 } from '@/sanity/lib/page-queries'
 
+export const revalidate = 3600
+export const dynamicParams = true
+
 // ── Static fallback data ───────────────────────────────────────────────────────
 
 type StaticCS = {

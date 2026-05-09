@@ -3,6 +3,8 @@ import { ArrowUpRight } from 'lucide-react'
 import { getHreflang } from '@/lib/hreflang'
 import { getCareersPage, getJobOpenings } from '@/sanity/lib/page-queries'
 
+export const revalidate = 3600
+
 export async function generateMetadata(): Promise<Metadata> {
   const data = await getCareersPage('en')
   return {

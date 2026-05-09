@@ -3,6 +3,7 @@ import { getHreflang } from '@/lib/hreflang'
 import { getContactPage } from '@/sanity/lib/page-queries'
 import ContactPageClient from './contact-client'
 
+export const revalidate = 3600
 
 export async function generateMetadata(): Promise<Metadata> {
   const data = await getContactPage('en')
