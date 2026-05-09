@@ -68,12 +68,20 @@ export async function POST(request: NextRequest) {
   const tags = TYPE_TO_TAGS[_type] ?? []
 
   // 1) Purge tags so fetch() cache entries are invalidated
-  for (const tag of tags) revalidateTag(tag, 'max')
+  for (const tag of tags) revalidateTag(tag)
 
-  // 2) Revalidate all paths so page HTML is regenerated immediately
+  // 2) For blog posts: also revalidate the specific post tag so only that
+  //    post's cache is purged immediately without waiting for the hourly TTL.
+  if (_type === 'blogPost' && body._id) {
+    // body._id is a Sanity document ID; the slug is embedded inside so we
+    // also need to fetch it. As a best-effort we always revalidate 'blog' tag.
+    revalidateTag('blog')
+  }
+
+  // 3) Revalidate all paths so page HTML is regenerated immediately
   for (const path of ALL_PATHS) revalidatePath(path)
 
-  // 3) Revalidate dynamic slug routes for content types that have them
+  // 4) Revalidate dynamic slug routes for content types that have them
   if (_type === 'caseStudy') {
     revalidatePath('/work/[slug]', 'page')
     revalidatePath('/it/work/[slug]', 'page')
@@ -104,7 +112,7 @@ export async function GET(request: NextRequest) {
   }
 
   const allTags = [...new Set(Object.values(TYPE_TO_TAGS).flat())]
-  for (const tag of allTags) revalidateTag(tag, 'max')
+  for (const tag of allTags) revalidateTag(tag)
   for (const path of ALL_PATHS) revalidatePath(path)
   // Dynamic slug routes
   revalidatePath('/work/[slug]', 'page')

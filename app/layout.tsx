@@ -86,6 +86,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
+    site: '@potastudio',
+    creator: '@sebbonfanti',
     title: 'Pota Studio - Social Media, Influencer Marketing & Ads',
     description:
       'Full-service agency for social media, influencer marketing, paid advertising and TikTok. No handoffs, all in-house.',
@@ -141,25 +143,30 @@ export default async function RootLayout({
       className={`${inter.variable} ${spaceGrotesk.variable} ${barlowCondensed.variable}`}
     >
       <head>
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
         {/* DNS prefetch for third-party domains used by lazy-loaded scripts.
-            Cheap warm-up that lets the browser resolve DNS in parallel with
-            HTML parsing, so when the lazy scripts finally fire they connect
-            faster without blocking earlier paints. */}
+            Cheap warm-up: resolves DNS in parallel with HTML parsing so
+            lazy scripts connect faster without blocking earlier paints.
+            Note: Google Fonts preconnects are intentionally omitted because
+            next/font self-hosts all fonts — no external font requests occur. */}
         <link rel="dns-prefetch" href="https://cdn.iubenda.com" />
         <link rel="dns-prefetch" href="https://connect.facebook.net" />
         <link rel="dns-prefetch" href="https://analytics.tiktok.com" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
-        {/* Google tag (gtag.js) — server-rendered so Google's tag detector can find it */}
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-CMP5TYMZP3" />
+        {/* Google Consent Mode v2 — must run BEFORE any gtag calls.
+            Sets all storage to 'denied' by default until the user accepts
+            the cookie banner. Required for GDPR compliance (EU). */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
               window.dataLayer = window.dataLayer || [];
               function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', 'G-CMP5TYMZP3', { anonymize_ip: true });
+              gtag('consent', 'default', {
+                analytics_storage: 'denied',
+                ad_storage: 'denied',
+                ad_user_data: 'denied',
+                ad_personalization: 'denied',
+                wait_for_update: 500
+              });
             `,
           }}
         />

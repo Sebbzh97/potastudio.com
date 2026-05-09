@@ -9,7 +9,8 @@
     "lint": "eslint .",
     "seed:articles": "node --env-file-if-exists=/vercel/share/.env.project --env-file-if-exists=.env.local scripts/seed-2026-articles.mjs",
     "import:articles": "node --env-file-if-exists=/vercel/share/.env.project --env-file-if-exists=.env.local scripts/import-articles.js",
-    "pre-deploy": "node --env-file-if-exists=/vercel/share/.env.project --env-file-if-exists=.env.local scripts/pre-deploy-check.mjs"
+    "pre-deploy": "node --env-file-if-exists=/vercel/share/.env.project --env-file-if-exists=.env.local scripts/pre-deploy-check.mjs",
+    "analyze": "ANALYZE=true pnpm build"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
@@ -41,6 +42,7 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@next/bundle-analyzer": "^16.2.6",
     "@sanity/vision": "^3.0.0",
     "@tailwindcss/postcss": "^4.2.0",
     "@types/node": "^22",

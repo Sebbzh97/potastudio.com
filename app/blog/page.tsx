@@ -26,10 +26,26 @@ const FALLBACK_HEADLINE =
 
 export async function generateMetadata(): Promise<Metadata> {
   const data = await getBlogPage('en')
+  const title = data?.seoTitle?.trim() || FALLBACK_TITLE
+  const description = data?.seoDescription?.trim() || FALLBACK_DESCRIPTION
   return {
-    title: (data?.seoTitle?.trim() || FALLBACK_TITLE),
-    description: (data?.seoDescription?.trim() || FALLBACK_DESCRIPTION),
+    title,
+    description,
     ...getHreflang('/blog'),
+    openGraph: {
+      type: 'website',
+      url: 'https://www.potastudio.com/blog',
+      siteName: 'Pota Studio',
+      title,
+      description,
+      images: [{ url: '/og-image.jpg', width: 1200, height: 630 }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      site: '@potastudio',
+      title,
+      description,
+    },
   }
 }
 
@@ -188,7 +204,7 @@ export default async function BlogPage({ searchParams }: Props) {
                       sizes="(min-width: 1024px) 50vw, 100vw"
                       className="object-cover"
                       priority
-                      unoptimized
+                      quality={85}
                     />
                   ) : (
                     <span
@@ -252,7 +268,7 @@ export default async function BlogPage({ searchParams }: Props) {
                           fill
                           sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
                           className="object-cover"
-                          unoptimized
+                          quality={85}
                         />
                       ) : (
                         <span

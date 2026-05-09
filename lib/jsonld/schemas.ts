@@ -706,6 +706,145 @@ export function faqPageSchema(
 }
 
 // ───────────────────────────────────────────────────────────────────────────────
+// AboutPage
+// ───────────────────────────────────────────────────────────────────────────────
+
+/**
+ * AboutPage schema for /about — improves entity disambiguation for AI crawlers
+ * and signals to Google that this page describes the organization itself.
+ */
+export function aboutPageSchema(): Record<string, unknown> {
+  const url = `${SITE}/about`
+  return {
+    "@context": "https://schema.org",
+    "@type": "AboutPage",
+    "@id": `${url}#webpage`,
+    url,
+    name: "About Pota Studio",
+    description: "Italian full-service marketing agency founded in Bergamo by Sebastian Bonfanti.",
+    inLanguage: "en",
+    isPartOf: { "@id": `${SITE}/#website` },
+    about: { "@id": `${SITE}/#organization` },
+    breadcrumb: {
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Home", item: SITE },
+        { "@type": "ListItem", position: 2, name: "About", item: url },
+      ],
+    },
+  }
+}
+
+// ───────────────────────────────────────────────────────────────────────────────
+// Speakable — GEO/AI visibility boost
+// ───────────────────────────────────────────────────────────────────────────────
+
+/**
+ * SpeakableSpecification schema. Tells AI engines (Google Duplex, Perplexity,
+ * ChatGPT) which CSS selectors contain the most important content on a page —
+ * improves the likelihood of being surfaced in AI-generated answers.
+ *
+ * @param url          Canonical absolute URL of the page.
+ * @param cssSelectors Array of CSS selector strings pointing to key content.
+ */
+export function speakableSchema(
+  url: string,
+  cssSelectors: string[],
+): Record<string, unknown> {
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "@id": `${url}#webpage`,
+    url,
+    speakable: {
+      "@type": "SpeakableSpecification",
+      cssSelector: cssSelectors,
+    },
+  }
+}
+
+// ───────────────────────────────────────────────────────────────────────────────
+// Mentions — semantic brand awareness for GEO
+// ───────────────────────────────────────────────────────────────────────────────
+
+export interface MentionedBrand {
+  name: string
+  url?: string
+  wikidataUrl?: string
+}
+
+/**
+ * Adds a `mentions` array to an Article schema to signal to AI crawlers
+ * which brands are referenced in the content. This improves entity-linking
+ * in AI search results (Perplexity, Google AI Overviews, ChatGPT).
+ *
+ * @param brands  Array of brand objects from the post's `mentionedBrands` field.
+ */
+export function mentionsArray(brands: MentionedBrand[]): Record<string, unknown>[] {
+  return brands
+    .filter((b) => b?.name)
+    .map((b) => {
+      const entry: Record<string, unknown> = {
+        "@type": "Organization",
+        name: b.name,
+      }
+      if (b.url) entry.url = b.url
+      if (b.wikidataUrl) entry.sameAs = b.wikidataUrl
+      return entry
+    })
+}
+
+// ───────────────────────────────────────────────────────────────────────────────
+// FAQPage — Homepage + Services (GEO boost)
+// ───────────────────────────────────────────────────────────────────────────────
+
+/**
+ * FAQ schema for the homepage. Answers the most common questions about Pota
+ * Studio for AI engines (ChatGPT, Perplexity, Claude) to surface in responses.
+ */
+export function homeFaqSchema(): Record<string, unknown> {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "@id": `${SITE}/#faq`,
+    mainEntity: [
+      {
+        "@type": "Question",
+        name: "What services does Pota Studio offer?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Pota Studio is a full-service marketing agency offering paid advertising (TikTok Ads, Meta Ads, Google Ads), content production, influencer marketing, social media management, and brand strategy. All services are delivered in-house from our Bergamo headquarters.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "Does Pota Studio work with international clients?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Yes. Pota Studio works with clients across Italy, UK, Germany, France, and the US. We have managed campaigns for global brands including Samsung, Isybank, and Lucca Comics & Games.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "Is Pota Studio a Shopify Partner?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Yes, Pota Studio is a certified Shopify Partner with experience in e-commerce scaling for D2C brands.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "Where is Pota Studio located?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Pota Studio (legal name: Anyped S.R.L.) is headquartered at Via Zanica 85, Bergamo 24126, Italy. We serve clients in Europe and the US.",
+        },
+      },
+    ],
+  }
+}
+
+// ───────────────────────────────────────────────────────────────────────────────
 // Person + ProfilePage
 // ───────────────────────────────────────────────────────────────────────────────
 

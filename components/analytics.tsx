@@ -3,15 +3,15 @@
 import Script from 'next/script'
 import { useEffect, useState } from 'react'
 
-// Note: Google Analytics 4 (gtag.js) is loaded server-side directly in
-// app/layout.tsx <head> so Google's tag-detection crawler can find it in the
-// initial HTML response. The marketing/social pixels below remain consent-gated.
+// All analytics/pixel IDs come from environment variables — never hardcoded.
+const GA_ID      = process.env.NEXT_PUBLIC_GA_ID               // e.g. G-XXXXXXXXXX
 const GADS_ID    = process.env.NEXT_PUBLIC_GOOGLE_ADS_ID       // e.g. AW-XXXXXXXXXX
 const META_ID    = process.env.NEXT_PUBLIC_META_PIXEL_ID        // e.g. 123456789
 const TIKTOK_ID  = process.env.NEXT_PUBLIC_TIKTOK_PIXEL_ID     // e.g. CXXXXXXXXXX
 
 export default function Analytics() {
-  // Marketing/social pixels still wait for explicit consent.
+  // All tracking pixels (including GA4) are consent-gated for GDPR compliance.
+  // The Consent Mode v2 default in layout.tsx denies storage until accepted.
   const [consented, setConsented] = useState(false)
 
   useEffect(() => {
@@ -26,11 +26,32 @@ export default function Analytics() {
 
   return (
     <>
-      {/* All marketing/conversion pixels use `lazyOnload` (loaded after the
-          window `load` event) so they stay off the LCP critical path. The
-          primary GA4 tag remains in <head> for Google's tag-detection
-          crawler — these pixels here are secondary and ad-attribution only.
-      */}
+      {/* All pixels use `afterInteractive` or `lazyOnload` to stay off the
+          LCP critical path. All are consent-gated per GDPR Consent Mode v2. */}
+
+      {/* GA4 — consent-gated, loads after user accepts cookies */}
+      {GA_ID && consented && (
+        <>
+          <Script
+            src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
+            strategy="afterInteractive"
+          />
+          <Script id="ga4-init" strategy="afterInteractive">
+            {`
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', '${GA_ID}', { anonymize_ip: true });
+              gtag('consent', 'update', {
+                analytics_storage: 'granted',
+                ad_storage: 'granted',
+                ad_user_data: 'granted',
+                ad_personalization: 'granted'
+              });
+            `}
+          </Script>
+        </>
+      )}
 
       {/* Google Ads — consent-gated, lazy */}
       {GADS_ID && consented && (

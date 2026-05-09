@@ -1,7 +1,12 @@
 import { fileURLToPath } from 'url'
 import path from 'path'
+import bundleAnalyzer from '@next/bundle-analyzer'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
+
+const withBundleAnalyzer = bundleAnalyzer({
+  enabled: process.env.ANALYZE === 'true',
+})
 
 /**
  * Pota Studio — Next.js 16 configuration
@@ -175,6 +180,13 @@ const nextConfig = {
       { source: '/it/blog/social-media-strategy-2026',        destination: '/it/blog', permanent: true },
       { source: '/it/blog/influencer-marketing-roi',          destination: '/it/blog', permanent: true },
       { source: '/it/blog/tiktok-advertising-2026',           destination: '/it/blog', permanent: true },
+
+      // ─── Legacy blog slug redirect ────────────────────────────────────
+      {
+        source: '/blog/chatgpt-ads',
+        destination: '/blog/openai-ads-future-advertising-2026',
+        permanent: true,
+      },
     ]
   },
 
@@ -187,10 +199,31 @@ const nextConfig = {
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
           { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=63072000; includeSubDomains; preload',
+          },
+          {
+            key: 'Content-Security-Policy',
+            value: [
+              "default-src 'self'",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://connect.facebook.net https://analytics.tiktok.com https://cdn.iubenda.com",
+              "style-src 'self' 'unsafe-inline'",
+              "font-src 'self' data:",
+              "img-src 'self' blob: data: https://cdn.sanity.io https://www.google-analytics.com https://www.googletagmanager.com https://i.ytimg.com https://img.youtube.com",
+              "connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com https://cdn.sanity.io https://*.sanity.io",
+              "frame-src https://www.youtube.com https://www.youtube-nocookie.com",
+              "media-src 'self'",
+              "object-src 'none'",
+              "base-uri 'self'",
+              "form-action 'self'",
+              "upgrade-insecure-requests",
+            ].join('; '),
+          },
         ],
       },
     ]
   },
 }
 
-export default nextConfig
+export default withBundleAnalyzer(nextConfig)

@@ -7,7 +7,7 @@ import { getBlogPostBySlug, getBlogPostSlugs, getTranslationSlug, getDefaultLead
 import { buildBlogAlternates } from '@/lib/blog/hreflang'
 import Breadcrumbs from '@/components/breadcrumbs'
 import { JsonLd } from '@/components/json-ld'
-import { articleSchema, faqPageSchema } from '@/lib/jsonld/schemas'
+import { articleSchema, faqPageSchema, speakableSchema } from '@/lib/jsonld/schemas'
 import { resolveFaqItems } from '@/lib/blog/extract-faq'
 import PortableTextRenderer from '@/components/blog/portable-text-renderer'
 import QuickAnswer from '@/components/blog/quick-answer'
@@ -98,15 +98,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     alternates,
     openGraph: {
       type: 'article',
+      locale: 'en_US',
+      alternateLocale: ['it_IT'],
       title: post.title,
       description,
       url: `https://www.potastudio.com/blog/${slug}`,
       siteName: 'Pota Studio',
       publishedTime: post.publishedAt,
+      modifiedTime: post.updatedAt,
       authors: post.author?.name ? [post.author.name] : ['Pota Studio'],
     },
     twitter: {
       card: 'summary_large_image',
+      site: '@potastudio',
+      creator: post.author?.name ? '@sebbonfanti' : '@potastudio',
       title,
       description,
     },
@@ -178,6 +183,7 @@ export default async function BlogPostPage({ params }: Props) {
     <>
       <JsonLd data={article} />
       {faq && <JsonLd data={faq} />}
+      <JsonLd data={speakableSchema(`https://www.potastudio.com/blog/${slug}`, ['h1', '[itemprop="description"]', '[itemprop="articleBody"]'])} />
 
       <main>
         <article
@@ -286,7 +292,8 @@ export default async function BlogPostPage({ params }: Props) {
                 width={1600}
                 height={900}
                 priority
-                unoptimized
+                sizes="(max-width: 768px) 100vw, 56rem"
+                quality={85}
                 className="w-full h-auto rounded-xl border border-white/10"
                 itemProp="image"
               />
