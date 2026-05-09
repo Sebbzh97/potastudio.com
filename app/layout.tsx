@@ -148,6 +148,10 @@ export default async function RootLayout({
             lazy scripts connect faster without blocking earlier paints.
             Note: Google Fonts preconnects are intentionally omitted because
             next/font self-hosts all fonts — no external font requests occur. */}
+        {/* Sanity CDN — preconnect because cover images are LCP candidates on
+            every blog post and the CDN domain differs from the API domain. */}
+        <link rel="preconnect" href="https://cdn.sanity.io" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://cdn.sanity.io" />
         <link rel="dns-prefetch" href="https://cdn.iubenda.com" />
         <link rel="dns-prefetch" href="https://connect.facebook.net" />
         <link rel="dns-prefetch" href="https://analytics.tiktok.com" />
