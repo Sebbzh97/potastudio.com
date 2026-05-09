@@ -94,6 +94,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title,
     description,
     keywords: [post.primaryKeyword, ...(post.secondaryKeywords ?? [])].filter(Boolean).join(', '),
+    authors: post.author?.slug
+      ? [{ name: post.author.name, url: `https://www.potastudio.com/author/${post.author.slug}` }]
+      : [{ name: 'Pota Studio', url: 'https://www.potastudio.com' }],
     alternates,
     openGraph: {
       type: 'article',

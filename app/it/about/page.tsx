@@ -5,6 +5,8 @@ import { ArrowUpRight, MapPin } from 'lucide-react'
 import { JsonLd } from '@/components/json-ld'
 import { getAboutPage, getClients } from '@/sanity/lib/page-queries'
 
+export const revalidate = 3600
+
 // ── Metadata ───────────────────────────────────────────────────────────────
 
 export async function generateMetadata(): Promise<Metadata> {

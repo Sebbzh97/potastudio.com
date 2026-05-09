@@ -30,6 +30,8 @@ const POTA_SAMEAS = [
 
 const POTA_KNOWS_ABOUT = [
   "TikTok Advertising",
+  "Meta Ads",
+  "Google Ads",
   "Full Service Marketing",
   "Influencer Marketing",
   "Social Media Management",
@@ -38,6 +40,12 @@ const POTA_KNOWS_ABOUT = [
   "Performance Marketing",
   "Brand Strategy",
   "Shopify Plus",
+  "E-commerce Marketing",
+  "AI Marketing",
+  "Marketing Automation",
+  "Conversion Rate Optimization",
+  "Video Marketing",
+  "D2C Marketing",
 ]
 
 // ───────────────────────────────────────────────────────────────────────────────

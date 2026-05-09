@@ -95,6 +95,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title,
     description,
     keywords: [post.primaryKeyword, ...(post.secondaryKeywords ?? [])].filter(Boolean).join(', '),
+    // `authors` causes Next.js to emit both:
+    //   <meta name="author" content="...">
+    //   <link rel="author" href="...">
+    // The URL points to the author profile page for entity linking.
+    authors: post.author?.slug
+      ? [{ name: post.author.name, url: `https://www.potastudio.com/author/${post.author.slug}` }]
+      : [{ name: 'Pota Studio', url: 'https://www.potastudio.com' }],
     alternates,
     openGraph: {
       type: 'article',

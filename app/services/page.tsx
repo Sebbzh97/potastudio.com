@@ -5,6 +5,8 @@ import { ArrowRight, Check } from 'lucide-react'
 import { getHreflang } from '@/lib/hreflang'
 import { getServicesPage } from '@/sanity/lib/page-queries'
 
+export const revalidate = 3600
+
 // ── Visual palette per service number (layout-only, not content) ──────────
 const BG_COLORS = ['#1A0D00', '#1A1A00', '#1A0D00', '#1A1A00', '#1A0D00', '#1A1A00']
 const ACCENT_COLORS = ['#FF5C00', '#FFD600', '#FF5C00', '#FFD600', '#FF5C00', '#FFD600']
