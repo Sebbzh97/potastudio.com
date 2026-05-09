@@ -4,18 +4,34 @@ import Image from 'next/image'
 import { ArrowUpRight, MapPin } from 'lucide-react'
 import { getHreflang } from '@/lib/hreflang'
 import { JsonLd } from '@/components/json-ld'
+import { aboutPageSchema } from '@/lib/jsonld/schemas'
 import { getAboutPage, getClients } from '@/sanity/lib/page-queries'
 
 export const revalidate = 60
 
 export async function generateMetadata(): Promise<Metadata> {
   const data = await getAboutPage('en')
+  const title = data?.seoTitle ?? 'About'
+  const description = data?.seoDescription ?? 'Italian full-service marketing agency founded in Bergamo by Sebastian Bonfanti.'
   return {
     // Brand suffix is appended automatically by the root layout's title
     // template (`%s | Pota Studio`).
-    title: data?.seoTitle ?? 'About',
-    description: data?.seoDescription ?? '',
+    title,
+    description,
     ...getHreflang('/about'),
+    openGraph: {
+      type: 'website',
+      url: 'https://www.potastudio.com/about',
+      siteName: 'Pota Studio',
+      title,
+      description,
+      images: [{ url: '/og-image.jpg', width: 1200, height: 630 }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+    },
   }
 }
 
@@ -74,6 +90,7 @@ export default async function AboutPageEN() {
 
   return (
     <>
+      <JsonLd data={aboutPageSchema()} />
       <main>
         {/* Hero */}
         <section className="pt-28 sm:pt-40 pb-16 sm:pb-24 bg-[#0D0D0D] relative overflow-hidden">

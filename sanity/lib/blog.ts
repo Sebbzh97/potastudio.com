@@ -80,7 +80,7 @@ export async function getAllBlogPosts(lang: string) {
         ${listingProjection}
       }`,
       { lang },
-      { cache: 'no-store' },
+      { next: { tags: ['blogPost', `blogPost-${lang}`], revalidate: 3600 } },
     )
     .catch(() => null)
 }
@@ -96,7 +96,7 @@ export async function getBlogPostBySlug(slug: string, lang: string) {
         ${fullProjection}
       }`,
       { slug, lang },
-      { cache: 'no-store' },
+      { next: { tags: ['blogPost', `post:${slug}`, `locale:${lang}`], revalidate: 3600 } },
     )
     .catch(() => null)
 }
@@ -111,7 +111,7 @@ export async function getBlogPostsByCategory(categorySlug: string, lang: string)
         ${listingProjection}
       }`,
       { categorySlug, lang },
-      { cache: 'no-store' },
+      { next: { tags: ['blogPost', `blogPost-${lang}`, `category:${categorySlug}`], revalidate: 3600 } },
     )
     .catch(() => null)
 }
@@ -126,7 +126,7 @@ export async function getRecentBlogPosts(lang: string, limit: number = 3) {
         ${listingProjection}
       }`,
       { lang, limit },
-      { cache: 'no-store' },
+      { next: { tags: ['blogPost', `blogPost-${lang}`], revalidate: 3600 } },
     )
     .catch(() => null)
 }
@@ -139,7 +139,7 @@ export async function getBlogPostSlugs(lang: string) {
     .fetch(
       `*[_type == "blogPost" && language == $lang && isPublished != false] { "slug": slug.current }`,
       { lang },
-      { cache: 'no-store' },
+      { next: { tags: ['blogPost', `blogPost-${lang}`], revalidate: 3600 } },
     )
     .catch(() => [] as { slug: string }[])
 }
@@ -159,7 +159,7 @@ export async function getTranslationSlug(postId: string, fromLang: string): Prom
           "slug": slug.current
         }`,
         { id: postId },
-        { cache: 'no-store' },
+        { next: { tags: ['blogPost', 'blogPost-it'], revalidate: 3600 } },
       )
       return result?.slug ?? null
     } else {
@@ -169,7 +169,7 @@ export async function getTranslationSlug(postId: string, fromLang: string): Prom
           "slug": translationOf->slug.current
         }`,
         { id: postId },
-        { cache: 'no-store' },
+        { next: { tags: ['blogPost', 'blogPost-en'], revalidate: 3600 } },
       )
       return result?.slug ?? null
     }
@@ -217,7 +217,7 @@ export async function getAllAuthorSlugs(): Promise<{ slug: string }[]> {
     .fetch(
       `*[_type == "blogAuthor" && defined(slug.current)] { "slug": slug.current }`,
       {},
-      { cache: 'no-store' },
+      { next: { tags: ['blogAuthor'], revalidate: 3600 } },
     )
     .catch(() => [] as { slug: string }[])
 }
@@ -233,7 +233,7 @@ export async function getAuthorBySlug(slug: string) {
         ${authorProfileProjection}
       }`,
       { slug },
-      { cache: 'no-store' },
+      { next: { tags: ['blogAuthor', `author:${slug}`], revalidate: 3600 } },
     )
     .catch(() => null)
 }
@@ -254,7 +254,7 @@ export async function getPostsByAuthor(authorSlug: string, lang: string) {
         ${listingProjection}
       }`,
       { authorSlug, lang },
-      { cache: 'no-store' },
+      { next: { tags: ['blogPost', `blogPost-${lang}`, `author:${authorSlug}`], revalidate: 3600 } },
     )
     .catch(() => null)
 }

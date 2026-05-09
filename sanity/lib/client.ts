@@ -6,9 +6,9 @@ export const client = createClient({
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID ?? 'hjzz7d9r',
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET ?? 'production',
   apiVersion: '2024-01-01',
-  // useCdn: false ensures the deployed site always reads from the Sanity API directly,
-  // bypassing the CDN edge cache that was causing stale navigation on v0-potastudio.vercel.app.
-  useCdn: false,
+  // Enable CDN in production for lower latency and better throughput from EU servers.
+  // Falls back to direct API in development so Studio edits are immediately visible.
+  useCdn: process.env.NODE_ENV === 'production',
 })
 
 // Image URL builder — used by Portable Text image renderer, author photos,

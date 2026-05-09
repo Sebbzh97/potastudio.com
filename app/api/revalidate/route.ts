@@ -67,13 +67,19 @@ export async function POST(request: NextRequest) {
 
   const tags = TYPE_TO_TAGS[_type] ?? []
 
-  // 1) Purge tags so fetch() cache entries are invalidated
-  for (const tag of tags) revalidateTag(tag, 'max')
+  // 1) Purge tags so fetch() cache entries are invalidated.
+  //    Next.js 16 requires a cacheLife profile as the second argument.
+  for (const tag of tags) revalidateTag(tag, 'hours')
 
-  // 2) Revalidate all paths so page HTML is regenerated immediately
+  // 2) For blog posts: also revalidate the generic 'blog' tag immediately.
+  if (_type === 'blogPost') {
+    revalidateTag('blog', 'hours')
+  }
+
+  // 3) Revalidate all paths so page HTML is regenerated immediately
   for (const path of ALL_PATHS) revalidatePath(path)
 
-  // 3) Revalidate dynamic slug routes for content types that have them
+  // 4) Revalidate dynamic slug routes for content types that have them
   if (_type === 'caseStudy') {
     revalidatePath('/work/[slug]', 'page')
     revalidatePath('/it/work/[slug]', 'page')
@@ -104,7 +110,7 @@ export async function GET(request: NextRequest) {
   }
 
   const allTags = [...new Set(Object.values(TYPE_TO_TAGS).flat())]
-  for (const tag of allTags) revalidateTag(tag, 'max')
+  for (const tag of allTags) revalidateTag(tag, 'hours')
   for (const path of ALL_PATHS) revalidatePath(path)
   // Dynamic slug routes
   revalidatePath('/work/[slug]', 'page')

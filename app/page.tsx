@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import { Suspense } from 'react'
 import { getHreflang } from '@/lib/hreflang'
 import { getHomepage, getTestimonials } from '@/sanity/lib/page-queries'
+import { JsonLd } from '@/components/json-ld'
+import { homeFaqSchema, speakableSchema } from '@/lib/jsonld/schemas'
 
 import HeroSection from '@/components/home/hero-section'
 import StatsBar from '@/components/home/stats-bar'
@@ -60,8 +62,9 @@ export const revalidate = 60
 // snippet was indexing that phrase. Keep this list ↔ /lib/jsonld/schemas.ts
 // `clientLogos` in sync.
 const FALLBACK_TITLE = 'Pota Studio | Full Service Marketing Agency'
+// ≤155 chars: keeps within Google's meta description display limit.
 const FALLBACK_DESCRIPTION =
-  'Italian full-service marketing agency from Bergamo. Trusted by Samsung, Isybank, Lucca Comics & Games. Social media, paid ADS, content production, influencer marketing. Worldwide ready.'
+  'Italian marketing agency from Bergamo. Samsung, Isybank, Lucca Comics. Social media, paid ads, influencer, content. Europe & US.'
 
 export async function generateMetadata(): Promise<Metadata> {
   const data = await getHomepage('en')
@@ -90,22 +93,16 @@ export async function generateMetadata(): Promise<Metadata> {
       description,
       images: ['/og-image.jpg'],
     },
-    // Force-refresh signals for Google's index. NOTE: `revisit-after` is a
-    // non-standard meta tag ignored by Googlebot since ~2010 (per John
-    // Mueller). We emit it because it was explicitly requested AND because
-    // a few legacy crawlers still parse it, but the *real* re-crawl signal
-    // is `sitemap.xml`'s `<lastmod>` + the `Last-Modified` HTTP header,
-    // both already wired up elsewhere in this project.
-    other: {
-      'revisit-after': '1 days',
-    },
   }
 }
 
 export default async function HomePage() {
   const [data, testimonials] = await Promise.all([getHomepage('en'), getTestimonials()])
   return (
-    <main>
+    <>
+      <JsonLd data={homeFaqSchema()} />
+      <JsonLd data={speakableSchema('https://www.potastudio.com', ['h1', '.hero-intro', '.stats-bar'])} />
+      <main>
       <HeroSection data={data ?? undefined} locale="en" />
       <StatsBar data={data} locale="en" />
       <ServicesPreview data={data} />
@@ -122,5 +119,6 @@ export default async function HomePage() {
       <Testimonials testimonials={testimonials} locale="en" />
       <CtaSection data={data} />
     </main>
+    </>
   )
 }
