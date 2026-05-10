@@ -85,7 +85,12 @@ function toStaticShape(cs: SanityCaseStudy): StaticCS {
     challenge: cs.challenge ?? '',
     approach: cs.approach ?? '',
     results: cs.results ?? '',
-    metrics: cs.metrics ?? [],
+    metrics: (cs.metrics ?? []).filter((m) => {
+      const v = String(m.value ?? '').trim()
+      // Drop any metric whose value is empty, numeric zero, or starts with
+      // "0" followed by a space or sign — these are unfilled Sanity entries.
+      return v !== '' && v !== '0' && v !== '+0' && v !== '-0' && !/^[+-]?0\s/.test(v) && Number(v) !== 0
+    }),
     relatedSlugs: cs.relatedSlugs ?? [],
     services: cs.services ?? [],
   }
@@ -247,9 +252,13 @@ export default async function CaseStudyPage({ params }: Props) {
           </div>
         </header>
 
-      {/* Impact Cards — filter out zero-value metrics (e.g. "0", "+0", "-0")
-          so cards with unfilled Sanity data never appear on the live site. */}
-      {cs.metrics.filter((m) => !/^[+-]?0$/.test((m.value ?? '').trim())).length > 0 && (
+      {/* Impact Cards — filter out any metric whose value is empty, a bare
+          zero ("0", "+0", "-0"), or starts with "0 " (e.g. "0 content
+          creator engaged") — these indicate unfilled Sanity data. */}
+      {cs.metrics.filter((m) => {
+        const v = (m.value ?? '').trim()
+        return v !== '' && !/^[+-]?0(\s|$)/.test(v)
+      }).length > 0 && (
         <section
           aria-label="Key results"
           className="bg-[#141414] border-y border-white/10"
@@ -257,7 +266,10 @@ export default async function CaseStudyPage({ params }: Props) {
           <div className="container-site py-12 sm:py-16">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
               {cs.metrics
-                .filter((m) => !/^[+-]?0$/.test((m.value ?? '').trim()))
+                .filter((m) => {
+                  const v = (m.value ?? '').trim()
+                  return v !== '' && !/^[+-]?0(\s|$)/.test(v)
+                })
                 .map((m, i) => (
                   <ImpactCard
                     key={`${m.label}-${i}`}
