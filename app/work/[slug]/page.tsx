@@ -293,8 +293,7 @@ export default async function CaseStudyPage({ params }: Props) {
         </div>
       </section>
 
-      {/* YouTube Videos — compact link list, one row per video.
-          Optional: only shown when at least one video ID is set in Sanity. */}
+      {/* YouTube Videos — thumbnail card grid, optional */}
       {(() => {
         const ids: string[] = [
           ...(sanity?.youtubeVideos ?? []),
@@ -302,42 +301,51 @@ export default async function CaseStudyPage({ params }: Props) {
         ].filter(Boolean)
         if (ids.length === 0) return null
         return (
-          <section className="py-12 bg-[#0D0D0D] border-t border-white/10">
-            <div className="container-site" style={{ maxWidth: '56rem' }}>
-              <h2
-                className="text-lg font-semibold text-white mb-5"
-                style={{ fontFamily: 'var(--font-space-grotesk)' }}
-              >
-                Videos
-              </h2>
-              <ul className="flex flex-col gap-3">
+          <section className="py-16 bg-[#0D0D0D] border-t border-white/10">
+            <div className="container-site">
+              <ul className={`grid gap-4 ${ids.length === 1 ? 'grid-cols-1 max-w-2xl mx-auto' : 'grid-cols-1 sm:grid-cols-2'}`}>
                 {ids.map((id, idx) => (
                   <li key={id}>
                     <a
                       href={`https://www.youtube.com/watch?v=${id}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-4 p-4 rounded-xl border border-white/10 bg-[#141414] hover:border-white/30 transition-colors group"
+                      aria-label={`Watch ${cs.client} video ${idx + 1} on YouTube`}
+                      className="group block relative w-full overflow-hidden rounded-2xl bg-black"
+                      style={{ aspectRatio: '16/9' }}
                     >
-                      {/* Thumbnail */}
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
-                        src={`https://img.youtube.com/vi/${id}/mqdefault.jpg`}
+                        src={`https://img.youtube.com/vi/${id}/hqdefault.jpg`}
                         alt={`${cs.client} video ${idx + 1}`}
-                        width={120}
-                        height={68}
-                        className="rounded-lg object-cover shrink-0"
-                        style={{ width: 120, height: 68 }}
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
-                      <div className="flex flex-col gap-1 min-w-0">
-                        <span className="text-sm font-medium text-white group-hover:text-[#FF5C00] transition-colors truncate">
-                          {cs.client} — Video {idx + 1}
+                      {/* Dark vignette */}
+                      <div className="absolute inset-0 bg-black/40 group-hover:bg-black/30 transition-colors duration-300" />
+                      {/* Play button */}
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div
+                          className="flex items-center justify-center rounded-full bg-white/10 backdrop-blur-sm border border-white/20 transition-all duration-300 group-hover:scale-110 group-hover:bg-white/20"
+                          style={{ width: 64, height: 64 }}
+                        >
+                          {/* Triangle play icon */}
+                          <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+                            <polygon points="7,4 19,11 7,18" fill="white" />
+                          </svg>
+                        </div>
+                      </div>
+                      {/* Bottom label */}
+                      <div className="absolute bottom-0 left-0 right-0 px-5 py-4 flex items-center justify-between">
+                        <span
+                          className="text-sm font-medium text-white/90 drop-shadow"
+                          style={{ fontFamily: 'var(--font-space-grotesk)' }}
+                        >
+                          {cs.client}
                         </span>
-                        <span className="text-xs text-[#B0B0B0] truncate">
-                          {`youtube.com/watch?v=${id}`}
+                        <span className="flex items-center gap-1.5 text-xs text-white/60 font-medium uppercase tracking-widest">
+                          YouTube <ArrowUpRight size={12} />
                         </span>
                       </div>
-                      <ArrowUpRight size={16} className="text-[#B0B0B0] group-hover:text-[#FF5C00] transition-colors ml-auto shrink-0" />
                     </a>
                   </li>
                 ))}
