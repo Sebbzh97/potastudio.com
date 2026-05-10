@@ -78,7 +78,11 @@ function toStaticShape(cs: SanityCaseStudy): StaticCS {
     client: cs.client, type: cs.type ?? '', tags: cs.tags ?? [], year: cs.year ?? '',
     bg: cs.bg ?? '#111111', accent: cs.accent ?? '#FF5C00',
     challenge: cs.challenge ?? '', approach: cs.approach ?? '', results: cs.results ?? '',
-    metrics: cs.metrics ?? [], relatedSlugs: cs.relatedSlugs ?? [],
+    metrics: (cs.metrics ?? []).filter((m) => {
+      const v = String(m.value ?? '').trim()
+      return v !== '' && v !== '0' && v !== '+0' && v !== '-0' && !/^[+-]?0\s/.test(v) && Number(v) !== 0
+    }),
+    relatedSlugs: cs.relatedSlugs ?? [],
     services: cs.services ?? [],
   }
 }

@@ -85,7 +85,12 @@ function toStaticShape(cs: SanityCaseStudy): StaticCS {
     challenge: cs.challenge ?? '',
     approach: cs.approach ?? '',
     results: cs.results ?? '',
-    metrics: cs.metrics ?? [],
+    metrics: (cs.metrics ?? []).filter((m) => {
+      const v = String(m.value ?? '').trim()
+      // Drop any metric whose value is empty, numeric zero, or starts with
+      // "0" followed by a space or sign — these are unfilled Sanity entries.
+      return v !== '' && v !== '0' && v !== '+0' && v !== '-0' && !/^[+-]?0\s/.test(v) && Number(v) !== 0
+    }),
     relatedSlugs: cs.relatedSlugs ?? [],
     services: cs.services ?? [],
   }
