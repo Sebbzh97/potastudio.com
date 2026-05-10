@@ -264,11 +264,20 @@ export default defineType({
     }),
     defineField({
       name: 'youtubeVideoId',
-      title: 'YouTube Video ID',
+      title: 'YouTube Video ID (legacy — use Videos below)',
       type: 'string',
       group: 'media',
       description:
-        'YouTube video ID (e.g. "dQw4w9WgXcQ" from youtube.com/watch?v=dQw4w9WgXcQ). Will be shown above the gallery.',
+        'DEPRECATED: use "YouTube Videos" below. Kept for backwards compatibility.',
+    }),
+    defineField({
+      name: 'youtubeVideos',
+      title: 'YouTube Videos',
+      type: 'array',
+      group: 'media',
+      of: [{ type: 'string' }],
+      description:
+        'One or more YouTube video IDs (e.g. "dQw4w9WgXcQ"). Each appears as a compact link row on the case study page — no embedded player.',
     }),
 
     // ── Meta & relations ─────────────────────────────────────────────────────

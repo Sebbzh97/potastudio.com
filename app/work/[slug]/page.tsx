@@ -8,8 +8,6 @@ import { JsonLd } from '@/components/json-ld'
 import Breadcrumbs from '@/components/breadcrumbs'
 import CaseStudyTracker from '@/components/analytics/case-study-tracker'
 import ImpactCard from '@/components/work/impact-card'
-import TrustVerifiedBadge from '@/components/work/trust-verified-badge'
-import StrategySection from '@/components/work/strategy-section'
 import { caseStudySchema } from '@/lib/jsonld/schemas'
 import { getHreflang } from '@/lib/hreflang'
 import {
@@ -198,8 +196,26 @@ export default async function CaseStudyPage({ params }: Props) {
       />
 
       <article aria-labelledby="case-study-title">
-        {/* Hero */}
+        {/* Hero — cover image as opaque blurred full-bleed background */}
         <header className="pt-40 pb-24 relative overflow-hidden" style={{ background: cs.bg }}>
+          {/* Cover image: blurred, dimmed, full-bleed — purely decorative */}
+          {sanity?.coverImageUrl && (
+            <>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={`${sanity.coverImageUrl}?w=1400&auto=format&q=60&fit=crop`}
+                alt=""
+                aria-hidden="true"
+                className="absolute inset-0 w-full h-full object-cover pointer-events-none select-none"
+                style={{ filter: 'blur(6px) brightness(0.25) saturate(0.6)', transform: 'scale(1.05)' }}
+              />
+              {/* Gradient overlay so text remains readable at the bottom edge */}
+              <div
+                className="absolute inset-0 pointer-events-none"
+                style={{ background: `linear-gradient(to bottom, ${cs.bg}80 0%, ${cs.bg}E6 70%, ${cs.bg} 100%)` }}
+              />
+            </>
+          )}
           <div className="absolute top-0 left-0 right-0 h-1" style={{ background: cs.accent }} />
           <div className="container-site relative">
             <Link href="/work" className="inline-flex items-center gap-2 text-sm text-[#B0B0B0] hover:text-white transition-colors mb-6">
@@ -230,28 +246,25 @@ export default async function CaseStudyPage({ params }: Props) {
           </div>
         </header>
 
-      {/* Impact Cards — semantic, AI-friendly metric grid.
-          Each <strong class="metric-value"> is microdata-tagged as a
-          PropertyValue and visually anchored in its own card so AI Overviews
-          and Perplexity can lift the number alongside its label. */}
-      {cs.metrics.length > 0 && (
+      {/* Impact Cards — filter out zero-value metrics (e.g. "0", "+0", "-0")
+          so cards with unfilled Sanity data never appear on the live site. */}
+      {cs.metrics.filter((m) => !/^[+-]?0$/.test((m.value ?? '').trim())).length > 0 && (
         <section
           aria-label="Key results"
           className="bg-[#141414] border-y border-white/10"
         >
           <div className="container-site py-12 sm:py-16">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-              {cs.metrics.map((m, i) => (
-                <ImpactCard
-                  key={`${m.label}-${i}`}
-                  value={m.value}
-                  label={m.label}
-                  accent={cs.accent}
-                />
-              ))}
-            </div>
-            <div className="mt-8 flex">
-              <TrustVerifiedBadge locale="en" />
+              {cs.metrics
+                .filter((m) => !/^[+-]?0$/.test((m.value ?? '').trim()))
+                .map((m, i) => (
+                  <ImpactCard
+                    key={`${m.label}-${i}`}
+                    value={m.value}
+                    label={m.label}
+                    accent={cs.accent}
+                  />
+                ))}
             </div>
           </div>
         </section>
@@ -280,30 +293,59 @@ export default async function CaseStudyPage({ params }: Props) {
         </div>
       </section>
 
-      {/* "The Strategy" — channel mix breakdown with brand iconography */}
-      <StrategySection
-        services={cs.services}
-        headline="The Strategy"
-        subhead="The channel mix and disciplines we deployed to deliver these results."
-        accent={cs.accent}
-      />
-
-      {/* YouTube Video Embed */}
-      {sanity?.youtubeVideoId && (
-        <section className="py-16 bg-[#0D0D0D]">
-          <div className="container-site" style={{ maxWidth: '56rem' }}>
-            <div className="aspect-video w-full rounded-xl overflow-hidden bg-black">
-              <iframe
-                src={`https://www.youtube.com/embed/${sanity.youtubeVideoId}?rel=0`}
-                title={`${cs.client} video`}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                className="w-full h-full"
-              />
+      {/* YouTube Videos — compact link list, one row per video.
+          Optional: only shown when at least one video ID is set in Sanity. */}
+      {(() => {
+        const ids: string[] = [
+          ...(sanity?.youtubeVideos ?? []),
+          ...(sanity?.youtubeVideoId ? [sanity.youtubeVideoId] : []),
+        ].filter(Boolean)
+        if (ids.length === 0) return null
+        return (
+          <section className="py-12 bg-[#0D0D0D] border-t border-white/10">
+            <div className="container-site" style={{ maxWidth: '56rem' }}>
+              <h2
+                className="text-lg font-semibold text-white mb-5"
+                style={{ fontFamily: 'var(--font-space-grotesk)' }}
+              >
+                Videos
+              </h2>
+              <ul className="flex flex-col gap-3">
+                {ids.map((id, idx) => (
+                  <li key={id}>
+                    <a
+                      href={`https://www.youtube.com/watch?v=${id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-4 p-4 rounded-xl border border-white/10 bg-[#141414] hover:border-white/30 transition-colors group"
+                    >
+                      {/* Thumbnail */}
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={`https://img.youtube.com/vi/${id}/mqdefault.jpg`}
+                        alt={`${cs.client} video ${idx + 1}`}
+                        width={120}
+                        height={68}
+                        className="rounded-lg object-cover shrink-0"
+                        style={{ width: 120, height: 68 }}
+                      />
+                      <div className="flex flex-col gap-1 min-w-0">
+                        <span className="text-sm font-medium text-white group-hover:text-[#FF5C00] transition-colors truncate">
+                          {cs.client} — Video {idx + 1}
+                        </span>
+                        <span className="text-xs text-[#B0B0B0] truncate">
+                          {`youtube.com/watch?v=${id}`}
+                        </span>
+                      </div>
+                      <ArrowUpRight size={16} className="text-[#B0B0B0] group-hover:text-[#FF5C00] transition-colors ml-auto shrink-0" />
+                    </a>
+                  </li>
+                ))}
+              </ul>
             </div>
-          </div>
-        </section>
-      )}
+          </section>
+        )
+      })()}
 
         {/* Media Gallery */}
         <CaseStudyGallery items={gallery} />
