@@ -219,8 +219,11 @@ if (sanity?.gallery?.length) {
           </div>
         </header>
 
-      {/* Impact Cards — filter out zero-value metrics */}
-      {cs.metrics.filter((m) => !/^[+-]?0$/.test((m.value ?? '').trim())).length > 0 && (
+      {/* Impact Cards — filter out empty or zero-value metrics */}
+      {cs.metrics.filter((m) => {
+        const v = (m.value ?? '').trim()
+        return v !== '' && !/^[+-]?0(\s|$)/.test(v)
+      }).length > 0 && (
         <section
           aria-label="Risultati chiave"
           className="bg-[#141414] border-y border-white/10"
@@ -228,7 +231,10 @@ if (sanity?.gallery?.length) {
           <div className="container-site py-12 sm:py-16">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
               {cs.metrics
-                .filter((m) => !/^[+-]?0$/.test((m.value ?? '').trim()))
+                .filter((m) => {
+                  const v = (m.value ?? '').trim()
+                  return v !== '' && !/^[+-]?0(\s|$)/.test(v)
+                })
                 .map((m, i) => (
                   <ImpactCard
                     key={`${m.label}-${i}`}
