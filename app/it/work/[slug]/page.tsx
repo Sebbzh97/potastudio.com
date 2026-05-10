@@ -8,8 +8,7 @@ import { JsonLd } from '@/components/json-ld'
 import Breadcrumbs from '@/components/breadcrumbs'
 import CaseStudyTracker from '@/components/analytics/case-study-tracker'
 import ImpactCard from '@/components/work/impact-card'
-import TrustVerifiedBadge from '@/components/work/trust-verified-badge'
-import StrategySection from '@/components/work/strategy-section'
+import YoutubeVideoGrid from '@/components/work/youtube-video-grid'
 import { caseStudySchema } from '@/lib/jsonld/schemas'
 import { getHreflang } from '@/lib/hreflang'
 import {
@@ -173,8 +172,24 @@ if (sanity?.gallery?.length) {
       />
 
       <article aria-labelledby="case-study-title">
-        {/* Hero */}
+        {/* Hero — cover image as opaque blurred full-bleed background */}
         <header className="pt-40 pb-24 relative overflow-hidden" style={{ background: cs.bg }}>
+          {raw?.coverImageUrl && (
+            <>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={`${raw.coverImageUrl}?w=1400&auto=format&q=60&fit=crop`}
+                alt=""
+                aria-hidden="true"
+                className="absolute inset-0 w-full h-full object-cover pointer-events-none select-none"
+                style={{ filter: 'blur(6px) brightness(0.25) saturate(0.6)', transform: 'scale(1.05)' }}
+              />
+              <div
+                className="absolute inset-0 pointer-events-none"
+                style={{ background: `linear-gradient(to bottom, ${cs.bg}80 0%, ${cs.bg}E6 70%, ${cs.bg} 100%)` }}
+              />
+            </>
+          )}
           <div className="absolute top-0 left-0 right-0 h-1" style={{ background: cs.accent }} />
           <div className="container-site relative">
             <Link href="/it/work" className="inline-flex items-center gap-2 text-sm text-[#B0B0B0] hover:text-white transition-colors mb-6">
@@ -204,26 +219,24 @@ if (sanity?.gallery?.length) {
           </div>
         </header>
 
-      {/* Impact Cards — griglia metriche AI-friendly (semantic <strong>
-          + microdata PropertyValue + accent rail per card). */}
-      {cs.metrics.length > 0 && (
+      {/* Impact Cards — filter out zero-value metrics */}
+      {cs.metrics.filter((m) => !/^[+-]?0$/.test((m.value ?? '').trim())).length > 0 && (
         <section
           aria-label="Risultati chiave"
           className="bg-[#141414] border-y border-white/10"
         >
           <div className="container-site py-12 sm:py-16">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-              {cs.metrics.map((m, i) => (
-                <ImpactCard
-                  key={`${m.label}-${i}`}
-                  value={m.value}
-                  label={m.label}
-                  accent={cs.accent}
-                />
-              ))}
-            </div>
-            <div className="mt-8 flex">
-              <TrustVerifiedBadge locale="it" />
+              {cs.metrics
+                .filter((m) => !/^[+-]?0$/.test((m.value ?? '').trim()))
+                .map((m, i) => (
+                  <ImpactCard
+                    key={`${m.label}-${i}`}
+                    value={m.value}
+                    label={m.label}
+                    accent={cs.accent}
+                  />
+                ))}
             </div>
           </div>
         </section>
@@ -250,30 +263,21 @@ if (sanity?.gallery?.length) {
         </div>
       </section>
 
-      {/* "La Strategia" — channel mix con icone brand */}
-      <StrategySection
-        services={cs.services}
-        headline="La Strategia"
-        subhead="Il channel mix e le competenze che abbiamo schierato per ottenere questi risultati."
-        accent={cs.accent}
-      />
-
-      {/* YouTube Video Embed */}
-      {sanity?.youtubeVideoId && (
-        <section className="py-16 bg-[#0D0D0D]">
-          <div className="container-site" style={{ maxWidth: '56rem' }}>
-            <div className="aspect-video w-full rounded-xl overflow-hidden bg-black">
-              <iframe
-                src={`https://www.youtube.com/embed/${sanity.youtubeVideoId}?rel=0`}
-                title={`${cs.client} video`}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                className="w-full h-full"
-              />
+      {/* YouTube Videos — thumbnail grid with inline lightbox */}
+      {(() => {
+        const ids: string[] = [
+          ...(raw?.youtubeVideos ?? []),
+          ...(raw?.youtubeVideoId ? [raw.youtubeVideoId] : []),
+        ].filter(Boolean)
+        if (ids.length === 0) return null
+        return (
+          <section className="py-16 bg-[#0D0D0D] border-t border-white/10">
+            <div className="container-site">
+              <YoutubeVideoGrid ids={ids} client={cs.client} accent={cs.accent} />
             </div>
-          </div>
-        </section>
-      )}
+          </section>
+        )
+      })()}
 
         {/* Media Gallery */}
         <CaseStudyGallery items={gallery} />

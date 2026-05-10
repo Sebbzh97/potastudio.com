@@ -56,6 +56,7 @@ export interface SanityCaseStudy {
   gallery?: { id: string; src: string }[]
   galleryUrls?: string[]
   youtubeVideoId?: string
+  youtubeVideos?: string[]
   /**
    * Dereferenced from the linked `testimonial` reference. Used to surface a
    * trustworthy `aggregateRating` in the CreativeWork JSON-LD when present.
@@ -252,6 +253,7 @@ export const getCaseStudyBySlug = (slug: string): Promise<SanityCaseStudy | null
         },
         galleryUrls,
         youtubeVideoId,
+        youtubeVideos,
         "testimonial": testimonial->{quote, quoteIt, author, role, company, rating}
       }`,
   { slug },
