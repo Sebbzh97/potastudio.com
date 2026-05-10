@@ -7,7 +7,6 @@ import { ArrowLeft, ArrowUpRight, BarChart2, TrendingUp, Users } from 'lucide-re
 import { JsonLd } from '@/components/json-ld'
 import Breadcrumbs from '@/components/breadcrumbs'
 import CaseStudyTracker from '@/components/analytics/case-study-tracker'
-import ImpactCard from '@/components/work/impact-card'
 import YoutubeVideoGrid from '@/components/work/youtube-video-grid'
 import { caseStudySchema } from '@/lib/jsonld/schemas'
 import { getHreflang } from '@/lib/hreflang'
@@ -222,35 +221,6 @@ if (sanity?.gallery?.length) {
             </h1>
           </div>
         </header>
-
-      {/* Impact Cards — filter out empty or zero-value metrics */}
-      {cs.metrics.filter((m) => {
-        const v = (m.value ?? '').trim()
-        return v !== '' && !/^[+-]?0(\s|$)/.test(v)
-      }).length > 0 && (
-        <section
-          aria-label="Risultati chiave"
-          className="bg-[#141414] border-y border-white/10"
-        >
-          <div className="container-site py-12 sm:py-16">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-              {cs.metrics
-                .filter((m) => {
-                  const v = (m.value ?? '').trim()
-                  return v !== '' && !/^[+-]?0(\s|$)/.test(v)
-                })
-                .map((m, i) => (
-                  <ImpactCard
-                    key={`${m.label}-${i}`}
-                    value={m.value}
-                    label={m.label}
-                    accent={cs.accent}
-                  />
-                ))}
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* Content */}
       <section className="py-24 bg-[#0D0D0D]">
