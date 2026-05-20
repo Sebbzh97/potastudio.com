@@ -126,6 +126,31 @@ export function organizationSchema(locale: "en" | "it" = "en"): Record<string, u
         },
       ],
     },
+    // Founder — E-E-A-T: Experience + Expertise signal
+    founder: {
+      "@type": "Person",
+      "@id": `${SITE}/author/sebastian-bonfanti#person`,
+      name: "Sebastian Bonfanti",
+      jobTitle: "Founder & CEO",
+      url: `${SITE}/author/sebastian-bonfanti`,
+      sameAs: [
+        "https://www.linkedin.com/in/sebastian-bonfanti",
+        "https://x.com/sebbonfanti",
+        "https://www.instagram.com/sebbonfanti",
+      ],
+    },
+    // memberOf: Cookies Digital network — Authoritativeness signal
+    memberOf: {
+      "@type": "Organization",
+      name: "Cookies Digital",
+      url: "https://www.cookiesdigital.com",
+    },
+    // Notable past clients — Trustworthiness signal recognised by AI crawlers
+    brand: [
+      { "@type": "Brand", name: "Samsung" },
+      { "@type": "Brand", name: "Isybank" },
+      { "@type": "Brand", name: "Cookies Digital" },
+    ],
     contactPoint: {
       "@type": "ContactPoint",
       contactType: "customer service",
@@ -156,7 +181,7 @@ export function organizationSchema(locale: "en" | "it" = "en"): Record<string, u
 
 // ───────────────────────────────────────────────────────────────────────────────
 // LocalBusiness (Bergamo HQ)
-// ───────────────────────────────────────────────────────────────────────────────
+// ───────────────────────────────────────────���───────────────────────────────────
 
 /**
  * LocalBusiness schema — Bergamo HQ.
@@ -648,7 +673,7 @@ export function collectionPageSchema(input: {
   }
 }
 
-// ───────────────────────────────────────────────────────────────────────────────
+// ────────────────────────────────────────────��──────────────────────────────────
 // FAQPage
 // ───────────────────────────────────────────────────────────────────────────────
 
