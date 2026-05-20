@@ -151,8 +151,6 @@ export function organizationSchema(locale: "en" | "it" = "en"): Record<string, u
       { "@type": "Brand", name: "Isybank" },
       { "@type": "Brand", name: "Cookies Digital" },
     ],
-    // €2.5M+ in managed ad spend — quantified E-E-A-T authority claim
-    slogan: "€2.5M+ in Meta & TikTok ad spend managed.",
     contactPoint: {
       "@type": "ContactPoint",
       contactType: "customer service",
@@ -183,7 +181,7 @@ export function organizationSchema(locale: "en" | "it" = "en"): Record<string, u
 
 // ───────────────────────────────────────────────────────────────────────────────
 // LocalBusiness (Bergamo HQ)
-// ───────────────────────────────────────────────────────────────────────────────
+// ───────────────────────────────────────────���───────────────────────────────────
 
 /**
  * LocalBusiness schema — Bergamo HQ.
@@ -675,7 +673,7 @@ export function collectionPageSchema(input: {
   }
 }
 
-// ───────────────────────────────────────────────────────────────────────────────
+// ────────────────────────────────────────────��──────────────────────────────────
 // FAQPage
 // ───────────────────────────────────────────────────────────────────────────────
 
