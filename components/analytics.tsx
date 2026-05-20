@@ -28,56 +28,19 @@ export default function Analytics() {
 
   return (
     <>
-      {/* ── GA4 ────────────────────────────────────────────────────────────
-          Loads immediately (afterInteractive) with Consent Mode v2 defaults
-          set to 'denied'. When the user accepts cookies the consent update
-          below upgrades to 'granted' so full measurement kicks in.
-          This matches Google's recommended GDPR pattern and ensures pageview
-          data is always captured (even cookieless) from day one. */}
-      {GA_ID && (
-        <>
-          <Script id="ga4-consent-default" strategy="afterInteractive">
-            {`
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('consent', 'default', {
-                analytics_storage: 'denied',
-                ad_storage: 'denied',
-                ad_user_data: 'denied',
-                ad_personalization: 'denied',
-                wait_for_update: 500
-              });
-            `}
-          </Script>
-          <Script
-            src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
-            strategy="afterInteractive"
-          />
-          <Script id="ga4-init" strategy="afterInteractive">
-            {`
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', '${GA_ID}', { anonymize_ip: true });
-            `}
-          </Script>
-          {/* Upgrade consent to 'granted' once user accepts cookies */}
-          {consented && (
-            <Script id="ga4-consent-update" strategy="afterInteractive">
-              {`
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);}
-                gtag('consent', 'update', {
-                  analytics_storage: 'granted',
-                  ad_storage: 'granted',
-                  ad_user_data: 'granted',
-                  ad_personalization: 'granted'
-                });
-              `}
-            </Script>
-          )}
-        </>
-      )}
+      {/* Google tag — G-CMP5TYMZP3 */}
+      <Script
+        src="https://www.googletagmanager.com/gtag/js?id=G-CMP5TYMZP3"
+        strategy="afterInteractive"
+      />
+      <Script id="gtag-init" strategy="afterInteractive">
+        {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-CMP5TYMZP3');
+        `}
+      </Script>
 
       {/* Google Ads — consent-gated, lazy */}
       {GADS_ID && consented && (
