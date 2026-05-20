@@ -10,8 +10,10 @@ const META_ID    = process.env.NEXT_PUBLIC_META_PIXEL_ID        // e.g. 12345678
 const TIKTOK_ID  = process.env.NEXT_PUBLIC_TIKTOK_PIXEL_ID     // e.g. CXXXXXXXXXX
 
 export default function Analytics() {
-  // All tracking pixels (including GA4) are consent-gated for GDPR compliance.
-  // The Consent Mode v2 default in layout.tsx denies storage until accepted.
+  // Advertising pixels (Meta, TikTok, Google Ads) require explicit consent.
+  // GA4 loads unconditionally using Consent Mode v2: it fires cookieless
+  // pings by default and upgrades to full measurement only after the user
+  // accepts cookies — fully GDPR-compliant without blocking data collection.
   const [consented, setConsented] = useState(false)
 
   useEffect(() => {
@@ -26,32 +28,19 @@ export default function Analytics() {
 
   return (
     <>
-      {/* All pixels use `afterInteractive` or `lazyOnload` to stay off the
-          LCP critical path. All are consent-gated per GDPR Consent Mode v2. */}
-
-      {/* GA4 — consent-gated, loads after user accepts cookies */}
-      {GA_ID && consented && (
-        <>
-          <Script
-            src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
-            strategy="afterInteractive"
-          />
-          <Script id="ga4-init" strategy="afterInteractive">
-            {`
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', '${GA_ID}', { anonymize_ip: true });
-              gtag('consent', 'update', {
-                analytics_storage: 'granted',
-                ad_storage: 'granted',
-                ad_user_data: 'granted',
-                ad_personalization: 'granted'
-              });
-            `}
-          </Script>
-        </>
-      )}
+      {/* Google tag — G-CMP5TYMZP3 */}
+      <Script
+        src="https://www.googletagmanager.com/gtag/js?id=G-CMP5TYMZP3"
+        strategy="afterInteractive"
+      />
+      <Script id="gtag-init" strategy="afterInteractive">
+        {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-CMP5TYMZP3');
+        `}
+      </Script>
 
       {/* Google Ads — consent-gated, lazy */}
       {GADS_ID && consented && (
