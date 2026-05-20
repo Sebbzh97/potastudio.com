@@ -1,4 +1,4 @@
-import type { Metadata, Viewport } from 'next'
+import type { Viewport } from 'next'
 import { Inter, Space_Grotesk, Barlow_Condensed } from 'next/font/google'
 import { Analytics as VercelAnalytics } from '@vercel/analytics/next'
 import AnalyticsPixels from '@/components/analytics'
@@ -14,6 +14,7 @@ import {
   localBusinessSchema,
   websiteSchema,
 } from '@/lib/jsonld/schemas'
+import { rootMetadata } from '@/lib/seo'
 import './globals.css'
 
 const inter = Inter({
@@ -35,6 +36,10 @@ const barlowCondensed = Barlow_Condensed({
   display: 'swap',
 })
 
+// Re-export the centralised root metadata so all pages inherit the
+// title template, default description, and OG/Twitter defaults.
+export const metadata = rootMetadata
+
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
@@ -43,82 +48,6 @@ export const viewport: Viewport = {
   themeColor: '#0D0D0D',
 }
 
-export const metadata: Metadata = {
-  metadataBase: new URL('https://www.potastudio.com'),
-  title: {
-    default: 'Pota Studio - Social Media, Influencer Marketing & Ads',
-    template: '%s | Pota Studio',
-  },
-  description:
-    'Full-service agency for social media, influencer marketing, paid advertising and TikTok. No handoffs, all in-house. Europe & US clients. See our work.',
-  authors: [{ name: 'Pota Studio', url: 'https://www.potastudio.com' }],
-  creator: 'Pota Studio',
-  publisher: 'Pota Studio',
-  robots: process.env.VERCEL_ENV === 'preview'
-    ? { index: false, follow: false }
-    : {
-        index: true,
-        follow: true,
-        googleBot: {
-          index: true,
-          follow: true,
-          'max-video-preview': -1,
-          'max-image-preview': 'large',
-          'max-snippet': -1,
-        },
-      },
-  openGraph: {
-    type: 'website',
-    locale: 'en_US',
-    url: 'https://www.potastudio.com',
-    siteName: 'Pota Studio',
-    title: 'Pota Studio - Social Media, Influencer Marketing & Ads',
-    description:
-      'Full-service agency for social media, influencer marketing, paid advertising and TikTok. No handoffs, all in-house.',
-    images: [
-      {
-        url: '/og-image.jpg',
-        width: 1200,
-        height: 630,
-        alt: 'Pota Studio',
-      },
-    ],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    site: '@potastudio',
-    creator: '@sebbonfanti',
-    title: 'Pota Studio - Social Media, Influencer Marketing & Ads',
-    description:
-      'Full-service agency for social media, influencer marketing, paid advertising and TikTok. No handoffs, all in-house.',
-    images: ['/og-image.jpg'],
-  },
-  alternates: {
-    canonical: '/',
-    languages: {
-      'en': '/',
-      'it': '/it',
-      'x-default': '/',
-    },
-  },
-  // Icon resolution.
-  // - app/icon.png and app/apple-icon.png are auto-served by Next.js App Router
-  //   convention as <link rel="icon"> and <link rel="apple-touch-icon">.
-  // - public/favicon.ico is served statically at /favicon.ico for legacy
-  //   browser and crawler probing. It must NOT live inside /app alongside
-  //   icon.png — having both triggers a Turbopack route conflict in Next 16
-  //   that crashes the client bundle entirely (black screen on production).
-  icons: {
-    icon: [
-      { url: '/favicon.ico', sizes: 'any' },
-      { url: '/icon.png', type: 'image/png', sizes: '512x512' },
-    ],
-    apple: [
-      { url: '/apple-icon.png', sizes: '180x180', type: 'image/png' },
-    ],
-    shortcut: '/favicon.ico',
-  },
-}
 
 export default async function RootLayout({
   children,
