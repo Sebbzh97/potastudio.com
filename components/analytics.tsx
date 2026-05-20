@@ -10,8 +10,10 @@ const META_ID    = process.env.NEXT_PUBLIC_META_PIXEL_ID        // e.g. 12345678
 const TIKTOK_ID  = process.env.NEXT_PUBLIC_TIKTOK_PIXEL_ID     // e.g. CXXXXXXXXXX
 
 export default function Analytics() {
-  // All tracking pixels (including GA4) are consent-gated for GDPR compliance.
-  // The Consent Mode v2 default in layout.tsx denies storage until accepted.
+  // Advertising pixels (Meta, TikTok, Google Ads) require explicit consent.
+  // GA4 loads unconditionally using Consent Mode v2: it fires cookieless
+  // pings by default and upgrades to full measurement only after the user
+  // accepts cookies — fully GDPR-compliant without blocking data collection.
   const [consented, setConsented] = useState(false)
 
   useEffect(() => {
@@ -26,12 +28,27 @@ export default function Analytics() {
 
   return (
     <>
-      {/* All pixels use `afterInteractive` or `lazyOnload` to stay off the
-          LCP critical path. All are consent-gated per GDPR Consent Mode v2. */}
-
-      {/* GA4 — consent-gated, loads after user accepts cookies */}
-      {GA_ID && consented && (
+      {/* ── GA4 ────────────────────────────────────────────────────────────
+          Loads immediately (afterInteractive) with Consent Mode v2 defaults
+          set to 'denied'. When the user accepts cookies the consent update
+          below upgrades to 'granted' so full measurement kicks in.
+          This matches Google's recommended GDPR pattern and ensures pageview
+          data is always captured (even cookieless) from day one. */}
+      {GA_ID && (
         <>
+          <Script id="ga4-consent-default" strategy="afterInteractive">
+            {`
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('consent', 'default', {
+                analytics_storage: 'denied',
+                ad_storage: 'denied',
+                ad_user_data: 'denied',
+                ad_personalization: 'denied',
+                wait_for_update: 500
+              });
+            `}
+          </Script>
           <Script
             src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
             strategy="afterInteractive"
@@ -42,14 +59,23 @@ export default function Analytics() {
               function gtag(){dataLayer.push(arguments);}
               gtag('js', new Date());
               gtag('config', '${GA_ID}', { anonymize_ip: true });
-              gtag('consent', 'update', {
-                analytics_storage: 'granted',
-                ad_storage: 'granted',
-                ad_user_data: 'granted',
-                ad_personalization: 'granted'
-              });
             `}
           </Script>
+          {/* Upgrade consent to 'granted' once user accepts cookies */}
+          {consented && (
+            <Script id="ga4-consent-update" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('consent', 'update', {
+                  analytics_storage: 'granted',
+                  ad_storage: 'granted',
+                  ad_user_data: 'granted',
+                  ad_personalization: 'granted'
+                });
+              `}
+            </Script>
+          )}
         </>
       )}
 
