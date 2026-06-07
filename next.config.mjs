@@ -181,7 +181,7 @@ const nextConfig = {
       { source: '/it/blog/influencer-marketing-roi',          destination: '/it/blog', permanent: true },
       { source: '/it/blog/tiktok-advertising-2026',           destination: '/it/blog', permanent: true },
 
-      // ─── Legacy blog slug redirect ────────────────────────────────────
+      // ���── Legacy blog slug redirect ────────────────────────────────────
       {
         source: '/blog/chatgpt-ads',
         destination: '/blog/openai-ads-future-advertising-2026',
@@ -207,11 +207,11 @@ const nextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://connect.facebook.net https://analytics.tiktok.com https://cdn.iubenda.com",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.googletagmanager.com https://www.googletagmanager.com https://www.google-analytics.com https://connect.facebook.net https://analytics.tiktok.com https://cdn.iubenda.com",
               "style-src 'self' 'unsafe-inline'",
               "font-src 'self' data:",
-              "img-src 'self' blob: data: https://cdn.sanity.io https://www.google-analytics.com https://www.googletagmanager.com https://i.ytimg.com https://img.youtube.com",
-              "connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com https://cdn.sanity.io https://*.sanity.io",
+              "img-src 'self' blob: data: https://cdn.sanity.io https://*.sanity.io https://*.google-analytics.com https://*.googletagmanager.com https://www.google-analytics.com https://www.googletagmanager.com https://*.g.doubleclick.net https://i.ytimg.com https://img.youtube.com https://*.vercel-storage.com",
+              "connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com https://*.g.doubleclick.net https://stats.g.doubleclick.net https://cdn.sanity.io https://*.sanity.io",
               "frame-src https://www.youtube.com https://www.youtube-nocookie.com",
               "media-src 'self'",
               "object-src 'none'",
