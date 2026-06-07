@@ -14,6 +14,27 @@ import type { Metadata } from "next"
 const SITE_URL = "https://www.potastudio.com"
 const SITE_SHORT_TITLE = "Pota Studio"
 
+/**
+ * Strips any trailing/embedded "Pota Studio" brand mention from a title so the
+ * root layout's `%s | Pota Studio` template never produces a duplicated brand
+ * (e.g. "About | Pota Studio | Pota Studio").
+ *
+ * Handles the common separators editors type in Sanity (`|`, `—`, `-`, `·`)
+ * and is safe to call on any resolved title string — CMS value or fallback.
+ */
+export function stripBrand(title: string): string {
+  return title
+    // Remove " | Pota Studio", " — Pota Studio", " - Pota Studio", " · Pota Studio"
+    .replace(/\s*[|\u2013\u2014\-·]\s*Pota\s*Studio\s*/gi, " ")
+    // Remove a leading "Pota Studio | " prefix if present
+    .replace(/^\s*Pota\s*Studio\s*[|\u2013\u2014\-·]\s*/i, "")
+    // Collapse any leftover double spaces and trim separators/space at the ends
+    .replace(/\s{2,}/g, " ")
+    .replace(/^[\s|\u2013\u2014\-·]+|[\s|\u2013\u2014\-·]+$/g, "")
+    .trim()
+}
+
+
 const DEFAULT_TITLE =
   "Pota Studio | High-Performance Full-Service Marketing Agency | Bergamo, Italy"
 

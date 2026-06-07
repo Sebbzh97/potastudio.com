@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { redirect } from 'next/navigation'
 import { Clock, Calendar } from 'lucide-react'
 import { getHreflang } from '@/lib/hreflang'
+import { stripBrand } from '@/lib/seo'
 import { getBlogPosts, getBlogPage, type SanityBlogPost } from '@/sanity/lib/page-queries'
 
 import { JsonLd } from '@/components/json-ld'
@@ -26,7 +27,7 @@ const FALLBACK_HEADLINE =
 
 export async function generateMetadata(): Promise<Metadata> {
   const data = await getBlogPage('en')
-  const title = data?.seoTitle?.trim() || FALLBACK_TITLE
+  const title = stripBrand(data?.seoTitle?.trim() || FALLBACK_TITLE)
   const description = data?.seoDescription?.trim() || FALLBACK_DESCRIPTION
   return {
     title,

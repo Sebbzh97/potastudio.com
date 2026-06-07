@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { getHreflang } from '@/lib/hreflang'
+import { stripBrand } from '@/lib/seo'
 import { getCookiePage } from '@/sanity/lib/page-queries'
 import LegalPage from '@/components/legal/legal-page'
 
@@ -9,7 +10,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const data = await getCookiePage('en')
   return {
     // Brand suffix appended automatically by the root layout template.
-    title: data?.seoTitle ?? 'Cookie Policy',
+    title: stripBrand(data?.seoTitle ?? 'Cookie Policy'),
     description: data?.seoDescription ?? '',
     ...getHreflang('/cookie'),
   }

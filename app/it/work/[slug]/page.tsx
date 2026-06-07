@@ -97,10 +97,28 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!cs) return { title: 'Case study non trovato' }
   // Brand suffix is appended automatically by the root layout's title
   // template — leave it off here to avoid double-suffixing.
+  const title = `${cs.client} — Case Study`
+  const description = (cs.challenge || cs.results).slice(0, 160)
   return {
-    title: `${cs.client} Case Study`,
-    description: (cs.challenge || cs.results).slice(0, 160),
+    title,
+    description,
     ...getHreflang(`/work/${slug}`, 'it'),
+    openGraph: {
+      type: 'article',
+      locale: 'it_IT',
+      url: `https://www.potastudio.com/it/work/${slug}`,
+      siteName: 'Pota Studio',
+      title: `${title} | Pota Studio`,
+      description,
+      images: [{ url: raw?.coverImageUrl || '/og-image.jpg', width: 1200, height: 630, alt: cs.client }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      site: '@potastudio',
+      title: `${title} | Pota Studio`,
+      description,
+      images: [raw?.coverImageUrl || '/og-image.jpg'],
+    },
   }
 }
 

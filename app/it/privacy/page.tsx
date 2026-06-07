@@ -1,13 +1,15 @@
 import type { Metadata } from 'next'
 import { getPrivacyPage } from '@/sanity/lib/page-queries'
+import { stripBrand } from '@/lib/seo'
 import LegalPage from '@/components/legal/legal-page'
 
 export const revalidate = 60
 
 export async function generateMetadata(): Promise<Metadata> {
   const data = await getPrivacyPage('it')
+  const title = stripBrand(data?.seoTitle ?? 'Privacy Policy')
   return {
-    title: data?.seoTitle ?? 'Privacy Policy | Pota Studio',
+    title,
     description: data?.seoDescription ?? '',
     alternates: {
       canonical: 'https://www.potastudio.com/it/privacy',
@@ -16,6 +18,14 @@ export async function generateMetadata(): Promise<Metadata> {
         it: 'https://www.potastudio.com/it/privacy',
         'x-default': 'https://www.potastudio.com/privacy',
       },
+    },
+    openGraph: {
+      type: 'website',
+      locale: 'it_IT',
+      url: 'https://www.potastudio.com/it/privacy',
+      siteName: 'Pota Studio',
+      title: `${title} | Pota Studio`,
+      description: data?.seoDescription ?? '',
     },
   }
 }

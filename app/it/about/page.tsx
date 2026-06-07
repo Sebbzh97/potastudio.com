@@ -3,6 +3,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowUpRight, MapPin } from 'lucide-react'
 import { JsonLd } from '@/components/json-ld'
+import { stripBrand } from '@/lib/seo'
 import { getAboutPage, getClients } from '@/sanity/lib/page-queries'
 
 export const revalidate = 3600
@@ -11,9 +12,13 @@ export const revalidate = 3600
 
 export async function generateMetadata(): Promise<Metadata> {
   const data = await getAboutPage('it')
+  const title = stripBrand(data?.seoTitle ?? 'Chi siamo — Agenzia di marketing nata a Bergamo')
+  const description =
+    data?.seoDescription?.trim() ||
+    'Pota Studio è un\'agenzia di marketing full-service di Bergamo: paid advertising, social, influencer marketing e produzione contenuti. Tutto in-house.'
   return {
-    title: data?.seoTitle ?? 'Chi siamo | Pota Studio',
-    description: data?.seoDescription ?? '',
+    title,
+    description,
     alternates: {
       canonical: 'https://www.potastudio.com/it/about',
       languages: {
@@ -21,6 +26,21 @@ export async function generateMetadata(): Promise<Metadata> {
         it: 'https://www.potastudio.com/it/about',
         'x-default': 'https://www.potastudio.com/about',
       },
+    },
+    openGraph: {
+      type: 'website',
+      locale: 'it_IT',
+      url: 'https://www.potastudio.com/it/about',
+      siteName: 'Pota Studio',
+      title: `${title} | Pota Studio`,
+      description,
+      images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: 'Pota Studio' }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      site: '@potastudio',
+      title: `${title} | Pota Studio`,
+      description,
     },
   }
 }

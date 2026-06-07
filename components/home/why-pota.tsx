@@ -16,8 +16,14 @@ function clean(text: string) {
 export default function WhyPota({ data, locale }: { data?: WhyPotaData | null; locale?: 'en' | 'it' }) {
   const isIt = locale === 'it'
 
+  // Pota Studio was founded in 2015 — derive the years-in-business figure
+  // dynamically so the "X years" claim never becomes inaccurate over time.
+  const yearsInBusiness = new Date().getFullYear() - 2015
+
   const eyebrow = clean(data?.whyEyebrow ?? (isIt ? 'Perché Pota Studio' : 'Why Pota Studio'))
-  const quote   = clean(data?.whyQuote   ?? (isIt ? 'In 7 anni non abbiamo mai mancato una scadenza.' : 'In 7 years we have never missed a deadline.'))
+  const quote   = clean(data?.whyQuote   ?? (isIt
+    ? `In ${yearsInBusiness} anni non abbiamo mai mancato una scadenza.`
+    : `In ${yearsInBusiness} years we have never missed a deadline.`))
   const body    = clean(data?.whyBody    ?? (isIt
     ? 'Non siamo alla ricerca di 25 clienti. La nostra filosofia è meno clienti e più qualità, sotto ogni punto di vista e ad un prezzo estremamente accessibile. Team giovane e dinamico. Area content in-house. Fast reply. Freschezza nelle proposte ed ossessione del prodotto. Siamo i primi a sapere come si aggiornano i social.'
     : 'We are not chasing 25 clients. Our philosophy is fewer clients and higher quality in every way, at an extremely accessible price. Young and dynamic team. In-house content area. Fast reply. Fresh proposals and obsession with the product. We are always the first to know how social platforms evolve.'))
@@ -30,7 +36,7 @@ export default function WhyPota({ data, locale }: { data?: WhyPotaData | null; l
 
   // Highlight the "never missed" portion of the quote
   const accentWord = isIt ? 'mai mancato una scadenza.' : 'never missed a deadline.'
-  const quoteBase  = isIt ? 'In 7 anni non abbiamo ' : 'In 7 years we have '
+  const quoteBase  = isIt ? `In ${yearsInBusiness} anni non abbiamo ` : `In ${yearsInBusiness} years we have `
   const quoteFull  = quote
 
   const splitIdx = quoteFull.indexOf(isIt ? 'mai' : 'never')

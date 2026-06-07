@@ -114,7 +114,9 @@ export default function Footer({ locale = 'en', settings }: FooterProps = {}) {
 
   const vatNumber = settings?.footerVat       ?? 'P.IVA IT04545460166'
   const legalName = settings?.legalCompanyName ?? 'Anyped S.R.L.'
-  const rea       = settings?.legalRea         ?? 'REA BG-123456'
+  // REA is only rendered when a real value is provided in Sanity — we never
+  // show a placeholder REA number publicly (it would be legally misleading).
+  const rea       = settings?.legalRea         ?? ''
   const capital   = settings?.legalCapital     ?? 'Cap. soc. €10.000 i.v.'
   const address   = settings?.legalAddress     ?? 'Via Zanica 85, Bergamo 24126'
 
@@ -167,8 +169,12 @@ export default function Footer({ locale = 'en', settings }: FooterProps = {}) {
             <span className="block sm:inline">{legalName}</span>
             <span className="hidden sm:inline">&nbsp;·&nbsp;</span>
             <span className="block sm:inline">{vatNumber}</span>
-            <span className="hidden sm:inline">&nbsp;·&nbsp;</span>
-            <span className="block sm:inline">{rea}</span>
+            {rea && (
+              <>
+                <span className="hidden sm:inline">&nbsp;·&nbsp;</span>
+                <span className="block sm:inline">{rea}</span>
+              </>
+            )}
             <span className="hidden sm:inline">&nbsp;·&nbsp;</span>
             <span className="block sm:inline">{capital}</span>
             <span className="hidden sm:inline">&nbsp;·&nbsp;</span>
