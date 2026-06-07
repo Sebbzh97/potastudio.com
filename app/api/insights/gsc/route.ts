@@ -1,10 +1,13 @@
 import { NextRequest } from 'next/server'
 import { google } from 'googleapis'
 import { assertAuthorized, daysAgo, getOAuth2Client } from '@/lib/google-auth'
+import { corsPreflight, withCors } from '@/lib/cors'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
+
+export async function OPTIONS() { return corsPreflight() }
 
 type Range = { startDate: string; endDate: string }
 
@@ -44,10 +47,10 @@ function aggregate(rows: any[]): { clicks: number; impressions: number; ctr: num
 
 export async function GET(request: NextRequest) {
   const unauth = assertAuthorized(request)
-  if (unauth) return unauth
+  if (unauth) return withCors(unauth)
 
   const siteUrl = process.env.GSC_SITE_URL
-  if (!siteUrl) return new Response('Missing GSC_SITE_URL', { status: 500 })
+  if (!siteUrl) return withCors(new Response('Missing GSC_SITE_URL', { status: 500 }))
 
   const days = Number(request.nextUrl.searchParams.get('days') ?? 28)
   const { current, previous } = getRanges(days)
@@ -77,7 +80,7 @@ export async function GET(request: NextRequest) {
       .slice(0, 30)
       .map((r: any) => ({ query: r.keys?.[0], page: r.keys?.[1], impressions: r.impressions, clicks: r.clicks, ctr: r.ctr, position: r.position }))
 
-    return Response.json({
+    return withCors(Response.json({
       range: current,
       previousRange: previous,
       overview,
@@ -90,8 +93,8 @@ export async function GET(request: NextRequest) {
       topPages: topPages.map((r: any) => ({ page: r.keys?.[0], clicks: r.clicks, impressions: r.impressions, ctr: r.ctr, position: r.position })),
       lowCtrPages: lowCtr,
       opportunities,
-    })
+    }))
   } catch (err: any) {
-    return Response.json({ error: err?.message ?? 'GSC error', details: err?.errors }, { status: 500 })
+    return withCors(Response.json({ error: err?.message ?? 'GSC error', details: err?.errors }, { status: 500 }))
   }
 }

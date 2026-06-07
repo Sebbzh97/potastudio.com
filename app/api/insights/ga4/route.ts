@@ -1,10 +1,13 @@
 import { NextRequest } from 'next/server'
 import { google } from 'googleapis'
 import { assertAuthorized, daysAgo, getOAuth2Client } from '@/lib/google-auth'
+import { corsPreflight, withCors } from '@/lib/cors'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
+
+export async function OPTIONS() { return corsPreflight() }
 
 async function runReport(propertyId: string, body: object) {
   const auth = getOAuth2Client()
@@ -17,10 +20,10 @@ function num(v?: string | null) { return v ? Number(v) : 0 }
 
 export async function GET(request: NextRequest) {
   const unauth = assertAuthorized(request)
-  if (unauth) return unauth
+  if (unauth) return withCors(unauth)
 
   const propertyId = process.env.GA4_PROPERTY_ID
-  if (!propertyId) return new Response('Missing GA4_PROPERTY_ID', { status: 500 })
+  if (!propertyId) return withCors(new Response('Missing GA4_PROPERTY_ID', { status: 500 }))
 
   const days = Number(request.nextUrl.searchParams.get('days') ?? 28)
   const startDate = daysAgo(days)
@@ -66,7 +69,7 @@ export async function GET(request: NextRequest) {
     const o = overview.rows?.[0]?.metricValues ?? []
     const p = prevOverview.rows?.[0]?.metricValues ?? []
 
-    return Response.json({
+    return withCors(Response.json({
       range: { startDate, endDate },
       previousRange: { startDate: prevStart, endDate: prevEnd },
       overview: {
@@ -77,8 +80,8 @@ export async function GET(request: NextRequest) {
       byChannel: byChannel.rows?.map((r: any) => ({ channel: r.dimensionValues?.[0]?.value, sessions: num(r.metricValues?.[0]?.value), conversions: num(r.metricValues?.[1]?.value) })) ?? [],
       topLandingPages: topLandings.rows?.map((r: any) => ({ page: r.dimensionValues?.[0]?.value, sessions: num(r.metricValues?.[0]?.value), conversions: num(r.metricValues?.[1]?.value), engagementRate: num(r.metricValues?.[2]?.value) })) ?? [],
       topEvents: conversions.rows?.map((r: any) => ({ event: r.dimensionValues?.[0]?.value, count: num(r.metricValues?.[0]?.value) })) ?? [],
-    })
+    }))
   } catch (err: any) {
-    return Response.json({ error: err?.message ?? 'GA4 error', details: err?.errors }, { status: 500 })
+    return withCors(Response.json({ error: err?.message ?? 'GA4 error', details: err?.errors }, { status: 500 }))
   }
 }
