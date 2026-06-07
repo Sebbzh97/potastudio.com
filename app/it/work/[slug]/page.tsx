@@ -148,6 +148,20 @@ if (sanity?.gallery?.length) {
     return null
   }).filter(Boolean) as { slug: string; client: string; type: string; year: string }[]
 
+  // Auto-fill: la maggior parte dei case study non ha `relatedSlugs` curati in
+  // Sanity, quindi il blocco "Altri Lavori" resterebbe vuoto — sprecando link
+  // interni (GSC: 65 pagine rilevate ma non scansionate). Riempiamo con altri
+  // case study recenti, escludendo quello corrente e i duplicati, max 3.
+  if (relatedItems.length < 3) {
+    const taken = new Set<string>([slug, ...relatedItems.map((r) => r.slug)])
+    for (const s of allSanity) {
+      if (relatedItems.length >= 3) break
+      if (taken.has(s.slug)) continue
+      taken.add(s.slug)
+      relatedItems.push({ slug: s.slug, client: s.client, type: s.type ?? '', year: s.year ?? '' })
+    }
+  }
+
   if (!cs) {
     return (
       <main className="min-h-screen flex items-center justify-center bg-[#0D0D0D]">
