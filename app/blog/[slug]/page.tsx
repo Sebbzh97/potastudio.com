@@ -3,7 +3,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { ArrowLeft, Clock, Calendar } from 'lucide-react'
-import { getBlogPostBySlug, getBlogPostSlugs, getTranslationSlug, getDefaultLeadMagnet } from '@/sanity/lib/blog'
+import { getBlogPostBySlug, getBlogPostSlugs, getTranslationSlug, getDefaultLeadMagnet, getRelatedBlogPosts } from '@/sanity/lib/blog'
 import { buildBlogAlternates } from '@/lib/blog/hreflang'
 import Breadcrumbs from '@/components/breadcrumbs'
 import { JsonLd } from '@/components/json-ld'
@@ -16,6 +16,7 @@ import LeadMagnetBox from '@/components/blog/lead-magnet-box'
 import StickyMobileCta from '@/components/blog/sticky-mobile-cta'
 import AuthorAuthorityBox from '@/components/blog/author-authority-box'
 import FaqSection from '@/components/blog/faq-section'
+import RelatedPosts from '@/components/blog/related-posts'
 
 // ISR: regenerate every hour. `generateStaticParams` pre-renders every
 // known slug at build time; `revalidateTag` (called from /api/revalidate)
@@ -136,6 +137,13 @@ export default async function BlogPostPage({ params }: Props) {
   ])
 
   if (!post) notFound()
+
+  // Related posts for the "More articles" block — boosts internal linking
+  // toward articles GSC flagged "discovered but not crawled".
+  const categorySlugs = (post.categories ?? [])
+    .map((c: { slug?: string }) => c?.slug)
+    .filter(Boolean) as string[]
+  const relatedPosts = await getRelatedBlogPosts(slug, 'en', categorySlugs, 3)
 
   const itSlug = await getTranslationSlug(post._id, 'en')
   const rawCategory = post.categories?.[0]
@@ -425,6 +433,9 @@ export default async function BlogPostPage({ params }: Props) {
                 </Link>
               </div>
             )}
+
+            {/* More articles — internal-link boost for crawl coverage */}
+            <RelatedPosts posts={relatedPosts as never} locale="en" />
           </div>
         </article>
 

@@ -132,6 +132,50 @@ export async function getRecentBlogPosts(lang: string, limit: number = 3) {
 }
 
 /**
+ * Fetch up to `limit` related posts for the in-locale "More articles" block
+ * shown at the bottom of a blog post. Excludes the current post and any
+ * draft documents. Prefers same-category posts, then back-fills with the most
+ * recent posts in the same language so the block always renders 3 cards when
+ * the archive is large enough. Boosts internal linking → crawl signal.
+ */
+export async function getRelatedBlogPosts(
+  currentSlug: string,
+  lang: string,
+  categorySlugs: string[] = [],
+  limit: number = 3,
+) {
+  return client
+    .fetch(
+      `{
+        "sameCategory": *[
+          _type == "blogPost" && language == $lang && isPublished != false
+          && slug.current != $currentSlug
+          && !(_id in path("drafts.**"))
+          && count((categories[]->slug.current)[@ in $categorySlugs]) > 0
+        ] | order(publishedAt desc) [0...$limit] { ${listingProjection} },
+        "recent": *[
+          _type == "blogPost" && language == $lang && isPublished != false
+          && slug.current != $currentSlug
+          && !(_id in path("drafts.**"))
+        ] | order(publishedAt desc) [0...6] { ${listingProjection} }
+      }`,
+      { currentSlug, lang, categorySlugs, limit },
+      { next: { tags: ['blogPost', `blogPost-${lang}`], revalidate: 3600 } },
+    )
+    .then((res: { sameCategory?: unknown[]; recent?: unknown[] } | null) => {
+      const same = (res?.sameCategory ?? []) as Array<{ _id: string }>
+      const recent = (res?.recent ?? []) as Array<{ _id: string }>
+      const merged: Array<{ _id: string }> = [...same]
+      for (const p of recent) {
+        if (merged.length >= limit) break
+        if (!merged.some((m) => m._id === p._id)) merged.push(p)
+      }
+      return merged.slice(0, limit)
+    })
+    .catch(() => [] as Array<{ _id: string }>)
+}
+
+/**
  * Fetch only slug values — used in generateStaticParams.
  */
 export async function getBlogPostSlugs(lang: string) {

@@ -153,13 +153,35 @@ export default async function CaseStudyPage({ params }: Props) {
 
   // Build related - resolve from Sanity list OR static map
   const allSanity = sanity ? await getCaseStudies() : []
-  const relatedItems = (cs?.relatedSlugs ?? []).map((rslug) => {
+  let relatedItems = (cs?.relatedSlugs ?? []).map((rslug) => {
     const fromSanity = allSanity.find((s) => s.slug === rslug)
     if (fromSanity) return { slug: rslug, client: fromSanity.client, type: fromSanity.type ?? '', year: fromSanity.year ?? '', accent: fromSanity.accent ?? '#FF5C00' }
     const fromStatic = STATIC_CASE_STUDIES[rslug]
     if (fromStatic) return { slug: rslug, client: fromStatic.client, type: fromStatic.type, year: fromStatic.year, accent: fromStatic.accent }
     return null
   }).filter(Boolean) as { slug: string; client: string; type: string; year: string; accent: string }[]
+
+  // Auto-fill: most case studies have no curated `relatedSlugs` in Sanity, so
+  // the "More Work" block would render empty — wasting an internal-linking
+  // opportunity (GSC: 65 pages discovered-but-not-crawled). Back-fill with
+  // other recent case studies, excluding the current one and dupes, capped at 3.
+  if (relatedItems.length < 3) {
+    const allForFill =
+      allSanity.length > 0 ? allSanity : sanity ? [] : await getCaseStudies().catch(() => [])
+    const taken = new Set<string>([slug, ...relatedItems.map((r) => r.slug)])
+    for (const s of allForFill) {
+      if (relatedItems.length >= 3) break
+      if (taken.has(s.slug)) continue
+      taken.add(s.slug)
+      relatedItems.push({
+        slug: s.slug,
+        client: s.client,
+        type: s.type ?? '',
+        year: s.year ?? '',
+        accent: s.accent ?? '#FF5C00',
+      })
+    }
+  }
 
   if (!cs) {
     return (

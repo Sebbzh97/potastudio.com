@@ -163,13 +163,77 @@ const nextConfig = {
         permanent: true,
       },
       {
-        source: '/it/blog/ai-marketing-tools-italian-smbs-2026',
-        destination: '/blog/ai-marketing-tools-italian-smbs-2026',
+        source: '/it/blog/marketing-plan-italian-smb-2026-template',
+        destination: '/blog/marketing-plan-italian-smb-2026-template',
+        permanent: true,
+      },
+
+      // ─── GSC Soft-404 cleanup (29 May 2026) ───────────────────────────
+      // These EN slugs were indexed by Google but never existed as real
+      // posts in Sanity `production` (verified via GROQ). They rendered the
+      // not-found page → Google flagged them "Soft 404". We redirect them to
+      // a valid destination to recover the crawl signal.
+      //
+      // `/blog/ai-marketing-tools-italian-smbs-2026` has no EN post; the only
+      // real article on this topic is the IT post `ai-marketing-tool-pmi-
+      // italiane-2026`. (Previously this redirected the IT path → a 404 EN
+      // path, which CREATED the soft 404 — now corrected.)
+      {
+        source: '/blog/ai-marketing-tools-italian-smbs-2026',
+        destination: '/it/blog/ai-marketing-tool-pmi-italiane-2026',
         permanent: true,
       },
       {
-        source: '/it/blog/marketing-plan-italian-smb-2026-template',
-        destination: '/blog/marketing-plan-italian-smb-2026-template',
+        source: '/it/blog/ai-marketing-tools-italian-smbs-2026',
+        destination: '/it/blog/ai-marketing-tool-pmi-italiane-2026',
+        permanent: true,
+      },
+      // `/blog/influencer-marketing-roi` has no counterpart in either locale
+      // → send to the EN blog index to keep link equity in-locale.
+      {
+        source: '/blog/influencer-marketing-roi',
+        destination: '/blog',
+        permanent: true,
+      },
+      // `/blog/social-media-strategy-2026` was flagged "excluded by noindex"
+      // but the post does not exist in Sanity → the noindex was Next.js's
+      // automatic 404 noindex, not a CMS flag. Redirect to the blog index.
+      {
+        source: '/blog/social-media-strategy-2026',
+        destination: '/blog',
+        permanent: true,
+      },
+
+      // ─── Legacy combined privacy/cookie URL (old site structure) ──────
+      // The current site splits these into separate /privacy and /cookie
+      // pages. GSC reported /privacy-cookie-policy as a hard 404.
+      {
+        source: '/privacy-cookie-policy',
+        destination: '/privacy',
+        permanent: true,
+      },
+      {
+        source: '/privacy-cookie',
+        destination: '/privacy',
+        permanent: true,
+      },
+      {
+        source: '/cookie-policy',
+        destination: '/cookie',
+        permanent: true,
+      },
+      { source: '/it/privacy-cookie-policy', destination: '/it/privacy', permanent: true },
+      { source: '/it/cookie-policy',         destination: '/it/cookie',  permanent: true },
+
+      // ─── Mistyped EN category path using the Italian word "categoria" ──
+      // The EN route is /blog/category/<slug>; the IT route is
+      // /it/blog/categoria/<slug>. GSC reported /blog/categoria/digital-
+      // marketing as a 404 (external/legacy link). No code in the repo
+      // generates this path, so this is a safety-net redirect to the IT
+      // category route which DOES use "categoria".
+      {
+        source: '/blog/categoria/:slug',
+        destination: '/it/blog/categoria/:slug',
         permanent: true,
       },
 

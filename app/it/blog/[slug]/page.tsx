@@ -3,7 +3,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import { ArrowLeft, Clock, Calendar } from 'lucide-react'
-import { getBlogPostBySlug, getBlogPostSlugs, getTranslationSlug, getDefaultLeadMagnet } from '@/sanity/lib/blog'
+import { getBlogPostBySlug, getBlogPostSlugs, getTranslationSlug, getDefaultLeadMagnet, getRelatedBlogPosts } from '@/sanity/lib/blog'
 import { buildBlogAlternates } from '@/lib/blog/hreflang'
 import Breadcrumbs from '@/components/breadcrumbs'
 import { JsonLd } from '@/components/json-ld'
@@ -16,6 +16,7 @@ import LeadMagnetBox from '@/components/blog/lead-magnet-box'
 import StickyMobileCta from '@/components/blog/sticky-mobile-cta'
 import AuthorAuthorityBox from '@/components/blog/author-authority-box'
 import FaqSection from '@/components/blog/faq-section'
+import RelatedPosts from '@/components/blog/related-posts'
 
 // ISR: regenerate every hour. Articles are pre-rendered at build time via
 // `generateStaticParams` and on-demand via `revalidateTag` from the Sanity
@@ -131,6 +132,13 @@ export default async function BlogPostPageIT({ params }: Props) {
   ])
 
   if (!post) notFound()
+
+  // Articoli correlati per il blocco "Altri articoli" — rafforza i link
+  // interni verso gli articoli che GSC segnala "rilevati ma non scansionati".
+  const categorySlugs = (post.categories ?? [])
+    .map((c: { slug?: string }) => c?.slug)
+    .filter(Boolean) as string[]
+  const relatedPosts = await getRelatedBlogPosts(slug, 'it', categorySlugs, 3)
 
   const enSlug = await getTranslationSlug(post._id, 'it')
   const rawCategory = post.categories?.[0]
@@ -411,6 +419,9 @@ export default async function BlogPostPageIT({ params }: Props) {
                 </Link>
               </div>
             )}
+
+            {/* Altri articoli — boost di link interni per la copertura crawl */}
+            <RelatedPosts posts={relatedPosts as never} locale="it" />
           </div>
         </article>
 
