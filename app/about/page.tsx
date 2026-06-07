@@ -3,6 +3,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowUpRight, MapPin } from 'lucide-react'
 import { getHreflang } from '@/lib/hreflang'
+import { stripBrand } from '@/lib/seo'
 import { JsonLd } from '@/components/json-ld'
 import { aboutPageSchema } from '@/lib/jsonld/schemas'
 import { getAboutPage, getClients } from '@/sanity/lib/page-queries'
@@ -11,7 +12,7 @@ export const revalidate = 60
 
 export async function generateMetadata(): Promise<Metadata> {
   const data = await getAboutPage('en')
-  const title = data?.seoTitle ?? 'About'
+  const title = stripBrand(data?.seoTitle ?? 'About — Marketing Agency Founded in Bergamo')
   const description = data?.seoDescription ?? 'Italian full-service marketing agency founded in Bergamo by Sebastian Bonfanti.'
   return {
     // Brand suffix is appended automatically by the root layout's title

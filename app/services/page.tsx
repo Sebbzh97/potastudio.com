@@ -3,6 +3,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowRight, Check } from 'lucide-react'
 import { getHreflang } from '@/lib/hreflang'
+import { stripBrand } from '@/lib/seo'
 import { getServicesPage } from '@/sanity/lib/page-queries'
 
 export const revalidate = 3600
@@ -27,7 +28,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const data = await getServicesPage('en')
   return {
     // Brand suffix appended automatically by the root layout template.
-    title: data?.seoTitle ?? 'Services',
+    title: stripBrand(data?.seoTitle ?? 'Services — Paid Ads, Social, Content Production'),
     description: data?.seoDescription ?? '',
     ...getHreflang('/services'),
   }

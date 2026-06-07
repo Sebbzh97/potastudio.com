@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { getHreflang } from '@/lib/hreflang'
+import { stripBrand } from '@/lib/seo'
 import { getContactPage } from '@/sanity/lib/page-queries'
 import ContactPageClient from './contact-client'
 
@@ -9,7 +10,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const data = await getContactPage('en')
   return {
     // Brand suffix appended automatically by the root layout template.
-    title: data?.seoTitle ?? 'Contact',
+    title: stripBrand(data?.seoTitle ?? 'Contact — Start a Project'),
     description: data?.seoDescription ?? '',
     ...getHreflang('/contact'),
   }

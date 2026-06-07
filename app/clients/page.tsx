@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { getHreflang } from '@/lib/hreflang'
+import { stripBrand } from '@/lib/seo'
 import ClientsDisplay, { type ClientsPageCopy } from '@/components/clients-display'
 import type { Testimonial, ClientBrand } from '@/lib/types'
 import { getClientsPage, getTestimonials, getClients } from '@/sanity/lib/page-queries'
@@ -10,7 +11,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const data = await getClientsPage('en')
   return {
     // Title template (`%s | Pota Studio`) is applied by the root layout.
-    title: data?.seoTitle ?? 'Clients',
+    title: stripBrand(data?.seoTitle ?? 'Our Clients — Samsung, Isybank, Lucca Comics'),
     description: data?.seoDescription ?? '',
     ...getHreflang('/clients'),
   }

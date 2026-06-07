@@ -1,6 +1,7 @@
 import WorkList from '@/components/work-list'
 import type { Metadata } from 'next'
 import { getHreflang } from '@/lib/hreflang'
+import { stripBrand } from '@/lib/seo'
 import { getWorkPage, getCaseStudies } from '@/sanity/lib/page-queries'
 
 export const revalidate = 60
@@ -20,11 +21,30 @@ interface CaseStudyCard {
 
 export async function generateMetadata(): Promise<Metadata> {
   const data = await getWorkPage('en')
+  const title = stripBrand(data?.seoTitle ?? 'Our Work — Case Studies & Campaigns')
+  const description =
+    data?.seoDescription?.trim() ||
+    'Case studies of Pota Studio: Samsung Italia, Isybank, Havit, Levitology, Lucca Comics & more. Real campaigns, real numbers.'
   return {
     // Brand suffix appended automatically by the root layout template.
-    title: data?.seoTitle ?? 'Work',
-    description: data?.seoDescription ?? '',
+    title,
+    description,
     ...getHreflang('/work'),
+    openGraph: {
+      type: 'website',
+      locale: 'en_US',
+      url: 'https://www.potastudio.com/work',
+      siteName: 'Pota Studio',
+      title: `${title} | Pota Studio`,
+      description,
+      images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: 'Pota Studio' }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      site: '@potastudio',
+      title: `${title} | Pota Studio`,
+      description,
+    },
   }
 }
 
