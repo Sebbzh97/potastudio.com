@@ -5,6 +5,7 @@ import {
   getCaseStudies,
   pickLocalizedCaseStudy,
 } from '@/sanity/lib/page-queries'
+import { stripBrand } from '@/lib/seo'
 
 export const revalidate = 60
 
@@ -23,11 +24,15 @@ interface CaseStudyCard {
 
 export async function generateMetadata(): Promise<Metadata> {
   const data = await getWorkPage('it')
+  const title = stripBrand(data?.seoTitle ?? 'Lavori — Case study e campagne')
+  const description =
+    data?.seoDescription?.trim() ||
+    'I lavori di Pota Studio: Samsung Italia, Isybank, Havit, Levitology, Lucca Comics & altri. Campagne reali, numeri reali.'
   return {
     // Brand suffix is appended automatically by the root layout's title
     // template — never pre-include "| Pota Studio" here.
-    title: data?.seoTitle ?? 'Lavori',
-    description: data?.seoDescription ?? '',
+    title,
+    description,
     alternates: {
       canonical: 'https://www.potastudio.com/it/work',
       languages: {
@@ -35,6 +40,21 @@ export async function generateMetadata(): Promise<Metadata> {
         it: 'https://www.potastudio.com/it/work',
         'x-default': 'https://www.potastudio.com/work',
       },
+    },
+    openGraph: {
+      type: 'website',
+      locale: 'it_IT',
+      url: 'https://www.potastudio.com/it/work',
+      siteName: 'Pota Studio',
+      title: `${title} | Pota Studio`,
+      description,
+      images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: 'Pota Studio' }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      site: '@potastudio',
+      title: `${title} | Pota Studio`,
+      description,
     },
   }
 }

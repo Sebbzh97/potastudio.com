@@ -1,16 +1,21 @@
 import type { Metadata } from 'next'
 import { ArrowUpRight } from 'lucide-react'
 import { getCareersPage, getJobOpenings } from '@/sanity/lib/page-queries'
+import { stripBrand } from '@/lib/seo'
 
 export const revalidate = 60
 
 export async function generateMetadata(): Promise<Metadata> {
   const data = await getCareersPage('it')
+  const title = stripBrand(data?.seoTitle ?? 'Lavora con noi — Entra in Pota Studio')
+  const description =
+    data?.seoDescription?.trim() ||
+    'Posizioni aperte in Pota Studio. Cerchiamo talenti per marketing, advertising, social e produzione contenuti nella nostra sede di Bergamo.'
   return {
     // Brand suffix is appended automatically by the root layout's title
     // template — never pre-include "| Pota Studio" here.
-    title: data?.seoTitle ?? 'Lavora con noi',
-    description: data?.seoDescription ?? '',
+    title,
+    description,
     alternates: {
       canonical: 'https://www.potastudio.com/it/careers',
       languages: {
@@ -18,6 +23,21 @@ export async function generateMetadata(): Promise<Metadata> {
         it: 'https://www.potastudio.com/it/careers',
         'x-default': 'https://www.potastudio.com/careers',
       },
+    },
+    openGraph: {
+      type: 'website',
+      locale: 'it_IT',
+      url: 'https://www.potastudio.com/it/careers',
+      siteName: 'Pota Studio',
+      title: `${title} | Pota Studio`,
+      description,
+      images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: 'Pota Studio' }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      site: '@potastudio',
+      title: `${title} | Pota Studio`,
+      description,
     },
   }
 }

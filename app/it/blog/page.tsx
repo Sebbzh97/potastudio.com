@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { redirect } from 'next/navigation'
 import { Clock, Calendar } from 'lucide-react'
 import { getBlogPosts, getBlogPage, type SanityBlogPost } from '@/sanity/lib/page-queries'
+import { stripBrand } from '@/lib/seo'
 
 import { JsonLd } from '@/components/json-ld'
 import { blogSchema } from '@/lib/jsonld/schemas'
@@ -14,7 +15,7 @@ import NewsletterCTA from '@/components/blog/newsletter-cta'
 export const revalidate = 3600
 
 const FALLBACK_TITLE =
-  'Blog Marketing Digitale - Guide su Social Media, TikTok & Ads | Pota Studio'
+  'Blog Marketing Digitale — Guide su Social Media, TikTok & Ads'
 const FALLBACK_DESCRIPTION =
   'Guide pratiche su marketing digitale, social media, TikTok e advertising. Strategie, dati reali e best practices dal team Pota Studio. Leggi i nostri playbook.'
 const FALLBACK_HEADLINE =
@@ -22,9 +23,11 @@ const FALLBACK_HEADLINE =
 
 export async function generateMetadata(): Promise<Metadata> {
   const data = await getBlogPage('it')
+  const title = stripBrand(data?.seoTitle?.trim() || FALLBACK_TITLE)
+  const description = data?.seoDescription?.trim() || FALLBACK_DESCRIPTION
   return {
-    title: (data?.seoTitle?.trim() || FALLBACK_TITLE),
-    description: (data?.seoDescription?.trim() || FALLBACK_DESCRIPTION),
+    title,
+    description,
     alternates: {
       canonical: 'https://www.potastudio.com/it/blog',
       languages: {
@@ -32,6 +35,21 @@ export async function generateMetadata(): Promise<Metadata> {
         it: 'https://www.potastudio.com/it/blog',
         'x-default': 'https://www.potastudio.com/blog',
       },
+    },
+    openGraph: {
+      type: 'website',
+      locale: 'it_IT',
+      url: 'https://www.potastudio.com/it/blog',
+      siteName: 'Pota Studio',
+      title: `${title} | Pota Studio`,
+      description,
+      images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: 'Pota Studio' }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      site: '@potastudio',
+      title: `${title} | Pota Studio`,
+      description,
     },
   }
 }

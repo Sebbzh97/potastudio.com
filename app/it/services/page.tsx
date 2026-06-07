@@ -3,6 +3,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowRight, Check } from 'lucide-react'
 import { getServicesPage } from '@/sanity/lib/page-queries'
+import { stripBrand } from '@/lib/seo'
 
 export const revalidate = 3600
 
@@ -19,11 +20,15 @@ function getDeliverables(data: Record<string, unknown> | null, n: number): strin
 
 export async function generateMetadata(): Promise<Metadata> {
   const data = await getServicesPage('it')
+  const title = stripBrand(data?.seoTitle ?? 'Servizi — Paid Ads, Social, Produzione Contenuti')
+  const description =
+    data?.seoDescription?.trim() ||
+    'I servizi di Pota Studio: advertising su Meta e TikTok, social media management, influencer marketing e produzione contenuti. Tutto in-house.'
   return {
     // Brand suffix is appended automatically by the root layout's title
     // template — never pre-include "| Pota Studio" here.
-    title: data?.seoTitle ?? 'Servizi',
-    description: data?.seoDescription ?? '',
+    title,
+    description,
     alternates: {
       canonical: 'https://www.potastudio.com/it/services',
       languages: {
@@ -31,6 +36,21 @@ export async function generateMetadata(): Promise<Metadata> {
         it: 'https://www.potastudio.com/it/services',
         'x-default': 'https://www.potastudio.com/services',
       },
+    },
+    openGraph: {
+      type: 'website',
+      locale: 'it_IT',
+      url: 'https://www.potastudio.com/it/services',
+      siteName: 'Pota Studio',
+      title: `${title} | Pota Studio`,
+      description,
+      images: [{ url: '/og-image.jpg', width: 1200, height: 630, alt: 'Pota Studio' }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      site: '@potastudio',
+      title: `${title} | Pota Studio`,
+      description,
     },
   }
 }

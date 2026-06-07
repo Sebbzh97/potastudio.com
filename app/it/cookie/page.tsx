@@ -1,13 +1,15 @@
 import type { Metadata } from 'next'
 import { getCookiePage } from '@/sanity/lib/page-queries'
+import { stripBrand } from '@/lib/seo'
 import LegalPage from '@/components/legal/legal-page'
 
 export const revalidate = 60
 
 export async function generateMetadata(): Promise<Metadata> {
   const data = await getCookiePage('it')
+  const title = stripBrand(data?.seoTitle ?? 'Cookie Policy')
   return {
-    title: data?.seoTitle ?? 'Cookie Policy | Pota Studio',
+    title,
     description: data?.seoDescription ?? '',
     alternates: {
       canonical: 'https://www.potastudio.com/it/cookie',
@@ -16,6 +18,14 @@ export async function generateMetadata(): Promise<Metadata> {
         it: 'https://www.potastudio.com/it/cookie',
         'x-default': 'https://www.potastudio.com/cookie',
       },
+    },
+    openGraph: {
+      type: 'website',
+      locale: 'it_IT',
+      url: 'https://www.potastudio.com/it/cookie',
+      siteName: 'Pota Studio',
+      title: `${title} | Pota Studio`,
+      description: data?.seoDescription ?? '',
     },
   }
 }

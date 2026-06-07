@@ -109,18 +109,27 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   // Brand suffix in <title> is appended by the root layout's template
   // (`%s | Pota Studio`); openGraph titles use the same string for visual
   // parity with the SERP / link previews — they are NOT auto-suffixed.
-  const baseTitle = `${cs.client} Case Study`
+  const baseTitle = `${cs.client} — Case Study`
   const description = (cs.challenge || cs.results).slice(0, 160)
   return {
     title: baseTitle,
     description,
     ...getHreflang(`/work/${slug}`),
     openGraph: {
-      type: 'website',
+      type: 'article',
+      locale: 'en_US',
       title: `${baseTitle} | Pota Studio`,
       description,
       url: `https://www.potastudio.com/work/${slug}`,
       siteName: 'Pota Studio',
+      images: [{ url: sanity?.coverImageUrl || '/og-image.jpg', width: 1200, height: 630, alt: cs.client }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      site: '@potastudio',
+      title: `${baseTitle} | Pota Studio`,
+      description,
+      images: [sanity?.coverImageUrl || '/og-image.jpg'],
     },
   }
 }
