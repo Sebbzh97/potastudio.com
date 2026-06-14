@@ -28,19 +28,23 @@ export default function Analytics() {
 
   return (
     <>
-      {/* Google tag — G-CMP5TYMZP3 */}
-      <Script
-        src="https://www.googletagmanager.com/gtag/js?id=G-CMP5TYMZP3"
-        strategy="afterInteractive"
-      />
-      <Script id="gtag-init" strategy="afterInteractive">
-        {`
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-          gtag('config', 'G-CMP5TYMZP3');
-        `}
-      </Script>
+      {/* Google Analytics 4 — ID from NEXT_PUBLIC_GA_ID env var */}
+      {GA_ID && (
+        <>
+          <Script
+            src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
+            strategy="afterInteractive"
+          />
+          <Script id="gtag-init" strategy="afterInteractive">
+            {`
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', '${GA_ID}');
+            `}
+          </Script>
+        </>
+      )}
 
       {/* Google Ads — consent-gated, lazy */}
       {GADS_ID && consented && (

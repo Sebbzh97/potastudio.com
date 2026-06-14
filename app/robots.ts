@@ -4,7 +4,7 @@ const BASE_URL = 'https://www.potastudio.com'
 
 /**
  * Robots.txt — explicitly opt-in for AI/LLM crawlers (GEO strategy).
- * Blocks only Sanity Studio and internal Next.js routes.
+ * Blocks only Sanity Studio and internal API routes.
  */
 export default function robots(): MetadataRoute.Robots {
   // AI / LLM crawlers we explicitly allow so the brand can be cited
@@ -38,7 +38,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/studio', '/studio/', '/api/', '/_next/'],
+        disallow: ['/studio', '/studio/', '/api/'],
       },
       ...aiCrawlers.map((ua) => ({
         userAgent: ua,
