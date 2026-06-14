@@ -135,7 +135,7 @@ export default async function FeaturedWork({
                   alt={cs.client}
                   fill
                   loading={idx < 3 ? 'eager' : 'lazy'}
-                  className="object-cover opacity-50 group-hover:opacity-65 group-hover:scale-105 transition-all duration-500"
+                  className="object-cover opacity-50 group-hover:opacity-65 group-hover:scale-105 transition-[opacity,transform] duration-500"
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                 />
               )}

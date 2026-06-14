@@ -25,12 +25,12 @@ const SITE_SHORT_TITLE = "Pota Studio"
 export function stripBrand(title: string): string {
   return title
     // Remove " | Pota Studio", " — Pota Studio", " - Pota Studio", " · Pota Studio"
-    .replace(/\s*[|\u2013\u2014\-·]\s*Pota\s*Studio\s*/gi, " ")
+    .replace(/\s*[|–—\-·]\s*Pota\s*Studio\s*/gi, " ")
     // Remove a leading "Pota Studio | " prefix if present
-    .replace(/^\s*Pota\s*Studio\s*[|\u2013\u2014\-·]\s*/i, "")
+    .replace(/^\s*Pota\s*Studio\s*[|–—\-·]\s*/i, "")
     // Collapse any leftover double spaces and trim separators/space at the ends
     .replace(/\s{2,}/g, " ")
-    .replace(/^[\s|\u2013\u2014\-·]+|[\s|\u2013\u2014\-·]+$/g, "")
+    .replace(/^[\s|–—\-·]+|[\s|–—\-·]+$/g, "")
     .trim()
 }
 
@@ -38,8 +38,9 @@ export function stripBrand(title: string): string {
 const DEFAULT_TITLE =
   "Pota Studio | High-Performance Full-Service Marketing Agency | Bergamo, Italy"
 
+// Keep under 155 chars so Google doesn't truncate the snippet mid-sentence.
 const DEFAULT_DESCRIPTION =
-  "Pota Studio is a high-performance marketing agency specializing in social media management, performance paid advertising (Meta/TikTok), in-house content production, and influencer marketing with over €2.5M in ad spend managed."
+  "Pota Studio — full-service marketing agency. Social media, Meta/TikTok Ads, influencer marketing, content production. €2.5M+ in ad spend. Bergamo, Italy."
 
 export const rootMetadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -117,6 +118,11 @@ type BuildPageMetadataOptions = {
   title: string
   description?: string
   path: string
+  /**
+   * Page locale — controls the OG `locale` tag and the hreflang `<link>`
+   * alternates emitted in `<head>`. Defaults to 'en'.
+   */
+  locale?: 'en' | 'it'
   /** When true, sets robots noindex + nofollow (e.g. staging pages). */
   noIndex?: boolean
   /** Optional OG image override. Defaults to /og-image.jpg */
@@ -126,26 +132,40 @@ type BuildPageMetadataOptions = {
 /**
  * Generates page-level Metadata that inherits the root template.
  * The `path` must start with "/" (e.g. "/services").
+ * Pass `locale` to emit correct hreflang alternates and OG locale in <head>.
  */
 export function buildPageMetadata({
   title,
   description,
   path,
+  locale = 'en',
   noIndex,
   ogImage = "/og-image.jpg",
 }: BuildPageMetadataOptions): Metadata {
   const metaDescription = description ?? DEFAULT_DESCRIPTION
   const canonicalPath = path.startsWith("/") ? path : `/${path}`
   const fullUrl = `${SITE_URL}${canonicalPath}`
+  const isIt = locale === 'it'
+  const ogLocale = isIt ? 'it_IT' : 'en_US'
+
+  // Hreflang: IT pages live under /it/…, EN counterparts at /…
+  const enPath = isIt ? canonicalPath.replace(/^\/it/, '') || '/' : canonicalPath
+  const itPath = isIt ? canonicalPath : `/it${canonicalPath}`
 
   const metadata: Metadata = {
     title,
     description: metaDescription,
     alternates: {
       canonical: canonicalPath,
+      languages: {
+        en: enPath,
+        it: itPath,
+        'x-default': enPath,
+      },
     },
     openGraph: {
       type: "website",
+      locale: ogLocale,
       siteName: SITE_SHORT_TITLE,
       title: `${title} | ${SITE_SHORT_TITLE}`,
       description: metaDescription,

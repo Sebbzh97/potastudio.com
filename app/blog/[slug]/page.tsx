@@ -92,6 +92,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   // the EN URL so the cluster remains valid (no broken IT link).
   const alternates = await buildBlogAlternates(post._id, slug, 'en')
 
+  // OG/Twitter image: prefer the post's Sanity cover image (served via CDN
+  // with auto-format); fall back to the static OG default.
+  const ogImage = post.coverImageUrl
+    ? { url: post.coverImageUrl, width: 1600, height: 900, alt: post.title }
+    : { url: '/og-image.jpg', width: 1200, height: 630, alt: post.title }
+
   return {
     title,
     description,
@@ -115,6 +121,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       publishedTime: post.publishedAt,
       modifiedTime: post.updatedAt,
       authors: post.author?.name ? [post.author.name] : ['Pota Studio'],
+      images: [ogImage],
     },
     twitter: {
       card: 'summary_large_image',
@@ -122,6 +129,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       creator: post.author?.name ? '@sebbonfanti' : '@potastudio',
       title,
       description,
+      images: [ogImage.url],
     },
     robots: post.noIndex ? { index: false, follow: false } : undefined,
   }

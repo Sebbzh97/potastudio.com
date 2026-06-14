@@ -68,7 +68,7 @@ export default async function RootLayout({
   return (
     <html
       lang={isStudio ? 'en' : locale}
-      data-scroll-behavior="smooth"
+      dir="ltr"
       className={`${inter.variable} ${spaceGrotesk.variable} ${barlowCondensed.variable}`}
     >
       <head>
