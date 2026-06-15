@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { ArrowLeft, Clock, Calendar } from 'lucide-react'
 import { getBlogPostBySlug, getBlogPostSlugs, getTranslationSlug, getDefaultLeadMagnet, getRelatedBlogPosts } from '@/sanity/lib/blog'
 import { buildBlogAlternates } from '@/lib/blog/hreflang'
@@ -78,7 +78,13 @@ type Props = { params: Promise<{ slug: string }> }
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const post = await getBlogPostBySlug(slug, 'it')
-  if (!post) return { title: 'Articolo non trovato' }
+  // If no IT translation exists, redirect to EN version.
+  // generateMetadata runs before the page component on SSR, so issuing the
+  // redirect here avoids any noindex metadata being emitted for these URLs.
+  if (!post) redirect(`/blog/${slug}`)
+  // If the IT post is explicitly marked noIndex, redirect to EN counterpart
+  // so GSC stops seeing "excluded by noindex tag" for these /it/blog/* URLs.
+  if (post.noIndex) redirect(`/blog/${slug}`)
 
   // Brand suffix is appended automatically by the root layout's title
   // template — neither the metaTitle (from Sanity) nor post.title should
@@ -118,7 +124,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       title,
       description,
     },
-    robots: post.noIndex ? { index: false, follow: false } : undefined,
   }
 }
 
@@ -131,7 +136,11 @@ export default async function BlogPostPageIT({ params }: Props) {
     getDefaultLeadMagnet(),
   ])
 
-  if (!post) notFound()
+  // Redirect to EN version when IT translation is missing or marked noIndex.
+  // This removes the "discovered but noindexed" signal from GSC and
+  // consolidates link equity into the canonical EN URL.
+  if (!post) redirect(`/blog/${slug}`)
+  if (post.noIndex) redirect(`/blog/${slug}`)
 
   // Articoli correlati per il blocco "Altri articoli" — rafforza i link
   // interni verso gli articoli che GSC segnala "rilevati ma non scansionati".
