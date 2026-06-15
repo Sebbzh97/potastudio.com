@@ -10,16 +10,23 @@ const META_ID    = process.env.NEXT_PUBLIC_META_PIXEL_ID        // e.g. 12345678
 const TIKTOK_ID  = process.env.NEXT_PUBLIC_TIKTOK_PIXEL_ID     // e.g. CXXXXXXXXXX
 
 export default function Analytics() {
-  // Advertising pixels (Meta, TikTok, Google Ads) require explicit consent.
-  // GA4 loads unconditionally using Consent Mode v2: it fires cookieless
-  // pings by default and upgrades to full measurement only after the user
-  // accepts cookies — fully GDPR-compliant without blocking data collection.
   const [consented, setConsented] = useState(false)
 
   useEffect(() => {
     const check = () => {
       const val = localStorage.getItem('pota_cookie_consent')
-      setConsented(val === 'accepted')
+      const accepted = val === 'accepted'
+      if (accepted) {
+        // Upgrade GA4 from cookieless to full measurement once user consents.
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ;(window as any).gtag?.('consent', 'update', {
+          analytics_storage: 'granted',
+          ad_storage: 'granted',
+          ad_user_data: 'granted',
+          ad_personalization: 'granted',
+        })
+      }
+      setConsented(accepted)
     }
     check()
     window.addEventListener('pota_consent_change', check)
@@ -28,7 +35,7 @@ export default function Analytics() {
 
   return (
     <>
-      {/* Google Analytics 4 — ID from NEXT_PUBLIC_GA_ID env var */}
+      {/* Google Analytics 4 — loads unconditionally with Consent Mode v2 */}
       {GA_ID && (
         <>
           <Script
