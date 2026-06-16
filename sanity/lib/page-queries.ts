@@ -345,7 +345,7 @@ export interface SanityBlogPost {
 export const getBlogPosts = (lang = 'en'): Promise<SanityBlogPost[]> =>
   client
     .fetch(
-      `*[_type == "blogPost" && language == $lang && isPublished != false] | order(publishedAt desc) {
+      `*[_type in ["blogPost", "post"] && language == $lang && isPublished != false] | order(publishedAt desc) {
         _id,
         "slug": slug.current,
         language, title, excerpt, readingTime, publishedAt, tags,
