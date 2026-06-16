@@ -76,7 +76,7 @@ const fullProjection = `
 export async function getAllBlogPosts(lang: string) {
   return client
     .fetch(
-      `*[_type == "blogPost" && language == $lang && isPublished != false] | order(publishedAt desc) {
+      `*[_type in ["blogPost", "post"] && language == $lang && isPublished != false] | order(publishedAt desc) {
         ${listingProjection}
       }`,
       { lang },
@@ -92,7 +92,7 @@ export async function getAllBlogPosts(lang: string) {
 export async function getBlogPostBySlug(slug: string, lang: string) {
   return client
     .fetch(
-      `*[_type == "blogPost" && slug.current == $slug && language == $lang && isPublished != false][0] {
+      `*[_type in ["blogPost", "post"] && slug.current == $slug && language == $lang && isPublished != false][0] {
         ${fullProjection}
       }`,
       { slug, lang },
@@ -107,7 +107,7 @@ export async function getBlogPostBySlug(slug: string, lang: string) {
 export async function getBlogPostsByCategory(categorySlug: string, lang: string) {
   return client
     .fetch(
-      `*[_type == "blogPost" && language == $lang && isPublished != false && $categorySlug in categories[]->slug.current] | order(publishedAt desc) {
+      `*[_type in ["blogPost", "post"] && language == $lang && isPublished != false && $categorySlug in categories[]->slug.current] | order(publishedAt desc) {
         ${listingProjection}
       }`,
       { categorySlug, lang },
@@ -122,7 +122,7 @@ export async function getBlogPostsByCategory(categorySlug: string, lang: string)
 export async function getRecentBlogPosts(lang: string, limit: number = 3) {
   return client
     .fetch(
-      `*[_type == "blogPost" && language == $lang && isPublished != false] | order(publishedAt desc) [0...$limit] {
+      `*[_type in ["blogPost", "post"] && language == $lang && isPublished != false] | order(publishedAt desc) [0...$limit] {
         ${listingProjection}
       }`,
       { lang, limit },
@@ -148,13 +148,13 @@ export async function getRelatedBlogPosts(
     .fetch(
       `{
         "sameCategory": *[
-          _type == "blogPost" && language == $lang && isPublished != false
+          _type in ["blogPost", "post"] && language == $lang && isPublished != false
           && slug.current != $currentSlug
           && !(_id in path("drafts.**"))
           && count((categories[]->slug.current)[@ in $categorySlugs]) > 0
         ] | order(publishedAt desc) [0...$limit] { ${listingProjection} },
         "recent": *[
-          _type == "blogPost" && language == $lang && isPublished != false
+          _type in ["blogPost", "post"] && language == $lang && isPublished != false
           && slug.current != $currentSlug
           && !(_id in path("drafts.**"))
         ] | order(publishedAt desc) [0...6] { ${listingProjection} }
@@ -181,7 +181,7 @@ export async function getRelatedBlogPosts(
 export async function getBlogPostSlugs(lang: string) {
   return client
     .fetch(
-      `*[_type == "blogPost" && language == $lang && isPublished != false] { "slug": slug.current }`,
+      `*[_type in ["blogPost", "post"] && language == $lang && isPublished != false] { "slug": slug.current }`,
       { lang },
       { next: { tags: ['blogPost', `blogPost-${lang}`], revalidate: 3600 } },
     )
@@ -199,7 +199,7 @@ export async function getTranslationSlug(postId: string, fromLang: string): Prom
     if (fromLang === 'en') {
       // Find the IT post whose translationOf points to this EN _id
       const result = await client.fetch(
-        `*[_type == "blogPost" && language == "it" && translationOf._ref == $id && isPublished != false][0] {
+        `*[_type in ["blogPost", "post"] && language == "it" && translationOf._ref == $id && isPublished != false][0] {
           "slug": slug.current
         }`,
         { id: postId },
@@ -209,7 +209,7 @@ export async function getTranslationSlug(postId: string, fromLang: string): Prom
     } else {
       // Dereference translationOf on this IT post to get the EN slug
       const result = await client.fetch(
-        `*[_type == "blogPost" && _id == $id][0] {
+        `*[_type in ["blogPost", "post"] && _id == $id][0] {
           "slug": translationOf->slug.current
         }`,
         { id: postId },
@@ -290,7 +290,7 @@ export async function getAuthorBySlug(slug: string) {
 export async function getPostsByAuthor(authorSlug: string, lang: string) {
   return client
     .fetch(
-      `*[_type == "blogPost"
+      `*[_type in ["blogPost", "post"]
           && language == $lang
           && isPublished != false
           && author->slug.current == $authorSlug

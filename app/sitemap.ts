@@ -109,14 +109,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Fetch blog slugs with dates for real lastModified in sitemap entries.
   const [enBlogWithDates, itBlogWithRef] = await Promise.all([
     client.fetch<{ slug: string; updatedAt?: string; publishedAt?: string; _updatedAt?: string }[]>(
-      `*[_type == "blogPost" && language == "en" && isPublished != false]{
+      `*[_type in ["blogPost", "post"] && language == "en" && isPublished != false]{
         "slug": slug.current, updatedAt, publishedAt, _updatedAt
       }`,
       {},
       { next: { tags: ['blogPost', 'blogPost-en'], revalidate: 3600 } },
     ).catch(() => [] as { slug: string; updatedAt?: string; publishedAt?: string; _updatedAt?: string }[]),
     client.fetch<{ slug: string; enSlug: string | null; updatedAt?: string; publishedAt?: string; _updatedAt?: string }[]>(
-      `*[_type == "blogPost" && language == "it" && isPublished != false]{
+      `*[_type in ["blogPost", "post"] && language == "it" && isPublished != false]{
         "slug": slug.current,
         "enSlug": translationOf->slug.current,
         updatedAt, publishedAt, _updatedAt
